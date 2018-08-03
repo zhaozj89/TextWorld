@@ -16,6 +16,7 @@ from textworld.logic import Variable, Proposition, Action
 from textworld.envs.glulx.git_glulx_ml import GlulxGameState
 from textworld.logic import State
 from textworld.generator import World, Game
+from textworld.generator.graph_networks import relative_2d_constraint_layout
 from textworld.utils import maybe_mkdir, get_webdriver
 
 from textworld.generator.game import EntityInfo
@@ -143,78 +144,19 @@ def load_state(world: World, game_infos: Optional[Dict[str, EntityInfo]] = None,
     else:
         room = world.player_room
 
+    # Get nx.Graph from World's object.
+    G = nx.Graph()
+    constraints = []
     edges = []
-    nodes = sorted([room.name for room in world.rooms])
-    pos = {room.name: (0, 0)}
+    G.add_nodes_from(room.name for room in world.rooms)
 
-    def used_pos():
-        pos_along_edges = []
-        for e in edges:
-            A, B = pos[e[0]], pos[e[1]]
-            if A[0] == B[0]:  # Y-axis edge.
-                for i in range(A[1], B[1], np.sign(B[1] - A[1])):
-                    pos_along_edges.append((A[0], i))
-            else:  # X-axis edge.
-                for i in range(A[0], B[0], np.sign(B[0] - A[0])):
-                    pos_along_edges.append((i, A[1]))
+    for src_room in world.rooms:
+        for exit, target_room in src_room.exits.items():
+            G.add_edge(src_room.name, target_room.name)
+            constraints.append((target_room.name, exit, src_room.name))
+            edges.append((src_room.name, target_room.name, src_room.doors.get(exit)))
 
-        return list(pos.values()) + pos_along_edges
-
-    openset = [room]
-    closedset = set()
-
-    # temp_viz(nodes, edges, pos, color=[world.player_room.name])
-    while len(openset) > 0:
-        room = openset.pop(0)
-        closedset.add(room)
-
-        for exit, target in room.exits.items():
-            if target in openset or target in closedset:
-                edges.append((room.name, target.name, room.doors.get(exit)))
-                continue
-
-            openset.append(target)
-
-            src_pos = np.array(pos[room.name])
-            if exit == "north":
-                target_pos = tuple(src_pos + (0, 1))
-                if target_pos in used_pos():
-                    for n, p in pos.items():
-                        if p[1] <= src_pos[1]:
-                            pos[n] = (p[0], p[1] - 1)
-
-                pos[target.name] = (pos[room.name][0], pos[room.name][1] + 1)
-
-            elif exit == "south":
-                target_pos = tuple(src_pos + (0, -1))
-                if target_pos in used_pos():
-                    for n, p in pos.items():
-                        if p[1] >= src_pos[1]:
-                            pos[n] = (p[0], p[1] + 1)
-
-                pos[target.name] = (pos[room.name][0], pos[room.name][1] - 1)
-
-            elif exit == "east":
-                target_pos = tuple(src_pos + (1, 0))
-                if target_pos in used_pos():
-                    for n, p in pos.items():
-                        if p[0] <= src_pos[0]:
-                            pos[n] = (p[0] - 1, p[1])
-
-                pos[target.name] = (pos[room.name][0] + 1, pos[room.name][1])
-
-            elif exit == "west":
-                target_pos = tuple(src_pos + (-1, 0))
-                if target_pos in used_pos():
-                    for n, p in pos.items():
-                        if p[0] >= src_pos[0]:
-                            pos[n] = (p[0] + 1, p[1])
-
-                pos[target.name] = (pos[room.name][0] - 1, pos[room.name][1])
-
-            edges.append((room.name, target.name, room.doors.get(exit)))
-            # temp_viz(nodes, edges, pos, color=[world.player_room.name])
-
+    pos = relative_2d_constraint_layout(G, constraints)
     pos = {game_infos[k].name: v for k, v in pos.items()}
 
     rooms = {}
@@ -306,7 +248,6 @@ def load_state(world: World, game_infos: Optional[Dict[str, EntityInfo]] = None,
 
     result["connections"] = [{"src": game_infos[e[0]].name, "dest": game_infos[e[1]].name, 'door': _get_door(e[2])} for e in edges]
     result["inventory"] = [inv.__dict__ for inv in inventory_items]
-
     return result
 
 
