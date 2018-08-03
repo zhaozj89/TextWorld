@@ -1,0 +1,33 @@
+# openable
+attribute openable {
+    predicates {
+        open(t);
+        closed(t);
+    }
+
+    rules {
+        open  :: $openable(t) & closed(t) -> open(t);
+        close :: $closeable(t) & open(t) -> closed(t);
+    }
+
+    reverse_rules {
+        open :: close;
+    }
+
+    constraints {
+        open_or_closed :: open(t) & closed(t) -> fail();
+    }
+
+    inform7 {
+        
+        predicates {
+            open(t) :: "The {t} is open";
+            closed(t) :: "The {t} is closed";
+        }
+
+        commands {
+            open :: "open {t}" :: "opening the {t}";
+            close :: "close {t}" :: "closing the {t}";
+        }
+    }
+}

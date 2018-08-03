@@ -140,5 +140,10 @@ class TypeNode(ModelBase):
     supertypes = None
 
 
+class AttributeNode(ModelBase):
+    name = None
+    parts = None
+
+
 class DocumentNode(ModelBase):
     types = None

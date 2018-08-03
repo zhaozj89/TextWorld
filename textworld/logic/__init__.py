@@ -197,6 +197,10 @@ class _ModelConverter(NodeWalker):
 
         self.walk(node.parts)
 
+    def walk_AttributeNode(self, node):
+        self._logic.attributes.add(node.name)
+        self.walk(node.parts)
+
     def walk_DocumentNode(self, node):
         self.walk(node.types)
 
@@ -1293,12 +1297,20 @@ class GameLogic:
 
     def __init__(self):
         self.types = TypeHierarchy()
+        self.attributes = set()
         self.predicates = set()
         self.aliases = {}
         self.rules = {}
         self.reverse_rules = {}
         self.constraints = {}
         self.inform7 = Inform7Logic()
+
+    def _add_attribute(self, signature: Signature):
+        if signature in self.predicates:
+            raise ValueError("Duplicate predicate {}".format(signature))
+        if signature in self.aliases:
+            raise ValueError("Predicate {} is also an alias".format(signature))
+        self.predicates.add(signature)
 
     def _add_predicate(self, signature: Signature):
         if signature in self.predicates:

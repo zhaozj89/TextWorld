@@ -88,6 +88,9 @@ typePart = predicates | rules | reverseRules | constraints | inform7 ;
 type::TypeNode = "type" name:name [":" supertypes:",".{name}+] "{" parts:{typePart}* "}" ;
 
 
+attribute::AttributeNode = "attribute" name:name "{" parts:{typePart}* "}" ;
+
+
 document::DocumentNode = types:{type}* $ ;
 
 start = document ;
