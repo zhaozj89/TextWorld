@@ -183,9 +183,13 @@ def shortest_path(G, source, target):
     return d
 
 
+class InvalidConstraint(NameError):
+    pass
+
+
 def relative_2d_constraint_layout(G: nx.Graph, constraints: List[Tuple[Hashable, str, Hashable]]) -> Dict[Hashable, Tuple[int, int]]:
     """ Position nodes respecting provided relative 2D contraints.
-    
+      
     Arguments:
         G: Graph containing the nodes to position nodes.
         constraints: List of relative positioning contraints. Each constraint 
@@ -197,11 +201,22 @@ def relative_2d_constraint_layout(G: nx.Graph, constraints: List[Tuple[Hashable,
     Returns:
         pos: Node positions.
     """
-
     constraints_ = defaultdict(list)
-    for c in constraints:
-        constraints_[c[0]].append(c)
-        constraints_[c[-1]].append((c[-1], OPPOSITE_RELATIONS[c[1]], c[0]))
+
+    def _check_existing_constraint(src, relation, dest):
+        existing_constraints = [c for c in constraints_[src] if c[1] == relation]
+        for constraint in existing_constraints:
+            if (src, relation, dest) != constraint:
+                msg = "Find multiple constraints with the same relation for node {}: {} and {}."
+                msg = msg.format(src, (src, relation, dest), existing_constraint[0])
+                raise InvalidConstraint(msg)
+        
+    for src, relation, dest in constraints:
+        opposite_relation = OPPOSITE_RELATIONS[relation]
+        _check_existing_constraint(src, relation, dest)
+        _check_existing_constraint(dest, opposite_relation, src)
+        constraints_[src].append((src, relation, dest))
+        constraints_[dest].append((dest, opposite_relation, src))
         
     edges = []
     nodes = list(G.nodes())
