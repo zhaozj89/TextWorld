@@ -58,12 +58,21 @@ def test_chaining():
     allowed_rules += data.get_rules().get_matching("lock.*", "unlock.*")
     allowed_rules += data.get_rules().get_matching("eat.*")
 
+    class Options(chaining.ChainingOptions):
+        def get_rules(self, depth):
+            return allowed_rules
+
+    options = Options()
+    options.max_depth = 5
+
     # No possible action since the wooden door is locked and
     # the player doesn't have the key.
     state = build_state(locked_door=True)
     tree = chaining.get_chains(state, max_depth=5,
                                rules_per_depth={i: allowed_rules for i in range(5)})
     chains = list(tree.traverse_preorder())
+    assert len(chains) == 0
+    chains = list(chaining.chain(state, options))
     assert len(chains) == 0
 
     # The door is now closed instead of locked.
@@ -73,12 +82,17 @@ def test_chaining():
     chains = list(tree.traverse_preorder())
     # chaining.print_chains(chains)
     assert len(chains) == 5
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 5
 
     # With more depth.
     state = build_state(locked_door=False)
     tree = chaining.get_chains(state, max_depth=20,
                                rules_per_depth={i: allowed_rules for i in range(20)})
     chains = list(tree.traverse_preorder())
+    assert len(chains) == 9
+    options.max_depth = 20
+    chains = list(chaining.chain(state, options))
     assert len(chains) == 9
 
 
@@ -200,6 +214,23 @@ def test_going_through_door():
         Proposition("south_of", [room, kitchen])
     ])
 
+    class Options(chaining.ChainingOptions):
+        def get_rules(self, depth):
+            if depth == 0:
+                return [data.get_rules()["take/c"], data.get_rules()["take/s"]]
+            elif depth == 1:
+                return data.get_rules().get_matching("go.*")
+            elif depth == 2:
+                return [data.get_rules()["open/d"]]
+            else:
+                return super().get_rules(logic, depth)
+
+    options = Options()
+    options.backward = True
+    options.max_depth = 3
+    options.subquests = True
+    options.create_variables = True
+
     # Sample quests.
     chains = []
     rules_per_depth = {0: [data.get_rules()["take/c"], data.get_rules()["take/s"]],
@@ -232,6 +263,8 @@ def test_going_through_door():
     # 17. take/s(P, room, s_0, o_0, I) -> go/west(P, r_0, room)
     # 18. take/s(P, room, s_0, o_0, I) -> go/west(P, r_0, room) -> open/d(P, r_0, d_0, room)
     assert len(chains) == 18
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 18
 
 
 def test_backward_chaining():
@@ -247,6 +280,22 @@ def test_backward_chaining():
     rules_per_depth = {0: [data.get_rules()["take/c"], data.get_rules()["take/s"]],
                        1: [data.get_rules()["open/c"]]}
 
+    class Options(chaining.ChainingOptions):
+        def get_rules(self, depth):
+            if depth == 0:
+                return [data.get_rules()["take/c"], data.get_rules()["take/s"]]
+            elif depth == 1:
+                return [data.get_rules()["open/c"]]
+            else:
+                return super().get_rules(logic, depth)
+
+    options = Options()
+    options.backward = True
+    options.max_depth = 2
+    options.subquests = True
+    options.create_variables = True
+    # XXX: exceptions=['d']
+
     tree_of_possible = chaining.get_chains(state,
                                            max_depth=2,
                                            allow_partial_match=True,
@@ -255,14 +304,35 @@ def test_backward_chaining():
                                            backward=True)
 
     chains = list(tree_of_possible.traverse_preorder(subquests=True))
+    # chaining.print_chains(chains)
     assert len(chains) == 3
     for chain in chains:
         for depth, action in enumerate(chain):
             assert action.action.name in [rule.name for rule in rules_per_depth[depth]]
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 3
 
     rules_per_depth = {0: [data.get_rules()["put"]],
                        1: [data.get_rules()["go/north"]],
                        2: [data.get_rules()["take/c"]]}
+
+    class Options(chaining.ChainingOptions):
+        def get_rules(self, depth):
+            if depth == 0:
+                return [data.get_rules()["put"]]
+            elif depth == 1:
+                return [data.get_rules()["go/north"]]
+            elif depth == 2:
+                return [data.get_rules()["take/c"]]
+            else:
+                return super().get_rules(logic, depth)
+
+    options = Options()
+    options.backward = True
+    options.max_depth = 3
+    options.subquests = True
+    options.create_variables = True
+    # XXX: exceptions=['d']
 
     tree_of_possible = chaining.get_chains(state,
                                            max_depth=3,
@@ -272,7 +342,59 @@ def test_backward_chaining():
                                            backward=True)
 
     chains = list(tree_of_possible.traverse_preorder(subquests=True))
+    # chaining.print_chains(chains)
     assert len(chains) == 3
     for chain in chains:
         for depth, action in enumerate(chain):
             assert action.action.name in [rule.name for rule in rules_per_depth[depth]]
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 3
+
+
+from textworld.logic import GameLogic
+
+def test_parallel_quests():
+    logic = GameLogic.parse("""
+        type foo {
+            rules {
+                do_a :: not_a(foo) & $not_c(foo) -> a(foo);
+                do_b :: not_b(foo) & $not_c(foo) -> b(foo);
+                do_c :: $a(foo) & $b(foo) & not_c(foo) -> c(foo);
+            }
+
+            constraints {
+                a_or_not_a :: a(foo) & not_a(foo) -> fail();
+                b_or_not_b :: b(foo) & not_b(foo) -> fail();
+                c_or_not_c :: c(foo) & not_c(foo) -> fail();
+            }
+        }
+    """)
+
+    state = State([
+        Proposition.parse("a(foo)"),
+        Proposition.parse("b(foo)"),
+        Proposition.parse("c(foo)"),
+    ])
+
+    options = chaining.ChainingOptions()
+    options.backward = True
+    options.logic = logic
+
+    options.max_depth = 3
+    options.max_breadth = 1
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 2
+
+    options.max_breadth = 2
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 3
+
+    options.min_breadth = 2
+    chains = list(chaining.chain(state, options))
+    assert len(chains) == 1
+    assert len(chains[0].actions) == 3
+
+    options.min_breadth = 1
+    options.create_variables = True
+    chains = list(chaining.chain(State(), options))
+    assert len(chains) == 6
