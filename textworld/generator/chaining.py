@@ -317,9 +317,10 @@ class Chain:
         actions: The sequence of actions forming this quest.
     """
 
-    def __init__(self, initial_state: State, actions: Sequence[Action]):
+    def __init__(self, initial_state: State, actions: Sequence[Action], subquest_ids: Sequence[Action]):
         self.initial_state = initial_state
         self.actions = actions
+        self.subquest_ids = subquest_ids
 
     def __str__(self):
         string = "Chain([\n"
@@ -692,12 +693,14 @@ class _Chainer:
 
         actions = []
         parent = node
+        subquest_ids = []
         while parent.action:
             if self.backward:
                 action = parent.action.inverse()
             else:
                 action = parent.action
             actions.append(action)
+            subquest_ids.append(parent.breadth)
             parent = parent.parent
 
         state = node.state.copy()
@@ -705,8 +708,9 @@ class _Chainer:
             for action in actions:
                 state.apply(action.inverse())
             actions = actions[::-1]
+            subquest_ids = subquest_ids[::-1]
 
-        return Chain(state, actions)
+        return Chain(state, actions, subquest_ids)
 
 
 def chain(state: State, options: ChainingOptions) -> Iterable[Chain]:

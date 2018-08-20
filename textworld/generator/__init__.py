@@ -144,7 +144,7 @@ def make_game_with(world, quests=None, grammar=None):
     return game
 
 
-def make_game(world_size: int, nb_objects: int, quest_length: int,
+def make_game(world_size: int, nb_objects: int, quest_length: int, quest_breadth: int,
               grammar_flags: Mapping = {},
               rngs: Optional[Dict[str, RandomState]] = None
               ) -> Game:
@@ -155,6 +155,7 @@ def make_game(world_size: int, nb_objects: int, quest_length: int,
         world_size: Number of rooms in the world.
         nb_objects: Number of objects in the world.
         quest_length: Minimum nb. of actions the quest requires to be completed.
+        quest_breadth: How many branches the quest can have.
         grammar_flags: Options for the grammar.
 
     Returns:
@@ -172,19 +173,62 @@ def make_game(world_size: int, nb_objects: int, quest_length: int,
     world = make_world(world_size, nb_objects=0, rngs=rngs)
 
     # Sample a quest according to quest_length.
-    chain = sample_quest(world.state, rngs['rng_quest'], max_depth=quest_length,
-                         nb_retry=20, allow_partial_match=True, backward=True,
-                         exceptions=["r"])
-    quest = Quest([c.action for c in chain])
+    # chain = sample_quest(world.state, rngs['rng_quest'], max_depth=quest_length,
+    #                      nb_retry=20, allow_partial_match=True, backward=True,
+    #                      exceptions=["r"])
+    
+    import textworld.render
+    import textworld.generator.chaining
+    class Options(textworld.generator.chaining.ChainingOptions):
+
+        def get_rules(self, depth):
+            if depth == 0:
+                return data.get_rules().get_matching("^(?!go.*).*")
+            else:
+                return super().get_rules(depth)
+
+    options = Options()
+    options.backward = True
+    options.min_depth = quest_length
+    options.max_depth = quest_length
+    options.min_breadth = quest_breadth
+    options.max_breadth = quest_breadth
+    options.create_variables = True
+    options.rng = rngs['rng_quest']
+
+    chain_iter = textworld.generator.chaining.chain(world.state, options)
+    chain = next(chain_iter)
+
+    state = chain.initial_state.copy()
+    actions = []
+    states = []
+    for action in chain.actions:
+        actions.append(action)
+        state.apply(action)
+        states.append(state.copy())
+
+    subquests = []
+    for i in range(1, len(chain.subquest_ids)):
+        if chain.subquest_ids[i] != chain.subquest_ids[i - 1]:
+            quest = Quest(actions[:i])
+            subquests.append(quest)
+
+    quest = Quest(actions)
+    subquests.append(quest)
 
     # Set the initial state required for the quest.
-    world.state = chain[0].state
+    world.state = chain.initial_state
 
     # Add distractors objects (i.e. not related to the quest)
     world.populate(nb_objects, rng=rngs['rng_objects'])
 
     grammar = make_grammar(grammar_flags, rng=rngs['rng_grammar'])
-    game = make_game_with(world, [quest], grammar)
+    game = make_game_with(world, subquests, grammar)
+    game.change_grammar(grammar)
+
+    for quest in game.quests:
+        print(" > ".join(quest.commands))
+
     return game
 
 

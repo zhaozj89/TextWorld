@@ -58,6 +58,7 @@ class Quest:
         self.actions = actions
         self.desc = desc
         self.commands = []
+        self.reward = 1
         self.win_action = self.set_winning_conditions(winning_conditions)
         self.fail_action = self.set_failing_conditions(failing_conditions)
 
@@ -112,6 +113,7 @@ class Quest:
                 self.win_action == other.win_action and
                 self.fail_action == other.fail_action and
                 self.desc == other.desc and
+                self.reward == other.reward and
                 self.commands == other.commands)
 
     @classmethod
@@ -132,6 +134,7 @@ class Quest:
         desc = data["desc"]
         quest = cls(actions, win_action.preconditions, failing_conditions, desc=desc)
         quest.commands = data["commands"]
+        quest.reward = data["reward"]
         return quest
 
     def serialize(self) -> Mapping:
@@ -142,6 +145,7 @@ class Quest:
         """
         data = {}
         data["desc"] = self.desc
+        data["reward"] = self.reward
         data["commands"] = self.commands
         data["actions"] = [action.serialize() for action in self.actions]
         data["win_action"] = self.win_action.serialize()
@@ -395,6 +399,14 @@ class Game:
         """ All win conditions, one for each quest. """
         return [q.winning_conditions for q in self.quests]
 
+    @property
+    def objective(self) -> str:
+        if len(self.quests) == 0:
+            return ""
+        
+        # We assume the last quest includes all actions needed to solve the game.
+        return self.quests[-1].desc 
+
 
 class ActionDependencyTreeElement(DependencyTreeElement):
     """ Representation of an `Action` in the dependency tree.
@@ -462,8 +474,13 @@ class QuestProgression:
         self._winning_policy = list(quest.actions)
 
         # Build a tree representation
-        for i, action in enumerate(quest.actions[::-1]):
+        for action in quest.actions[::-1]:
             self._tree.push(action)
+    
+    @property
+    def is_done(self):
+        """ Check whether the quest is done. """
+        return len(self.winning_policy) == 0
 
     def is_completed(self, state: State) -> bool:
         """ Check whether the quest is completed. """
@@ -546,7 +563,7 @@ class QuestProgression:
                 self._tree.push(reverse_action)
 
         self._winning_policy = self._build_policy()
-
+        
 
 class GameProgression:
     """ GameProgression keeps track of the progression of a game.
@@ -565,23 +582,29 @@ class GameProgression:
         self.state = game.state.copy()
         self._valid_actions = list(self.state.all_applicable_actions(self.game._rules.values(),
                                                                      self.game._types.constants_mapping))
-        self.quest_progression = None
+        self.quest_progressions = None
         if track_quest and len(game.quests) > 0:
-            self.quest_progression = QuestProgression(game.quests[0])
+            self.quest_progressions = [QuestProgression(quest) for quest in game.quests]
 
     @property
     def done(self) -> bool:
         """ Whether the quest is completed or has failed. """
-        if self.quest_progression is None:
+        if self.quest_progressions is None:
             return False
 
-        return (self.quest_progression.is_completed(self.state) or
-                self.quest_progression.has_failed(self.state))
+        all_completed = True
+        for quest_progression in self.quest_progressions:
+            if quest_progression.has_failed(self.state):
+                return True
+
+            all_completed &= quest_progression.is_completed(self.state)
+
+        return all_completed
 
     @property
     def tracking_quest(self) -> bool:
         """ Whether the quest is tracked or not. """
-        return self.quest_progression is not None
+        return self.quest_progressions is not None
 
     @property
     def valid_actions(self) -> List[Action]:
@@ -594,12 +617,23 @@ class GameProgression:
 
         Returns:
             A policy that leads to winning the game. It can be `None`
-            if `tracking_quest` is `False` or the quest has been failed.
+            if `tracking_quest` is `False` or the quest has failed.
         """
-        if not self.tracking_quest or self.quest_progression.winning_policy is None:
+        if not self.tracking_quest:
+            return None
+        
+        # Check if any quest has failed.
+        if any(quest_progression.winning_policy is None for quest_progression in self.quest_progressions):
             return None
 
-        return list(self.quest_progression.winning_policy)
+        # Greedily build a winning policy by merging individual quests' winning policy.
+        winning_policy = []
+        for quest_progression in self.quest_progressions:
+            for action in quest_progression.winning_policy:
+                if action not in winning_policy:  # Skip duplicate actions.
+                    winning_policy.append(action)
+
+        return winning_policy
 
     def update(self, action: Action) -> None:
         """ Update the state of the game given the provided action.
@@ -618,10 +652,17 @@ class GameProgression:
             if self.state.is_sequence_applicable(self.winning_policy):
                 pass  # The last action didn't impact the quest.
             else:
-                # Check for shortcut.
-                for i in range(1, len(self.winning_policy)):
-                    if self.state.is_sequence_applicable(self.winning_policy[i:]):
-                        self.quest_progression.update(action, bypass=self.winning_policy[:i])
-                        return
+                for quest_progression in self.quest_progressions:
+                    if quest_progression.is_done:
+                        continue
 
-                self.quest_progression.update(action)
+                    # Check for shortcut.
+                    shortcut_found = False
+                    for i in range(1, len(quest_progression.winning_policy)):
+                        if self.state.is_sequence_applicable(quest_progression.winning_policy[i:]):
+                            quest_progression.update(action, bypass=quest_progression.winning_policy[:i])
+                            shortcut_found = True
+                            break
+
+                    if not shortcut_found:
+                        quest_progression.update(action)

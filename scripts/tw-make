@@ -36,9 +36,7 @@ def parse_args():
                            help="Blend instructions across consecutive actions.")
 
     parser = argparse.ArgumentParser(parents=[general_parser])
-    subparsers = parser.add_subparsers(dest="subcommand",
-                                       required=True, 
-                                       help='Kind of game to make.')
+    subparsers = parser.add_subparsers(dest="subcommand", help='Kind of game to make.')
 
     custom_parser = subparsers.add_parser("custom", parents=[general_parser],
                                           help='Make a custom game.')
@@ -48,6 +46,8 @@ def parse_args():
                                help="Nb. of objects in the world.")
     custom_parser.add_argument("--quest-length", type=int, default=5, metavar="LENGTH",
                                help="Minimum nb. of actions the quest requires to be completed.")
+    custom_parser.add_argument("--quest-breadth", type=int, default=3, metavar="BREADTH",
+                               help="Control how non-linear a quest can be.")
 
     challenge_parser = subparsers.add_parser("challenge", parents=[general_parser],
                                              help='Generate a game for one of the challenges.')
@@ -74,7 +74,7 @@ if __name__ == "__main__":
     }
 
     if args.subcommand == "custom":
-        game_file, game = textworld.make(args.world_size, args.nb_objects, args.quest_length, grammar_flags,
+        game_file, game = textworld.make(args.world_size, args.nb_objects, args.quest_length, args.quest_breadth, grammar_flags,
                                          seed=args.seed, games_dir=args.output)
 
     elif args.subcommand == "challenge":

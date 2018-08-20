@@ -251,6 +251,7 @@ class World:
             self._entities_per_type[entity.type].append(entity)
 
     def _process_rooms(self) -> None:
+        missing_facts = []
         for fact in self.facts:
             if not data.get_types().is_descendant_of(fact.arguments[0].type, 'r'):
                 continue  # Skip non room facts.
@@ -265,6 +266,16 @@ class World:
                 dest.add_related_fact(fact)
                 assert exit not in room.exits
                 room.exits[exit] = dest
+
+                counterpart_fact = Proposition(exit + "_of", fact.arguments[::-1])
+                if counterpart_fact not in self.facts:
+                    exit = reverse_direction(counterpart_fact.name.split("_of")[0])
+                    dest = self._get_room(counterpart_fact.arguments[1])
+                    dest.add_related_fact(counterpart_fact)
+                    assert exit not in self._get_room(counterpart_fact.arguments[0]).exits
+                    self._get_room(counterpart_fact.arguments[0]).exits[exit] = dest
+                    missing_facts.append(counterpart_fact)
+
 
         # Handle door link facts.
         for fact in self.facts:
@@ -284,6 +295,12 @@ class World:
                     exit_found = True
                     break
 
+            for exit, room in dest.exits.items():
+                if src == room:
+                    dest.doors[exit] = door
+                    exit_found = True
+                    break
+
             if not exit_found:
                 # Need to position both rooms w.r.t. each other.
                 src_free_exits = [exit for exit in DIRECTIONS if exit not in src.exits]
@@ -294,6 +311,8 @@ class World:
                         dest.exits[r_exit] = src
                         src.doors[exit] = door
                         exit_found = True
+                        missing_facts.append(Proposition(exit + "_of", [dest, src]))
+                        missing_facts.append(Proposition(r_exit + "_of", [src, dest]))
                         break
 
             # Relax the Cartesian grid constraint.
@@ -308,9 +327,14 @@ class World:
                     dest.exits[r_exit] = src
                     src.doors[exit] = door
                     exit_found = True
+                    missing_facts.append(Proposition(exit + "_of", [dest, src]))
+                    missing_facts.append(Proposition(r_exit + "_of", [src, dest]))
 
             if not exit_found:  # If there is still no exit found.
                 raise NoFreeExitError("Cannot connect {} and {}.".format(src, dest))
+
+            # Add any missing room positioning facts.
+            self._state.add_facts(missing_facts)
 
     def _process_objects(self) -> None:
         for fact in self.facts:
