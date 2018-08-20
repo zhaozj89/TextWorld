@@ -208,7 +208,7 @@ def relative_2d_constraint_layout(G: nx.Graph, constraints: List[Tuple[Hashable,
         for constraint in existing_constraints:
             if (src, relation, dest) != constraint:
                 msg = "Find multiple constraints with the same relation for node {}: {} and {}."
-                msg = msg.format(src, (src, relation, dest), existing_constraint[0])
+                msg = msg.format(src, (src, relation, dest), constraint)
                 raise InvalidConstraint(msg)
         
     for src, relation, dest in constraints:
@@ -270,3 +270,38 @@ def relative_2d_constraint_layout(G: nx.Graph, constraints: List[Tuple[Hashable,
 
     pos = {k: tuple(np.array(v).tolist()) for k, v in pos.items()}    
     return pos
+
+
+# def graph2facts(G: nx.Graph) -> List[Proposition]:
+#     """ Convert Graph object to a list of `Proposition`.
+
+#     Args:
+#         G: Graph defining the structure of the world.
+#     """
+#     names = {node: data.get("name", "r_{}".format(i)) for i, (node, data) in enumerate(G.nodes(data=True))}
+#     variables = {k: Variable(name, "r") for k, name in names.items()}
+
+#     facts = []
+#     for src, dest, data in G.edges(data=True):
+#         data['src_exit']
+#         data['dest_exit']
+#         assert data['src_exit'] == OPPOSITE_RELATIONS[data['dest_exit']]
+
+#         src, dest = variables[dest], variables[src]
+#         facts.append(Proposition(data['src_exit'] + "_of", [dest, src]))
+#         facts.append(Proposition(data['dest_exit'] + "_of", [src, dest]))
+
+#         if data.get("has_door"):
+#             door = Variable(data['door_name'], "d")
+#             facts.append(Proposition(data["door_state"], [door]))
+            
+#             # XXX: Is it still needed to keep both since we have the aliases?
+#             facts.append(Proposition("link", [dest, door, src]))
+#             facts.append(Proposition("link", [src, door, dest]))
+        
+#         if not data.get("has_door") or data.get("door_state") == "open":
+#             # XXX: Is it still needed to keep both since we have the aliases?
+#             facts.append(Proposition("free", [dest, src]))
+#             facts.append(Proposition("free", [src, dest]))
+
+#     return facts

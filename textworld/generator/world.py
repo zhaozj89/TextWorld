@@ -23,32 +23,6 @@ class NoFreeExitError(Exception):
     pass
 
 
-def connect(room1: Variable, direction: str, room2: Variable,
-            door: Optional[Variable] = None) -> List[Proposition]:
-    """ Generate predicates that connect two rooms.
-
-    Args:
-        room1: A room variable.
-        direction: Direction that we need to travel to go from
-                   room1 to room2.
-        room2: A room variable.
-        door: The door separating the two rooms. If `None`, there is no
-              door between the rooms.
-    """
-    r_direction = reverse_direction(direction) + "_of"
-    direction += "_of"
-    facts = [Proposition(direction, [room2, room1]),
-             Proposition(r_direction, [room1, room2]),
-             Proposition("free", [room1, room2]),
-             Proposition("free", [room2, room1])]
-
-    if door is not None:
-        facts += [Proposition("link", [room1, door, room2]),
-                  Proposition("link", [room2, door, room1])]
-
-    return facts
-
-
 def graph2state(G: networkx.Graph, rooms: Dict[str, Variable]) -> List[Proposition]:
     """ Convert Graph object to a list of `Proposition`.
 
@@ -501,90 +475,6 @@ class World:
         for room in self.rooms:
             state += self.populate_room(nb_objects_per_room[room.id], room, rng, object_types_probs)
 
-        return state
-
-    def populate_room_with(self, objects: WorldObject, room: WorldRoom,
-                           rng: Optional[RandomState] = None) -> List[Proposition]:
-        rng = g_rng.next() if rng is None else rng
-        state = []
-
-        objects_holder = [room]
-
-        locked_or_closed_objects = []
-        lockable_objects = []
-        for s in self.facts:
-            # Look for containers and supporters to put stuff in/on them.
-            if s.name == "at" and s.arguments[0].type in ["c", "s"] and s.arguments[1].name == room.name:
-                objects_holder.append(s.arguments[0])
-
-            # Look for containers and doors without a matching key.
-            if s.name == "at" and s.arguments[0].type in ["c", "d"] and s.arguments[1].name == room.name:
-                obj_propositions = [p.name for p in self.facts if s.arguments[0].name in p.names]
-                if "match" not in obj_propositions and s.arguments[0] not in lockable_objects:
-                    lockable_objects.append(s.arguments[0])
-
-                    if "locked" in obj_propositions or "closed" in obj_propositions:
-                        locked_or_closed_objects.append(s.arguments[0])
-
-        remaining_objects_id = list(range(len(objects)))
-        rng.shuffle(remaining_objects_id)
-        for idx in remaining_objects_id:
-            obj = objects[idx]
-            obj_type = obj.type
-
-            if data.get_types().is_descendant_of(obj_type, "o"):
-                allowed_objects_holder = list(objects_holder)
-
-                # Place the object somewhere.
-                obj_holder = rng.choice(allowed_objects_holder)
-                if data.get_types().is_descendant_of(obj_holder.type, "s"):
-                    state.append(Proposition("on", [obj, obj_holder]))
-                elif data.get_types().is_descendant_of(obj_holder.type, "c"):
-                    state.append(Proposition("in", [obj, obj_holder]))
-                elif data.get_types().is_descendant_of(obj_holder.type, "r"):
-                    state.append(Proposition("at", [obj, obj_holder]))
-                else:
-                    raise ValueError("Unknown type for object holder: {}".format(obj_holder))
-
-            elif data.get_types().is_descendant_of(obj_type, "s"):
-                supporter = obj
-                state.append(Proposition("at", [supporter, room]))
-                objects_holder.append(supporter)
-
-            elif data.get_types().is_descendant_of(obj_type, "c"):
-                container = obj
-                state.append(Proposition("at", [container, room]))
-                objects_holder.append(container)
-
-                container_state = rng.choice(["open", "closed", "locked"])
-                state.append(Proposition(container_state, [container]))
-
-                lockable_objects.append(container)
-                if container_state in ["locked", "closed"]:
-                    locked_or_closed_objects.append(container)
-
-            else:
-                raise ValueError("Unknown object type: {}".format(obj_type))
-
-        self.add_facts(state)
-        return state
-
-    def populate_with(self, objects: List[WorldObject],
-                      rng: Optional[RandomState] = None) -> List[Proposition]:
-        rng = g_rng.next() if rng is None else rng
-        room_names = [room.id for room in self.rooms]
-        nb_objects_per_room = {room_name: 0 for room_name in room_names}
-        indices = np.arange(len(room_names))
-        for _ in range(len(objects)):
-            idx = rng.choice(indices)
-            nb_objects_per_room[room_names[idx]] += 1
-
-        state = []
-        for room in self.rooms:
-            state += self.populate_room_with(objects[:nb_objects_per_room[room.id]], room, rng)
-            objects = objects[nb_objects_per_room[room.id]:]
-
-        self.add_facts(state)
         return state
 
     def __eq__(self, other: Any) -> bool:
