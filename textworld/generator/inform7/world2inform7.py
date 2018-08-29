@@ -91,10 +91,22 @@ def gen_source_for_conditions(conds) -> str:
     return " and ".join(i7_conds)
 
 
+def gen_source_for_values(objects, var_infos):
+    source = ""
+    for obj in objects:
+        if obj.type not in ["number"]:
+            continue  # Skip.
+
+        # Define the value.
+        obj_infos = var_infos[obj.id]
+        source += 'The {} is always {}.\n'.format(obj_infos.id, obj_infos.name)
+
+    return source
+
 def gen_source_for_objects(objects, var_infos, use_i7_description=False):
     source = ""
     for obj in objects:
-        if obj.type in ["P", "I"]:
+        if obj.type in ["P", "I", "number"]:
             continue  # Skip player
 
         obj_infos = var_infos[obj.id]
@@ -199,7 +211,7 @@ def generate_inform7_source(game, seed=1234, use_i7_description=False):
 
     # Declare all objects
     for vtype in data.get_types():
-        if vtype in ["P", "I"]:
+        if vtype in ["P", "I", "number"]:
             continue  # Skip player and inventory.
 
         entities = world.get_entities_per_type(vtype)
@@ -214,6 +226,7 @@ def generate_inform7_source(game, seed=1234, use_i7_description=False):
 
     # Process the objects.
     source += "\n"
+    source += gen_source_for_values(world.objects, var_infos)
     source += gen_source_for_objects(world.objects, var_infos,
                                      use_i7_description=use_i7_description)
     source += "\n\n"

@@ -317,6 +317,10 @@ class World:
             if data.get_types().is_descendant_of(fact.arguments[0].type, 'r'):
                 continue  # Skip room facts.
 
+            # Make sure all entities are defined.
+            for arg in fact.arguments:
+                self._get_entity(arg)
+
             obj = self._get_entity(fact.arguments[0])
             obj.add_related_fact(fact)
 

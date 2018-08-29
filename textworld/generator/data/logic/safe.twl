@@ -1,0 +1,46 @@
+# safe (http://inform7.com/learn/man/WI_17_6.html#e334)
+type safe : c {
+    predicates {
+        combination(safe, number);
+    }
+
+    rules {
+        spin :: $at(P, r) & $at(safe, r) & $combination(safe, number) & closed(safe) -> open(safe);
+    }
+
+    inform7 {
+        type {
+            kind :: "safe-like";
+            definition :: "A safe-like has a number called lock combination.";
+        }
+        
+        predicates {
+            combination(safe, number) :: "The lock combination of {safe} is {number}";
+        }
+
+        commands {
+            spin :: "spin {safe} to {number}" :: "spinning the {safe} to {number}";
+        }
+
+        code :: """
+            [Safe related code]
+            Instead of opening a safe-like (called target):
+                say "[The target] opens only when turned to the correct combination.".
+        
+            Spinning it to is an action applying to one thing and one number.
+            Check spinning it to:
+                if the noun is not a safe-like:
+                    say "[The noun] does not spin." instead.
+            
+            Report spinning it to:
+                say "Click! and nothing else happens."
+
+            Understand "spin [something] to [a number]" as spinning it to.
+
+            After spinning a closed safe-like (called target) to the lock combination of the target:
+                now the target is open;
+                say "Clonk! and [the target] door swings slowly open, revealing [a list of things in the target]."
+
+        """;
+    }
+}
