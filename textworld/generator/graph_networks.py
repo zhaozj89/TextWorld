@@ -6,6 +6,9 @@ import itertools
 import numpy as np
 import networkx as nx
 from collections import OrderedDict
+from typing import List, Tuple, Dict, Optional
+
+from numpy.random import RandomState
 
 
 DIRECTIONS = ["north", "south", "east", "west"]
@@ -111,15 +114,37 @@ def get_path(G, room1, room2):
     return list(zip(sp, sp[1:]))
 
 
-def plot_graph(g, show=True):
-    """Plot cartesian graph on a grid."""
+def plot_graph(G: nx.Graph, show: bool = True) -> None:
+    """
+    Plot TextWorld's graph representation of a world.
+    """
     import matplotlib.pyplot as plt
-    pos = dict((n, n) for n in g.nodes())
-    labels = dict(((i, j), i * 10 + j) for i, j in g.nodes())
-    labels = {n: d["name"] for n, d in g.nodes.items()}
-    nx.draw_networkx(g, pos=pos, labels=labels, with_labels=True)
+
+    pos = {n: n for n in G}
+    start = [n for n, d in G.nodes.items() if d.get("start")]
+
+    labels = {n: d.get("name", d.get("id", "")) for n, d in G.nodes.items()}
+    node_color = None
+    if start:
+        node_color = [len(shortest_path(G, start[0], node)) for node in G]
+        nx.draw_networkx_nodes(G, nodelist=[start[0]], pos=pos, node_shape="s", node_color=[0], cmap=plt.cm.plasma)
+
+    nx.draw(G, pos=pos, with_labels=False, node_color=node_color, cmap=plt.cm.plasma)
+    description = nx.draw_networkx_labels(G, pos, labels=labels)
+    for _, t in description.items():
+        t.set_position(np.array(t.get_position()) + (0, 0.4))
+        t.set_rotation(-25*360.0/(2.0*np.pi))
+        t.set_clip_on(False)
+
+    # Adjust axis.
+    min_ = np.min(list(G), axis=0)
+    max_ = np.max(list(G), axis=0)
     plt.axis('off')
+    plt.xlim([min_[0] - 0.5, max_[0] + 0.5])
+    plt.ylim([min_[1] - 0.5, max_[1] + 1])
+
     if show:
+        plt.gcf().set_facecolor("white")
         plt.show()
 
 
@@ -167,3 +192,84 @@ def shortest_path(G, source, target):
     for i in range(len(path) - 1):
             d.append(direction(path[i], path[i+1]))
     return d
+
+
+class RandomWalk:
+    def __init__(self, neighbors, size=(5, 5), max_attempts=200, rng=None):
+        self.max_attempts = max_attempts
+        self.neighbors = neighbors
+        self.rng = rng or np.random.RandomState(1234)
+        self.grid = nx.grid_2d_graph(size[0], size[1], create_using=nx.OrderedGraph())
+        self.nb_attempts = 0
+
+    def _walk(self, G, node, remaining):
+        if len(remaining) == 0:
+            return G
+
+        self.nb_attempts += 1
+        if self.nb_attempts > self.max_attempts:
+            return None
+
+        nodes = list(self.grid[node])
+        self.rng.shuffle(nodes)
+        for node_ in nodes:
+            neighbors = self.neighbors[G.nodes[node]["name"]]
+            if node_ in G:
+                if G.nodes[node_]["name"] not in neighbors:
+                    continue
+
+                new_G = G.copy()
+                new_G.add_edge(node, node_,
+                               has_door=False,
+                               door_state=None,
+                               door_name=None)
+
+                new_G = self._walk(new_G, node_, remaining)
+                if new_G:
+                    return new_G
+
+            else:
+                neighbors = [n for n in neighbors if n in remaining]
+                self.rng.shuffle(neighbors)
+
+                for neighbor in neighbors:
+                    new_G = G.copy()
+                    new_G.add_node(node_, id="r_{}".format(len(new_G)), name=neighbor)
+
+                    new_G.add_edge(node, node_,
+                                   has_door=False,
+                                   door_state=None,
+                                   door_name=None)
+
+                    new_G = self._walk(new_G, node_, remaining - {neighbor})
+                    if new_G:
+                        return new_G
+
+        return None
+
+    def place_rooms(self, rooms):
+        nodes = list(self.grid)
+        self.rng.shuffle(nodes)
+
+        for start in nodes:
+            G = nx.OrderedGraph()
+            room = rooms[0][0]
+            G.add_node(start, id="r_{}".format(len(G)), name=room, start=True)
+
+            for group in rooms:
+                self.nb_attempts = 0
+                G = self._walk(G, start, set(group) - {room})
+                if not G:
+                    break
+
+            if G:
+              return G
+
+        return None
+
+
+def make_graph_world(rng: RandomState, rooms: List[List[str]], neighbors: Dict[str, List[str]], size: Tuple[int, int] = (5, 5)):
+    walker = RandomWalk(neighbors=neighbors, size=(5, 5), rng=rng)
+    G = walker.place_rooms(rooms)
+    # plot_graph(G, show=True)
+    return G

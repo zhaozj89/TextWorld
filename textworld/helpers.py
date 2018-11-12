@@ -11,7 +11,7 @@ from textworld.core import Environment, Agent
 from textworld.generator.game import Game, GameOptions
 
 from textworld.envs import GlulxEnvironment
-from textworld.envs import JerichoEnvironment
+from textworld.envs import JerichoEnvironment, JerichoTWEnvironment
 
 from textworld.agents import HumanAgent
 
@@ -37,7 +37,11 @@ def start(path: str) -> Environment:
     backend = "glulx" if path.endswith(".ulx") else "zmachine"
 
     if backend == "zmachine":
-        env = JerichoEnvironment(path)
+        from textworld.envs.zmachine.jericho_tw import MissingGameInfosError
+        try:
+            env = JerichoTWEnvironment(path)
+        except MissingGameInfosError:
+            env = JerichoEnvironment(path)
     elif backend == "glulx":
         env = GlulxEnvironment(path)
     else:

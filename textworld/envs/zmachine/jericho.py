@@ -7,7 +7,6 @@ import os
 import sys
 import warnings
 
-import jericho
 
 import textworld
 from textworld.core import GameState
@@ -132,6 +131,7 @@ class JerichoEnvironment(textworld.Environment):
         return self._seed
 
     def reset(self):
+        import jericho
         self.close()  # In case, it is running.
         self.game_state = self.GAME_STATE_CLASS(self)
 

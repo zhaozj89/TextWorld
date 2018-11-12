@@ -8,14 +8,11 @@ import re
 import sys
 import textwrap
 import subprocess
-from pkg_resources import Requirement, resource_filename
+from io import StringIO
 
 from typing import Mapping, Union, Tuple, List
 
 import numpy as np
-
-from glk import ffi, lib
-from io import StringIO
 
 import textworld
 from textworld.utils import str2bool
@@ -24,7 +21,9 @@ from textworld.generator.inform7 import Inform7Game
 from textworld.logic import Action, State
 from textworld.core import GameNotRunningError
 
-GLULX_PATH = resource_filename(Requirement.parse('textworld'), 'textworld/thirdparty/glulx/Git-Glulx')
+
+class JerichoUnsupportedGameWarning(UserWarning):
+    pass
 
 
 class MissingGameInfosError(NameError):
@@ -63,17 +62,6 @@ class OraclePolicyIsRequiredError(NameError):
         super().__init__(msg.format(info))
 
 
-class ExtraInfosIsMissingError(NameError):
-    """
-    Thrown if extra information is required without enabling it first via `tw-extra-infos CMD`.
-    """
-
-    def __init__(self, info):
-        msg = ("To access extra info '{info}', it needs to be enabled via `tw-extra-infos {info}` first."
-               " Make sure env.enable_extra_info({info}) is called *before* env.reset().")
-        super().__init__(msg.format(info=info))
-
-
 def _strip_input_prompt_symbol(text: str) -> str:
     if text.endswith("\n>"):
         return text[:-2]
@@ -84,33 +72,6 @@ def _strip_input_prompt_symbol(text: str) -> str:
 def _strip_i7_event_debug_tags(text: str) -> str:
     _, text = _detect_i7_events_debug_tags(text)
     return text
-
-
-def _detect_extra_infos(text: str) -> Mapping[str, str]:
-    """ Detect extra information printed out at every turn.
-
-    Extra information can be enabled via the special command:
-    `tw-extra-infos COMMAND`. The extra information is displayed
-    between tags that look like this: <COMMAND> ... </COMMAND>.
-
-    Args:
-        text: Text outputted by the game.
-
-    Returns:
-        A dictionary where the keys are text commands and the corresponding
-        values are the extra information displayed between tags.
-    """
-    tags = ["description", "inventory", "score"]
-    matches = {}
-    for tag in tags:
-        regex = re.compile(r"<{tag}>\n(.*)</{tag}>".format(tag=tag), re.DOTALL)
-        match = re.search(regex, text)
-        if match:
-            _, cleaned_text = _detect_i7_events_debug_tags(match.group(1))
-            matches[tag] = cleaned_text
-            text = re.sub(regex, "", text)
-
-    return matches, text
 
 
 def _detect_i7_events_debug_tags(text: str) -> Tuple[List[str], str]:
@@ -152,12 +113,7 @@ def _detect_i7_events_debug_tags(text: str) -> Tuple[List[str], str]:
     return matches, text
 
 
-class GlulxGameState(textworld.GameState):
-    """
-    Encapsulates the state of a Glulx game. This is the primary interface to the Glulx
-    game driver.
-    """
-
+class JerichoTWGameState(textworld.GameState):
     def __init__(self, *args, **kwargs):
         """
         Takes the same parameters as textworld.GameState
@@ -183,9 +139,6 @@ class GlulxGameState(textworld.GameState):
         :param compute_intermediate_reward: Whether to compute the intermediate reward
         """
         output = _strip_input_prompt_symbol(output)
-        _, output = _detect_i7_events_debug_tags(output)
-        self._extra_infos, output = _detect_extra_infos(output)
-
         super().init(output)
         self._game = game
         self._game_progression = GameProgression(game, track_quests=state_tracking)
@@ -196,12 +149,12 @@ class GlulxGameState(textworld.GameState):
         self._score = 0
         self._max_score = self._game_progression.max_score
 
-    def view(self) -> "GlulxGameState":
+    def view(self) -> "JerichoTWGameState":
         """
         Returns a view of this Game as a GameState
         :return: A GameState reflecting the current state
         """
-        game_state = GlulxGameState()
+        game_state = JerichoTWGameState()
         game_state.previous_state = self.previous_state
         game_state._state = self.state
         game_state._state_tracking = self._state_tracking
@@ -239,9 +192,6 @@ class GlulxGameState(textworld.GameState):
         """
         output = _strip_input_prompt_symbol(output)
 
-        # Detect any extra information displayed at every turn.
-        extra_infos, output = _detect_extra_infos(output)
-
         game_state = super().update(command, output)
         game_state.previous_state = self.view()
         game_state._objective = self.objective
@@ -251,7 +201,6 @@ class GlulxGameState(textworld.GameState):
         game_state._game_progression = self._game_progression
         game_state._state_tracking = self._state_tracking
         game_state._compute_intermediate_reward = self._compute_intermediate_reward
-        game_state._extra_infos = {**self._extra_infos, **extra_infos}
 
         # Detect what events just happened in the game.
         i7_events, game_state._feedback = _detect_i7_events_debug_tags(output)
@@ -268,20 +217,26 @@ class GlulxGameState(textworld.GameState):
     @property
     def description(self):
         if not hasattr(self, "_description"):
-            if "description" not in self._extra_infos:
-                raise ExtraInfosIsMissingError("description")
+            if self.game_ended:
+                return ""
 
-            self._description = self._extra_infos["description"]
+            output = self._env._send("look")
+            output = _strip_i7_event_debug_tags(output)
+            output = _strip_input_prompt_symbol(output)
+            self._description = output
 
         return self._description
 
     @property
     def inventory(self):
         if not hasattr(self, "_inventory"):
-            if "inventory" not in self._extra_infos:
-                raise ExtraInfosIsMissingError("inventory")
+            if self.game_ended:
+                return ""
 
-            self._inventory = self._extra_infos["inventory"]
+            output = self._env._send("inventory")
+            output = _strip_i7_event_debug_tags(output)
+            output = _strip_input_prompt_symbol(output)
+            self._inventory = output
 
         return self._inventory
 
@@ -362,10 +317,19 @@ class GlulxGameState(textworld.GameState):
             if self._state_tracking:
                 self._score = self._game_progression.score
             else:
-                if "score" not in self._extra_infos:
-                    raise ExtraInfosIsMissingError("score")
 
-                self._score = int(self._extra_infos["score"])
+                # Check if there was any Inform7 events.
+                if self._feedback == self._raw:
+                    self._score = self.previous_state.score
+                else:
+                    output = self._raw
+                    if not self.game_ended:
+                        output = self._env._send("score")
+
+                    match = re.search("scored (?P<score>[0-9]+) out of a possible (?P<max_score>[0-9]+),", output)
+                    self._score = 0
+                    if match:
+                        self._score = int(match.groupdict()["score"])
 
         return self._score
 
@@ -450,37 +414,32 @@ class GlulxGameState(textworld.GameState):
         return self._game.extras
 
 
-
-class GitGlulxMLEnvironment(textworld.Environment):
-    """ Environment to support playing Glulx games generated by TextWorld.
-
-    TextWorld supports playing text-based games that were compiled for the
-    `Glulx virtual machine <https://www.eblong.com/zarf/glulx>`_. The main
-    advantage of using Glulx over Z-Machine is it uses 32-bit data and
-    addresses, so it can handle game files up to four gigabytes long. This
-    comes handy when we want to generate large world with a lot of objects
-    in it.
-
-    We use a customized version of `git-glulx <https://github.com/DavidKinder/Git>`_
-    as the glulx interpreter. That way we don't rely on stdin/stdout to
-    communicate with the interpreter but instead use UNIX message queues.
-
+class JerichoTWEnvironment(textworld.Environment):
+    """
+    Environment to support playing Z-Machine games generated by TextWorld.
     """
     metadata = {'render.modes': ['human', 'ansi', 'text']}
 
     def __init__(self, gamefile: str) -> None:
-        """ Creates a GitGlulxML from the given gamefile
-
-        Args:
+        """
+        Arguments:
             gamefile: The name of the gamefile to load.
         """
         super().__init__()
         self._gamefile = gamefile
-        self._process = None
+        self._jericho = None
+        self._seed = 42#-1
 
         # Load initial state of the game.
         filename, ext = os.path.splitext(gamefile)
         game_json = filename + ".json"
+
+        # Check if game is supported by Jericho.
+        if not ext.startswith(".z"):
+            raise ValueError("Only .z[1-8] files are supported!")
+
+        if not os.path.isfile(self._gamefile):
+            raise FileNotFoundError(self._gamefile)
 
         if not os.path.isfile(game_json):
             raise MissingGameInfosError()
@@ -489,10 +448,6 @@ class GitGlulxMLEnvironment(textworld.Environment):
         self._compute_intermediate_reward = False
         self.game = Game.load(game_json)
         self.game_state = None
-        self.extra_info = set()
-
-    def enable_extra_info(self, info) -> None:
-        self.extra_info.add(info)
 
     def activate_state_tracking(self) -> None:
         self._state_tracking = True
@@ -506,81 +461,43 @@ class GitGlulxMLEnvironment(textworld.Environment):
     @property
     def game_running(self) -> bool:
         """ Determines if the game is still running. """
-        return self._process is not None and self._process.poll() is None
+        return self._jericho is not None
 
-    def step(self, command: str) -> Tuple[GlulxGameState, float, bool]:
+    def seed(self, seed=None):
+        self._seed = seed
+        return self._seed
+
+    def step(self, command: str) -> Tuple[JerichoTWGameState, float, bool]:
         if not self.game_running:
             raise GameNotRunningError()
 
         command = command.strip()
-        output = self._send(command)
-        if output is None:
-            raise GameNotRunningError()
-
+        output, _, _, _ = self._jericho.step(command)
         self.game_state = self.game_state.update(command, output)
         self.game_state.has_timeout = not self.game_running
         return self.game_state, self.game_state.score, self.game_state.game_ended
 
-    def _send(self, command: str) -> Union[str, None]:
-        if not self.game_running:
-            return None
+    def reset(self) -> JerichoTWGameState:
+        import jericho
+        self.close()  # In case, it is running.
 
-        if len(command) == 0:
-            command = " "
+        # Start the game using Jericho.
+        self._jericho = jericho.FrotzEnv(self._gamefile, self._seed)
+        start_output = self._jericho.reset()
 
-        c_command = ffi.new('char[]', command.encode('utf-8'))
-        result = lib.communicate(self._names_struct, c_command)
-        if result == ffi.NULL:
-            self.close()
-            return None
-
-        result = ffi.gc(result, lib.free)
-        return ffi.string(result).decode('utf-8')
-
-    def reset(self) -> GlulxGameState:
-        if self.game_running:
-            self.close()
-
-        self._names_struct = ffi.new('struct sock_names*')
-
-        lib.init_glulx(self._names_struct)
-        sock_name = ffi.string(self._names_struct.sock_name).decode('utf-8')
-        self._process = subprocess.Popen(["%s/git-glulx-ml" % (GLULX_PATH,), self._gamefile, '-g', sock_name, '-q'])
-        c_feedback = lib.get_output_nosend(self._names_struct)
-        if c_feedback == ffi.NULL:
-            self.close()
-            raise ValueError("Game failed to start properly: {}.".format(self._gamefile))
-        c_feedback = ffi.gc(c_feedback, lib.free)
-
-        start_output = ffi.string(c_feedback).decode('utf-8')
-
-        if not self._state_tracking:
-            self.enable_extra_info("score")
-
-        # TODO: check if the game was compiled in debug mode. You could parse
-        #       the output of the following command to check whether debug mode
-        #       was used or not (i.e. invalid action not found).
-        self._send('tw-trace-actions')  # Turn on debug print for Inform7 action events.
-        self._send('restrict commands')  # Restrict Inform7 commands.
-        _extra_output = ""
-        for info in self.extra_info:
-            _extra_output = self._send('tw-extra-infos {}'.format(info))
-
-        start_output = start_output[:-1] + _extra_output[:-1]  # Add extra infos minus the prompts '>'.
-        self.game_state = GlulxGameState(self)
+        self.game_state = JerichoTWGameState(self)
         self.game_state.init(start_output, self.game, self._state_tracking, self._compute_intermediate_reward)
 
+        # TODO: Will failed if the game was not compiled in debug mode. We could parse
+        #       the output of the following command to check whether debug mode
+        #       was used or not (i.e. invalid action not found).
+        self._jericho.step('actions')  # Turn on debug print for Inform7 action events.
         return self.game_state
 
     def close(self) -> None:
-        if self.game_running:
-            self._process.kill()
-            self._process = None
-
-        try:
-            lib.cleanup_glulx(self._names_struct)
-        except AttributeError:
-            pass  # Attempted to kill before reset
+        if self._jericho is not None:
+            self._jericho.close()
+            self._jericho = None
 
     def render(self, mode: str = "human") -> None:
         outfile = StringIO() if mode in ['ansi', "text"] else sys.stdout

@@ -320,6 +320,7 @@ def take_screenshot(url: str, id: str='world'):
     from PIL import Image
 
     driver = get_webdriver()
+    driver.set_window_size(1920, 1080)
 
     driver.get(url)
     svg = driver.find_element_by_id(id)
@@ -335,6 +336,17 @@ def take_screenshot(url: str, id: str='world'):
     bottom = location['y'] + size['height']
     image = image.crop((left, top, right, bottom))
     return image
+
+
+def trim(im):
+    from PIL import Image, ImageChops
+    bg = Image.new(im.mode, im.size, im.getpixel((0,0)))
+    diff = ImageChops.difference(im, bg)
+    diff = ImageChops.add(diff, diff, 2.0, -1)
+    bbox = diff.getbbox()
+    if bbox:
+        return im.crop(bbox)
+
 
 def concat_images(*images):
     from PIL import Image
@@ -392,7 +404,7 @@ def visualize(world: Union[Game, State, GlulxGameState, World],
 
     img_graph = take_screenshot(url, id="world")
     img_inventory = take_screenshot(url, id="inventory")
-    image = concat_images(img_inventory, img_graph,)
+    image = concat_images(img_inventory, trim(img_graph))
 
     if interactive:
         try:

@@ -712,6 +712,11 @@ class Inform7Game:
             say "  insert ... into ...: place an object into a container[line break]";
             say "  lock ... with ...:   lock a door or a container with a key[line break]";
             say "  unlock ... with ...: unlock a door or a container with a key[line break]";
+            say "  cook ... with ...:   cook cookable food with something providing heat[line break]";
+            say "  slice ... with ...:  slice cuttable food with something sharp[line break]";
+            say "  chop ... with ...:   chop cuttable food with something sharp[line break]";
+            say "  dice ... with ...:   dice cuttable food with something sharp[line break]";
+            say "  prepare meal:        combine ingredients from inventory into a meal[line break]";
 
         Understand "help" as displaying help message.
 
@@ -735,6 +740,28 @@ class Inform7Game:
             Understand "take everything" as taking all.
             Understand "get everything" as taking all.
             Understand "pick up everything" as taking all.
+
+        """)
+
+        # Disable undo, save and restore.
+        source += textwrap.dedent("""\
+            Use undo prevention.
+            Understand nothing as quitting the game.
+            Understand nothing as restarting the game.
+            Understand nothing as saving the game.
+            Understand nothing as restoring the game.
+
+        """)
+
+        # Remove irrelevant end game options (undo/restore/restart).
+        source += textwrap.dedent("""\
+            When play begins:
+                choose row with a final response rule of immediately undo rule in the Table of Final Question Options;
+                blank out the whole row;
+                choose row with a final response rule of immediately restore saved game rule in the Table of Final Question Options;
+                blank out the whole row;
+                choose row with a final response rule of immediately restart the VM rule in the Table of Final Question Options;
+                blank out the whole row;
 
         """)
 
@@ -801,7 +828,7 @@ class Inform7Game:
         Turning on the restrict commands option is an action applying to nothing.
         Carry out turning on the restrict commands option:
             Decrease turn count by 1;
-            Now the restrict commands option is true.
+            [Now the restrict commands option is true.] [Disabled for the competition]
 
         Understand "restrict commands" as turning on the restrict commands option.
 
