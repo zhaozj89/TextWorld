@@ -38,6 +38,7 @@ if __name__ == "__main__":
 
     stats = {
         "ingredients": defaultdict(int),
+        "transformed_ingredients": defaultdict(int),
         "foods": defaultdict(int),
         "unused_foods": defaultdict(int),
         "cutting": defaultdict(int),
@@ -70,6 +71,10 @@ if __name__ == "__main__":
             stats["ingredients"][food] += 1
             stats["cooking"][cooking] += 1
             stats["cutting"][cutting] += 1
+            transformed_ingredient = cooking + " " if cooking else ""
+            transformed_ingredient += cutting + " " if cutting else ""
+            transformed_ingredient += food
+            stats["transformed_ingredients"][transformed_ingredient] += 1
 
         for k, v in game.infos.items():
             if v.type != "f":

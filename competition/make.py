@@ -130,7 +130,7 @@ def main():
 
     nb_games = int(args.nb_games * len(challenge_ids))
     for i in range(nb_games):
-        seed = np.random.randint(65635)
+        seed = rng.randint(65635)
         challenge_id = challenge_ids[i % len(challenge_ids)]
         if args.split:
             challenge_id = challenge_id + "+{}".format(args.split)

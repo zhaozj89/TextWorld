@@ -1084,6 +1084,7 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
     }
 
     game.extras["recipe"] = recipe
+    game.extras["walkthrough"] = walkthrough
     objective = ("You are hungry! Let's cook a delicious meal. Check the cookbook"
                  " in the kitchen for the recipe. Once done, enjoy your meal!")
     game.objective = objective
