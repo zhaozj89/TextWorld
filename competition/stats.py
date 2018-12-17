@@ -45,6 +45,7 @@ if __name__ == "__main__":
         "cooking": defaultdict(int),
         "skills": defaultdict(int),
         "walkthroughs": [],
+        "scores": [],
     }
 
     for game_filename in tqdm(args.games):
@@ -57,6 +58,7 @@ if __name__ == "__main__":
 
             continue
 
+        stats["scores"].append(game.max_score)
         walkthrough = game.metadata.get("walkthrough", [])
         stats["walkthroughs"].append(walkthrough)
 
@@ -93,6 +95,12 @@ if __name__ == "__main__":
             "max": max(walkthrough_lengths),
             "avg": np.mean(walkthrough_lengths),
         }
+    }
+    stats["scores"] = {
+        "min": min(stats["scores"]),
+        "max": max(stats["scores"]),
+        "sum": sum(stats["scores"]),
+        "avg": np.mean(stats["scores"]),
     }
 
     with open(args.output, "w") as f:
