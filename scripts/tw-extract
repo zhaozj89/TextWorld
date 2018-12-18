@@ -39,6 +39,13 @@ def parse_args():
     entities_parser.add_argument("--output", default="entities.txt",
                                  help="Output file containing all entity names (.txt). Default: %(default)s")
 
+    walkthrough_parser = subparsers.add_parser("walkthrough", parents=[general_parser],
+                                               help='Extract walkthroughs.')
+    walkthrough_parser.add_argument("games", metavar="game", nargs="+",
+                                    help="List of TextWorld games (.ulx|.json).")
+    walkthrough_parser.add_argument("--output", default="walkthroughs.txt",
+                                    help="Output file containing all walkthroughs (.txt). Default: %(default)s")
+
     return parser.parse_args(), parser
 
 
@@ -55,16 +62,28 @@ def main():
             game = Game.load(gamefile.replace(".ulx", ".json"))
             infos |= set(game.objects_names)
 
+        infos = sorted(infos)
+
     elif args.subcommand == "vocab":
         unit = ["word", "words"]
         games_iter = (Game.load(gamefile.replace(".ulx", ".json"))
                       for gamefile in args.games)
         infos = extract_vocab(games_iter)
+        infos = sorted(infos)
 
-    infos = sorted(infos)
+    elif args.subcommand == "walkthrough":
+        unit = ["walkthrough", "walkthroughs"]
+        games_iter = (Game.load(gamefile.replace(".ulx", ".json"))
+                      for gamefile in args.games)
+        from ipdb import set_trace; set_trace()
+        from textworld.generator.game import GameProgression
+        GameProgression(Game.load(args.games[0].replace(".ulx", ".json"))).winning_policy
+
+        infos = "---\n".join(["\n".join(game.main_quest.commands) for game in games_iter])
+
 
     if args.verbose:
-        pprint.pprint(infos)
+        print(infos)
 
     length = len(infos)
     unit = unit[1] if len(infos) > 1 else unit[1]
