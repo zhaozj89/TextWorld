@@ -12,8 +12,8 @@ lock_type_var:#lock_types#;#lock_types# #in_the_(r)#
 (c)_var:(c);(c) #in_the_(r)#
 on_var:#on_types#;#on_types# #in_the_(r)#
 in_the_(r):in the (r);within the (r);inside the (r)
-make_syn_u:Make sure;Assure;Make it so;Doublecheck;Look and see;Make absolutely sure
-make_syn_v:make sure;assure;make it so;doublecheck;look and see;make absolutely sure
+make_syn_u:Make sure;Assure;Make it so;Double-check;Look and see;Make absolutely sure
+make_syn_v:make sure;assure;make it so;double-check;look and see;make absolutely sure
 by_the_syn:with the
 init_syn:in it;inside;placed inside
 into_syn:into;inside
