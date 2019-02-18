@@ -13,5 +13,11 @@ type s : t {
         predicates {
             on(o, s) :: "The {o} is on the {s}";
         }
+
+        code :: """
+            After examining a supporter which contains nothing:
+                say "It's empty.".
+        """;
+
     }
 }

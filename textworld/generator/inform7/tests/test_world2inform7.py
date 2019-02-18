@@ -495,3 +495,28 @@ def test_take_all_and_variants():
         assert "blue ball:" in game_state.feedback
         assert "red ball" in game_state.inventory
         assert "blue ball" in game_state.inventory
+
+
+def test_mentioning_empty_holders():
+    g_rng.set_seed(2018)
+    M = textworld.GameMaker()
+
+    # Empty room.
+    room = M.new_room("room")
+    M.set_player(room)
+
+    chest = M.new(type="c", name="chest")
+    chest.add_property("open")
+    table = M.new(type="s", name="table")
+    room.add(chest, table)
+
+    game = M.build()
+    game_name = "test_mentioning_empty_holders"
+    with make_temp_directory(prefix=game_name) as tmpdir:
+        game_file = _compile_game(game, path=tmpdir)
+        env = textworld.start(game_file)
+        env.reset()
+        game_state, _, _ = env.step("examine chest")
+        assert "empty" in game_state.feedback
+        game_state, _, _ = env.step("examine table")
+        assert "empty" in game_state.feedback

@@ -265,27 +265,28 @@ candy:chocolate bar;gummy bear;candy bar;licorice strip;cookie
 #Object Descriptor Functions
 #---------------------------
 (P)_desc:It's you.
-(c)_desc:The (name) looks strong, and impossible to #force_open#.
-force_open:force open;open;break open;bash open;crack open
-(s)_desc:The (name) is #supp_stable#.
+(c)_desc:The [noun] looks #container_what_is#.
+container_what_is:imposing;sturdy;well-built;durable;robust;rugged;hefty;commanding;grand;noble;ominous;towering;manageable;solid;stuffy
+(s)_desc:The [noun] is #supp_stable#.
 supp_stable:stable;wobbly;unstable;balanced;durable;reliable;solid;undependable;solidly built;an unstable piece of #garbage#;shaky
 garbage:garbage;trash;junk
-(o)_desc:The (name) is #obj_what#.;The (name) #looks_seems# #out_in_place# here
+(o)_desc:The [noun] is #obj_what#.;The [noun] #looks_seems# #out_in_place# here
 obj_what:unremarkable;clean;dirty;modern;antiquated;well-used;brand new;expensive looking;cheap looking
 looks_seems:looks;seems;appears;appears to be;would seem to be
 out_in_place:out of place;to fit in;well matched to everything else
 restaurant:Burger#place#
 place:town;village;hamlet;burg;ville;City
-(f)_desc:The (name) looks #food_what#.;that's a (name-adj) (name-n)!;You couldn't pay me to eat that (name-adj) thing.
+(f)_desc:The [noun] looks #food_what#.;That's a [noun]!;You couldn't pay me to eat that [noun].
 food_what:appetizing;delicious;tasty;appealing;delectable;heavenly;inviting;savory;tantalizing;tempting
-(k)_desc:The (name) is cold to the touch;The (name) is #key_weight#.;The metal of the (name) is #key_metal#.;The (name) looks useful
+(k)_desc:The [noun] is cold to the touch;The [noun] is #key_weight#.;The metal of the [noun] is #key_metal#.;The [noun] looks useful.
 key_weight:heavy;light;weighty;surprisingly heavy;heavier than it looks
 key_metal:antiqued;brushed;hammered;polished;satin;rusty
-(d)_desc:The (name) looks #door_what_is#.;it's a #door_what_is# (name-n);it is what it is, a (name)
+(d)_desc:The [noun] looks #door_what_is#.;It's a #door_what_is# [noun];It is what it is, a [noun].
 door_what_is:imposing;sturdy;well-built;durable;robust;rugged;hefty;commanding;grand;noble;ominous;towering;manageable;solid;stuffy
 #State descriptors
 #-----------------
-openable_desc:[if open]It is open.[else if closed]It is closed.[otherwise]It is locked.[end if];[if open]You can see inside it.[else if closed]You can't see inside it because the lid's in your way.[otherwise]There is a lock on it.[end if]
+force_open:force open;open;break open;bash open;crack open
+openable_desc:[if open]It is open.[else if locked]It is locked.[otherwise]It is closed.[end if];[if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to #force_open#.[otherwise]You can't see inside it because the lid's in your way.[end if]
 on_desc:On the (name), is [a list of things on the (obj)].;You can see [list of things on the (obj)] on the (name);this (name) has the following upon it, [list of things on the (obj)];you gaze in terror at the [list of things on the (obj)] that lie upon this very (name)!; "now why" you think, "am I looking at [list of things on the (obj)] on this (name)?"
 #Key Match Adjectives
 #These adjectives CANNOT be used elsewhere!
