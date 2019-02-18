@@ -48,5 +48,10 @@ type c : t {
             lock/c :: "lock {c} with {k}" :: "locking the {c} with the {k}";
             unlock/c :: "unlock {c} with {k}" :: "unlocking the {c} with the {k}";
         }
+
+        code :: """
+            After examining an open container which contains nothing:
+                say "It's empty.".
+        """;
     }
 }
