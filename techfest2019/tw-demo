@@ -1,0 +1,2 @@
+visdom -port 4321 &> /dev/null &
+python play.py tw_games/rewardsDense_goalBrief.ulx
