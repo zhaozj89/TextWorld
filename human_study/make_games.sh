@@ -1,0 +1,2 @@
+# tw-make --third-party cooking.py tw-cooking --output games/ -f --go 12 --recipe 3 --take 3 --cook --cut --open --seed 1
+seq 1 10 | xargs -n1 -P4 tw-make --third-party cooking.py tw-cooking --format z8 --output games/ -f --go 12 --recipe 3 --take 3 --cook --cut --open --seed
