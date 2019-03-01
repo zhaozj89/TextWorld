@@ -14,25 +14,40 @@ food is edible.
 A room has a text called internal name.
 
 
+After examining a supporter which contains nothing:
+	say "It's empty.".
+
+
+After examining an open container which contains nothing:
+	say "It's empty.".
+
+
+Before printing the name of a thing (called the target) while looking, examining or listing contents:
+	say "\033[bracket]33;1m";
+
+After printing the name of a thing (called the target) while looking, examining or listing contents:
+	say "\033[bracket]0m";
+
+
 The r_1 and the r_0 and the r_4 and the r_2 and the r_3 and the r_5 are rooms.
 
 The internal name of r_1 is "kitchen".
 The printed name of r_1 is "-= Kitchen =-".
-The kitchen part 0 is some text that varies. The kitchen part 0 is "You arrive in a kitchen. A standard one.
+The kitchen part 0 is some text that varies. The kitchen part 0 is "You arrive in a \033[bracket]33;1mkitchen\033[bracket]0m. A standard one.
 
- You see a refrigerator. You check the price tag that's still affixed to the refrigerator. 100 bucks? What a deal! You'll have to ask where they got this![if c_2 is open and there is something in the c_2] The refrigerator contains [a list of things in the c_2].[end if]".
-The kitchen part 1 is some text that varies. The kitchen part 1 is "[if c_2 is open and the c_2 contains nothing] The refrigerator is empty! What a waste of a day![end if]".
-The kitchen part 2 is some text that varies. The kitchen part 2 is " You see a counter. The counter is typical.[if there is something on the s_1] On the counter you can see [a list of things on the s_1].[end if]".
+ You see a \033[bracket]33;1mrefrigerator\033[bracket]0m. You check the price tag that's still affixed to the \033[bracket]33;1mrefrigerator\033[bracket]0m. 100 bucks? What a deal! You'll have to ask where they got this![if c_2 is open and there is something in the c_2] The \033[bracket]33;1mrefrigerator\033[bracket]0m contains [a list of things in the c_2].[end if]".
+The kitchen part 1 is some text that varies. The kitchen part 1 is "[if c_2 is open and the c_2 contains nothing] The \033[bracket]33;1mrefrigerator\033[bracket]0m is empty! What a waste of a day![end if]".
+The kitchen part 2 is some text that varies. The kitchen part 2 is " You see a \033[bracket]33;1mcounter\033[bracket]0m. The \033[bracket]33;1mcounter\033[bracket]0m is typical.[if there is something on the s_1] On the \033[bracket]33;1mcounter\033[bracket]0m you can see [a list of things on the s_1].[end if]".
 The kitchen part 3 is some text that varies. The kitchen part 3 is "[if there is nothing on the s_1] But the thing hasn't got anything on it.[end if]".
-The kitchen part 4 is some text that varies. The kitchen part 4 is " Look out! It's a- oh, never mind, it's just a stove. [if there is something on the s_2]You see [a list of things on the s_2] on the stove.[end if]".
+The kitchen part 4 is some text that varies. The kitchen part 4 is " Look out! It's a- oh, never mind, it's just a \033[bracket]33;1mstove\033[bracket]0m. [if there is something on the s_2]You see [a list of things on the s_2] on the \033[bracket]33;1mstove\033[bracket]0m.[end if]".
 The kitchen part 5 is some text that varies. The kitchen part 5 is "[if there is nothing on the s_2]But there isn't a thing on it.[end if]".
-The kitchen part 6 is some text that varies. The kitchen part 6 is " Look over there! a kitchen island. You wonder idly who left that here. The kitchen island is usual.[if there is something on the s_3] On the kitchen island you see [a list of things on the s_3].[end if]".
+The kitchen part 6 is some text that varies. The kitchen part 6 is " Look over there! a \033[bracket]33;1mkitchen island\033[bracket]0m. You wonder idly who left that here. The \033[bracket]33;1mkitchen island\033[bracket]0m is usual.[if there is something on the s_3] On the \033[bracket]33;1mkitchen island\033[bracket]0m you see [a list of things on the s_3].[end if]".
 The kitchen part 7 is some text that varies. The kitchen part 7 is "[if there is nothing on the s_3] But the thing is empty, unfortunately. Oh! Why couldn't there just be stuff on it?[end if]".
 The kitchen part 8 is some text that varies. The kitchen part 8 is "
 
  There is [if d_1 is open]an open[otherwise]a closed[end if]".
-The kitchen part 9 is some text that varies. The kitchen part 9 is " screen door leading east. There is [if d_0 is open]an open[otherwise]a closed[end if]".
-The kitchen part 10 is some text that varies. The kitchen part 10 is " wooden door leading west. You need an unblocked exit? You should try going north. You don't like doors? Why not try going south, that entranceway is unblocked.".
+The kitchen part 9 is some text that varies. The kitchen part 9 is " \033[bracket]33;1mscreen door\033[bracket]0m leading east. There is [if d_0 is open]an open[otherwise]a closed[end if]".
+The kitchen part 10 is some text that varies. The kitchen part 10 is " \033[bracket]33;1mwooden door\033[bracket]0m leading west. You need an unblocked exit? You should try going north. You don't like doors? Why not try going south, that entranceway is unblocked.".
 The description of r_1 is "[kitchen part 0][kitchen part 1][kitchen part 2][kitchen part 3][kitchen part 4][kitchen part 5][kitchen part 6][kitchen part 7][kitchen part 8][kitchen part 9][kitchen part 10]".
 
 west of r_1 and east of r_0 is a door called d_0.
@@ -41,49 +56,49 @@ The r_3 is mapped north of r_1.
 east of r_1 and west of r_4 is a door called d_1.
 The internal name of r_0 is "bedroom".
 The printed name of r_0 is "-= Bedroom =-".
-The bedroom part 0 is some text that varies. The bedroom part 0 is "You are in a bedroom. A standard kind of place.
+The bedroom part 0 is some text that varies. The bedroom part 0 is "You are in a \033[bracket]33;1mbedroom\033[bracket]0m. A standard kind of place.
 
- You can make out a chest drawer. There's something strange about this being here, but you can't put your finger on it.[if c_0 is open and there is something in the c_0] The chest drawer contains [a list of things in the c_0].[end if]".
-The bedroom part 1 is some text that varies. The bedroom part 1 is "[if c_0 is open and the c_0 contains nothing] The chest drawer is empty! What a waste of a day![end if]".
+ You can make out a \033[bracket]33;1mchest drawer\033[bracket]0m. There's something strange about this being here, but you can't put your finger on it.[if c_0 is open and there is something in the c_0] The \033[bracket]33;1mchest drawer\033[bracket]0m contains [a list of things in the c_0].[end if]".
+The bedroom part 1 is some text that varies. The bedroom part 1 is "[if c_0 is open and the c_0 contains nothing] The \033[bracket]33;1mchest drawer\033[bracket]0m is empty! What a waste of a day![end if]".
 The bedroom part 2 is some text that varies. The bedroom part 2 is " You see [if c_1 is locked]a locked[else if c_1 is open]an opened[otherwise]a closed[end if]".
-The bedroom part 3 is some text that varies. The bedroom part 3 is " antique trunk right there by you.[if c_1 is open and there is something in the c_1] The antique trunk contains [a list of things in the c_1]. There's something strange about this being here, but you can't put your finger on it.[end if]".
-The bedroom part 4 is some text that varies. The bedroom part 4 is "[if c_1 is open and the c_1 contains nothing] The antique trunk is empty! What a waste of a day![end if]".
-The bedroom part 5 is some text that varies. The bedroom part 5 is " Look over there! a king-size bed. Now why would someone leave that there? [if there is something on the s_0]You see [a list of things on the s_0] on the king-size bed.[end if]".
+The bedroom part 3 is some text that varies. The bedroom part 3 is " \033[bracket]33;1mantique trunk\033[bracket]0m right there by you.[if c_1 is open and there is something in the c_1] The \033[bracket]33;1mantique trunk\033[bracket]0m contains [a list of things in the c_1]. There's something strange about this being here, but you can't put your finger on it.[end if]".
+The bedroom part 4 is some text that varies. The bedroom part 4 is "[if c_1 is open and the c_1 contains nothing] The \033[bracket]33;1mantique trunk\033[bracket]0m is empty! What a waste of a day![end if]".
+The bedroom part 5 is some text that varies. The bedroom part 5 is " Look over there! a \033[bracket]33;1mking-size bed\033[bracket]0m. Now why would someone leave that there? [if there is something on the s_0]You see [a list of things on the s_0] on the \033[bracket]33;1mking-size bed\033[bracket]0m.[end if]".
 The bedroom part 6 is some text that varies. The bedroom part 6 is "[if there is nothing on the s_0]But oh no! there's nothing on this piece of trash.[end if]".
 The bedroom part 7 is some text that varies. The bedroom part 7 is "
 
  There is [if d_0 is open]an open[otherwise]a closed[end if]".
-The bedroom part 8 is some text that varies. The bedroom part 8 is " wooden door leading east.".
+The bedroom part 8 is some text that varies. The bedroom part 8 is " \033[bracket]33;1mwooden door\033[bracket]0m leading east.".
 The description of r_0 is "[bedroom part 0][bedroom part 1][bedroom part 2][bedroom part 3][bedroom part 4][bedroom part 5][bedroom part 6][bedroom part 7][bedroom part 8]".
 
 east of r_0 and west of r_1 is a door called d_0.
 The internal name of r_4 is "backyard".
 The printed name of r_4 is "-= Backyard =-".
-The backyard part 0 is some text that varies. The backyard part 0 is "You have moved into the most typical of all possible backyards.
+The backyard part 0 is some text that varies. The backyard part 0 is "You have moved into the most typical of all possible \033[bracket]33;1mbackyard\033[bracket]0ms.
 
- You see a gleam over in a corner, where you can see a set of chairs. [if there is something on the s_10]You see [a list of things on the s_10] on the set of chairs.[end if]".
-The backyard part 1 is some text that varies. The backyard part 1 is "[if there is nothing on the s_10]But oh no! there's nothing on this piece of junk. You think about smashing the set of chairs to bits, throwing the bits in the dump, etc, until you get bored.[end if]".
-The backyard part 2 is some text that varies. The backyard part 2 is " What's that over there? It looks like it's a bbq. I guess it's true what they say, if you're looking for a bbq, go to TextWorld. [if there is something on the s_8]On the bbq you see [a list of things on the s_8].[end if]".
-The backyard part 3 is some text that varies. The backyard part 3 is "[if there is nothing on the s_8]However, the bbq, like an empty bbq, has nothing on it.[end if]".
-The backyard part 4 is some text that varies. The backyard part 4 is " You can see a patio table. The patio table is normal.[if there is something on the s_9] On the patio table you see [a list of things on the s_9].[end if]".
+ You see a gleam over in a corner, where you can see a \033[bracket]33;1mset of chairs\033[bracket]0m. [if there is something on the s_10]You see [a list of things on the s_10] on the \033[bracket]33;1mset of chairs\033[bracket]0m.[end if]".
+The backyard part 1 is some text that varies. The backyard part 1 is "[if there is nothing on the s_10]But oh no! there's nothing on this piece of junk. You think about smashing the \033[bracket]33;1mset of chairs\033[bracket]0m to bits, throwing the bits in the dump, etc, until you get bored.[end if]".
+The backyard part 2 is some text that varies. The backyard part 2 is " What's that over there? It looks like it's a \033[bracket]33;1mbbq\033[bracket]0m. I guess it's true what they say, if you're looking for a \033[bracket]33;1mbbq\033[bracket]0m, go to TextWorld. [if there is something on the s_8]On the \033[bracket]33;1mbbq\033[bracket]0m you see [a list of things on the s_8].[end if]".
+The backyard part 3 is some text that varies. The backyard part 3 is "[if there is nothing on the s_8]However, the \033[bracket]33;1mbbq\033[bracket]0m, like an empty \033[bracket]33;1mbbq\033[bracket]0m, has nothing on it.[end if]".
+The backyard part 4 is some text that varies. The backyard part 4 is " You can see a \033[bracket]33;1mpatio table\033[bracket]0m. The \033[bracket]33;1mpatio table\033[bracket]0m is normal.[if there is something on the s_9] On the \033[bracket]33;1mpatio table\033[bracket]0m you see [a list of things on the s_9].[end if]".
 The backyard part 5 is some text that varies. The backyard part 5 is "[if there is nothing on the s_9] But oh no! there's nothing on this piece of junk.[end if]".
 The backyard part 6 is some text that varies. The backyard part 6 is "
 
  There is [if d_1 is open]an open[otherwise]a closed[end if]".
-The backyard part 7 is some text that varies. The backyard part 7 is " screen door leading west. You need an unguarded exit? You should try going south.".
+The backyard part 7 is some text that varies. The backyard part 7 is " \033[bracket]33;1mscreen door\033[bracket]0m leading west. You need an unguarded exit? You should try going south.".
 The description of r_4 is "[backyard part 0][backyard part 1][backyard part 2][backyard part 3][backyard part 4][backyard part 5][backyard part 6][backyard part 7]".
 
 west of r_4 and east of r_1 is a door called d_1.
 The r_5 is mapped south of r_4.
 The internal name of r_2 is "living room".
 The printed name of r_2 is "-= Living Room =-".
-The living room part 0 is some text that varies. The living room part 0 is "You're now in a living room.
+The living room part 0 is some text that varies. The living room part 0 is "You're now in a \033[bracket]33;1mliving room\033[bracket]0m.
 
- You can see a couch. [if there is something on the s_5]On the couch you make out [a list of things on the s_5].[end if]".
+ You can see a \033[bracket]33;1mcouch\033[bracket]0m. [if there is something on the s_5]On the \033[bracket]33;1mcouch\033[bracket]0m you make out [a list of things on the s_5].[end if]".
 The living room part 1 is some text that varies. The living room part 1 is "[if there is nothing on the s_5]But the thing is empty, unfortunately.[end if]".
-The living room part 2 is some text that varies. The living room part 2 is " You smell an intriguing smell, and follow it to a low table. The low table is ordinary.[if there is something on the s_6] On the low table you see [a list of things on the s_6]. Huh, weird.[end if]".
-The living room part 3 is some text that varies. The living room part 3 is "[if there is nothing on the s_6] However, the low table, like an empty low table, has nothing on it.[end if]".
-The living room part 4 is some text that varies. The living room part 4 is " You can see a tv. Wow, isn't TextWorld just the best? [if there is something on the s_7]On the tv you see [a list of things on the s_7].[end if]".
+The living room part 2 is some text that varies. The living room part 2 is " You smell an intriguing smell, and follow it to a \033[bracket]33;1mlow table\033[bracket]0m. The \033[bracket]33;1mlow table\033[bracket]0m is ordinary.[if there is something on the s_6] On the \033[bracket]33;1mlow table\033[bracket]0m you see [a list of things on the s_6]. Huh, weird.[end if]".
+The living room part 3 is some text that varies. The living room part 3 is "[if there is nothing on the s_6] However, the \033[bracket]33;1mlow table\033[bracket]0m, like an empty \033[bracket]33;1mlow table\033[bracket]0m, has nothing on it.[end if]".
+The living room part 4 is some text that varies. The living room part 4 is " You can see a \033[bracket]33;1mtv\033[bracket]0m. Wow, isn't TextWorld just the best? [if there is something on the s_7]On the \033[bracket]33;1mtv\033[bracket]0m you see [a list of things on the s_7].[end if]".
 The living room part 5 is some text that varies. The living room part 5 is "[if there is nothing on the s_7]But the thing is empty, unfortunately. Hm. Oh well[end if]".
 The living room part 6 is some text that varies. The living room part 6 is "
 
@@ -93,14 +108,14 @@ The description of r_2 is "[living room part 0][living room part 1][living room 
 The r_1 is mapped north of r_2.
 The internal name of r_3 is "bathroom".
 The printed name of r_3 is "-= Bathroom =-".
-The bathroom part 0 is some text that varies. The bathroom part 0 is "You are in a bathroom. A normal one.
+The bathroom part 0 is some text that varies. The bathroom part 0 is "You are in a \033[bracket]33;1mbathroom\033[bracket]0m. A normal one.
 
  You make out [if c_3 is locked]a locked[else if c_3 is open]an opened[otherwise]a closed[end if]".
-The bathroom part 1 is some text that varies. The bathroom part 1 is " toilet right there by you.[if c_3 is open and there is something in the c_3] The toilet contains [a list of things in the c_3].[end if]".
-The bathroom part 2 is some text that varies. The bathroom part 2 is "[if c_3 is open and the c_3 contains nothing] The toilet is empty! What a waste of a day![end if]".
-The bathroom part 3 is some text that varies. The bathroom part 3 is " You see a bath.[if c_4 is open and there is something in the c_4] The bath contains [a list of things in the c_4].[end if]".
-The bathroom part 4 is some text that varies. The bathroom part 4 is "[if c_4 is open and the c_4 contains nothing] The bath is empty, what a horrible day![end if]".
-The bathroom part 5 is some text that varies. The bathroom part 5 is " You make out a sink. The sink is standard.[if there is something on the s_4] On the sink you make out [a list of things on the s_4].[end if]".
+The bathroom part 1 is some text that varies. The bathroom part 1 is " \033[bracket]33;1mtoilet\033[bracket]0m right there by you.[if c_3 is open and there is something in the c_3] The \033[bracket]33;1mtoilet\033[bracket]0m contains [a list of things in the c_3].[end if]".
+The bathroom part 2 is some text that varies. The bathroom part 2 is "[if c_3 is open and the c_3 contains nothing] The \033[bracket]33;1mtoilet\033[bracket]0m is empty! What a waste of a day![end if]".
+The bathroom part 3 is some text that varies. The bathroom part 3 is " You see a \033[bracket]33;1mbath\033[bracket]0m.[if c_4 is open and there is something in the c_4] The \033[bracket]33;1mbath\033[bracket]0m contains [a list of things in the c_4].[end if]".
+The bathroom part 4 is some text that varies. The bathroom part 4 is "[if c_4 is open and the c_4 contains nothing] The \033[bracket]33;1mbath\033[bracket]0m is empty, what a horrible day![end if]".
+The bathroom part 5 is some text that varies. The bathroom part 5 is " You make out a \033[bracket]33;1msink\033[bracket]0m. The \033[bracket]33;1msink\033[bracket]0m is standard.[if there is something on the s_4] On the \033[bracket]33;1msink\033[bracket]0m you make out [a list of things on the s_4].[end if]".
 The bathroom part 6 is some text that varies. The bathroom part 6 is "[if there is nothing on the s_4] But the thing hasn't got anything on it.[end if]".
 The bathroom part 7 is some text that varies. The bathroom part 7 is "
 
@@ -110,7 +125,7 @@ The description of r_3 is "[bathroom part 0][bathroom part 1][bathroom part 2][b
 The r_1 is mapped south of r_3.
 The internal name of r_5 is "garden".
 The printed name of r_5 is "-= Garden =-".
-The garden part 0 is some text that varies. The garden part 0 is "I am so happy to announce that you are now in the garden. You begin to take stock of what's here.
+The garden part 0 is some text that varies. The garden part 0 is "I am so happy to announce that you are now in the \033[bracket]33;1mgarden\033[bracket]0m. You begin to take stock of what's here.
 
 
 
@@ -134,48 +149,48 @@ The r_1 and the r_0 and the r_4 and the r_2 and the r_3 and the r_5 are privatel
 The s_0 and the s_1 and the s_10 and the s_2 and the s_3 and the s_4 and the s_5 and the s_6 and the s_7 and the s_8 and the s_9 are supporters.
 The s_0 and the s_1 and the s_10 and the s_2 and the s_3 and the s_4 and the s_5 and the s_6 and the s_7 and the s_8 and the s_9 are privately-named.
 
-The description of d_0 is "it is what it is, a wooden door [if open]You can see inside it.[else if closed]You can't see inside it because the lid's in your way.[otherwise]There is a lock on it.[end if]".
+The description of d_0 is "It is what it is, a [noun]. [if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to bash open.[otherwise]You can't see inside it because the lid's in your way.[end if]".
 The printed name of d_0 is "wooden door".
 Understand "wooden door" as d_0.
 Understand "wooden" as d_0.
 Understand "door" as d_0.
 The d_0 is locked.
-The description of d_1 is "it is what it is, a screen door [if open]It is open.[else if closed]It is closed.[otherwise]It is locked.[end if]".
+The description of d_1 is "It is what it is, a [noun]. [if open]It is open.[else if locked]It is locked.[otherwise]It is closed.[end if]".
 The printed name of d_1 is "screen door".
 Understand "screen door" as d_1.
 Understand "screen" as d_1.
 Understand "door" as d_1.
 The d_1 is closed.
-The description of c_0 is "The chest drawer looks strong, and impossible to open. [if open]You can see inside it.[else if closed]You can't see inside it because the lid's in your way.[otherwise]There is a lock on it.[end if]".
+The description of c_0 is "The [noun] looks solid. [if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to bash open.[otherwise]You can't see inside it because the lid's in your way.[end if]".
 The printed name of c_0 is "chest drawer".
 Understand "chest drawer" as c_0.
 Understand "chest" as c_0.
 Understand "drawer" as c_0.
 The c_0 is in r_0.
 The c_0 is closed.
-The description of c_1 is "The antique trunk looks strong, and impossible to bash open. [if open]You can see inside it.[else if closed]You can't see inside it because the lid's in your way.[otherwise]There is a lock on it.[end if]".
+The description of c_1 is "The [noun] looks imposing. [if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to break open.[otherwise]You can't see inside it because the lid's in your way.[end if]".
 The printed name of c_1 is "antique trunk".
 Understand "antique trunk" as c_1.
 Understand "antique" as c_1.
 Understand "trunk" as c_1.
 The c_1 is in r_0.
 The c_1 is closed.
-The description of c_2 is "The refrigerator looks strong, and impossible to open. [if open]It is open.[else if closed]It is closed.[otherwise]It is locked.[end if]".
+The description of c_2 is "The [noun] looks ominous. [if open]It is open.[else if locked]It is locked.[otherwise]It is closed.[end if]".
 The printed name of c_2 is "refrigerator".
 Understand "refrigerator" as c_2.
 The c_2 is in r_1.
 The c_2 is closed.
-The description of c_3 is "The toilet looks strong, and impossible to break open. [if open]It is open.[else if closed]It is closed.[otherwise]It is locked.[end if]".
+The description of c_3 is "The [noun] looks noble. [if open]It is open.[else if locked]It is locked.[otherwise]It is closed.[end if]".
 The printed name of c_3 is "toilet".
 Understand "toilet" as c_3.
 The c_3 is in r_3.
 The c_3 is closed.
-The description of c_4 is "The bath looks strong, and impossible to crack open. [if open]It is open.[else if closed]It is closed.[otherwise]It is locked.[end if]".
+The description of c_4 is "The [noun] looks manageable. [if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to bash open.[otherwise]You can't see inside it because the lid's in your way.[end if]".
 The printed name of c_4 is "bath".
 Understand "bath" as c_4.
 The c_4 is in r_3.
 The c_4 is closed.
-The description of f_3 is "You couldn't pay me to eat that ordinary thing.".
+The description of f_3 is "The [noun] looks delicious.".
 The printed name of f_3 is "half of a bag of chips".
 Understand "half of a bag of chips" as f_3.
 Understand "half" as f_3.
@@ -184,109 +199,109 @@ Understand "bag" as f_3.
 Understand "chips" as f_3.
 The f_3 is in r_5.
 The f_3 is edible.
-The description of f_4 is "that's a standard carrot!".
+The description of f_4 is "That's a [noun]!".
 The printed name of f_4 is "carrot".
 Understand "carrot" as f_4.
 The f_4 is in r_5.
 The f_4 is edible.
-The description of f_5 is "The apple looks delicious.".
+The description of f_5 is "You couldn't pay me to eat that [noun].".
 The printed name of f_5 is "apple".
 Understand "apple" as f_5.
 The f_5 is in r_5.
 The f_5 is edible.
-The description of o_3 is "The shovel looks to fit in here".
+The description of o_3 is "The [noun] appears to be out of place here".
 The printed name of o_3 is "shovel".
 Understand "shovel" as o_3.
 The o_3 is in r_5.
-The description of s_0 is "The king-size bed is stable.".
+The description of s_0 is "The [noun] is solid.".
 The printed name of s_0 is "king-size bed".
 Understand "king-size bed" as s_0.
 Understand "king-size" as s_0.
 Understand "bed" as s_0.
 The s_0 is in r_0.
-The description of s_1 is "The counter is undependable.".
+The description of s_1 is "The [noun] is durable.".
 The printed name of s_1 is "counter".
 Understand "counter" as s_1.
 The s_1 is in r_1.
-The description of s_10 is "The set of chairs is solid.".
+The description of s_10 is "The [noun] is shaky.".
 The printed name of s_10 is "set of chairs".
 Understand "set of chairs" as s_10.
 Understand "set" as s_10.
 Understand "chairs" as s_10.
 The s_10 is in r_4.
-The description of s_2 is "The stove is durable.".
+The description of s_2 is "The [noun] is undependable.".
 The printed name of s_2 is "stove".
 Understand "stove" as s_2.
 The s_2 is in r_1.
-The description of s_3 is "The kitchen island is shaky.".
+The description of s_3 is "The [noun] is wobbly.".
 The printed name of s_3 is "kitchen island".
 Understand "kitchen island" as s_3.
 Understand "kitchen" as s_3.
 Understand "island" as s_3.
 The s_3 is in r_1.
-The description of s_4 is "The sink is undependable.".
+The description of s_4 is "The [noun] is undependable.".
 The printed name of s_4 is "sink".
 Understand "sink" as s_4.
 The s_4 is in r_3.
-The description of s_5 is "The couch is wobbly.".
+The description of s_5 is "The [noun] is reliable.".
 The printed name of s_5 is "couch".
 Understand "couch" as s_5.
 The s_5 is in r_2.
-The description of s_6 is "The low table is undependable.".
+The description of s_6 is "The [noun] is unstable.".
 The printed name of s_6 is "low table".
 Understand "low table" as s_6.
 Understand "low" as s_6.
 Understand "table" as s_6.
 The s_6 is in r_2.
-The description of s_7 is "The tv is reliable.".
+The description of s_7 is "The [noun] is shaky.".
 The printed name of s_7 is "tv".
 Understand "tv" as s_7.
 The s_7 is in r_2.
-The description of s_8 is "The bbq is unstable.".
+The description of s_8 is "The [noun] is stable.".
 The printed name of s_8 is "bbq".
 Understand "bbq" as s_8.
 The s_8 is in r_4.
-The description of s_9 is "The patio table is shaky.".
+The description of s_9 is "The [noun] is unstable.".
 The printed name of s_9 is "patio table".
 Understand "patio table" as s_9.
 Understand "patio" as s_9.
 Understand "table" as s_9.
 The s_9 is in r_4.
-The description of f_0 is "The lettuce looks appetizing.".
+The description of f_0 is "You couldn't pay me to eat that [noun].".
 The printed name of f_0 is "lettuce".
 Understand "lettuce" as f_0.
 The f_0 is edible.
 The f_0 is in the c_2.
-The description of f_1 is "The milk looks inviting.".
+The description of f_1 is "The [noun] looks savory.".
 The printed name of f_1 is "milk".
 Understand "milk" as f_1.
 The f_1 is edible.
 The f_1 is in the c_2.
-The description of f_2 is "The tomato plant looks savory.".
+The description of f_2 is "You couldn't pay me to eat that [noun].".
 The printed name of f_2 is "tomato plant".
 Understand "tomato plant" as f_2.
 Understand "tomato" as f_2.
 Understand "plant" as f_2.
 The f_2 is edible.
 The f_2 is on the s_5.
-The description of k_0 is "The metal of the old key is antiqued.".
+The description of k_0 is "The [noun] is cold to the touch".
 The printed name of k_0 is "old key".
 Understand "old key" as k_0.
 Understand "old" as k_0.
 Understand "key" as k_0.
 The k_0 is in the c_0.
 The matching key of the d_0 is the k_0.
-The description of o_1 is "The soap bar seems to fit in here".
+The description of o_1 is "The [noun] seems to fit in here".
 The printed name of o_1 is "soap bar".
 Understand "soap bar" as o_1.
 Understand "soap" as o_1.
 Understand "bar" as o_1.
 The o_1 is in the c_4.
-The description of o_0 is "The toothbrush would seem to be to fit in here".
+The description of o_0 is "The [noun] would seem to be to fit in here".
 The printed name of o_0 is "toothbrush".
 Understand "toothbrush" as o_0.
 The o_0 is on the s_4.
-The description of o_2 is "The remote would seem to be out of place here".
+The description of o_2 is "The [noun] would seem to be out of place here".
 The printed name of o_2 is "remote".
 Understand "remote" as o_2.
 The o_2 is on the s_6.
@@ -487,10 +502,7 @@ Rule for printing the player's obituary:
 	else:
 		center "*** You lost! ***";
 	say paragraph break;
-	let X be the turn count;
-	if restrict commands option is true:
-		let X be the turn count minus one;
-	say "You scored [score] out of a possible [maximum score], in [X] turn(s).";
+	say "You scored [score] out of a possible [maximum score], in [turn count] turn(s).";
 	[wait for any key;
 	stop game abruptly;]
 	rule succeeds.
@@ -659,10 +671,6 @@ Carry out printing the entire state:
 	try looking;
 	say "[line break]-=STATE STOP=-";
 
-When play begins:
-	if print state option is true:
-		try printing the entire state;
-
 Every turn:
 	if extra description command option is true:
 		say "<description>";
@@ -751,7 +759,7 @@ The extra description command option is usually false.
 
 Turning on the extra description command option is an action applying to nothing.
 Carry out turning on the extra description command option:
-	Decrease turn count by 1;
+	Decrease turn count by 1;  [Internal framework commands shouldn't count as a turn.]
 	Now the extra description command option is true.
 
 Understand "tw-extra-infos description" as turning on the extra description command option.
@@ -761,7 +769,7 @@ The extra inventory command option is usually false.
 
 Turning on the extra inventory command option is an action applying to nothing.
 Carry out turning on the extra inventory command option:
-	Decrease turn count by 1;
+	Decrease turn count by 1;  [Internal framework commands shouldn't count as a turn.]
 	Now the extra inventory command option is true.
 
 Understand "tw-extra-infos inventory" as turning on the extra inventory command option.
@@ -771,7 +779,7 @@ The extra score command option is usually false.
 
 Turning on the extra score command option is an action applying to nothing.
 Carry out turning on the extra score command option:
-	Decrease turn count by 1;
+	Decrease turn count by 1;  [Internal framework commands shouldn't count as a turn.]
 	Now the extra score command option is true.
 
 Understand "tw-extra-infos score" as turning on the extra score command option.
@@ -781,6 +789,7 @@ To trace the actions:
 
 Tracing the actions is an action applying to nothing.
 Carry out tracing the actions:
+	Decrease turn count by 1;  [Internal framework commands shouldn't count as a turn.]
 	trace the actions;
 
 Understand "tw-trace-actions" as tracing the actions.
@@ -790,7 +799,7 @@ The restrict commands option is usually false.
 
 Turning on the restrict commands option is an action applying to nothing.
 Carry out turning on the restrict commands option:
-	Decrease turn count by 1;
+	Decrease turn count by 1;  [Internal framework commands shouldn't count as a turn.]
 	Now the restrict commands option is true.
 
 Understand "restrict commands" as turning on the restrict commands option.

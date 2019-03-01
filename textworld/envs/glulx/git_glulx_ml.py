@@ -126,7 +126,7 @@ def _detect_i7_events_debug_tags(text: str) -> Tuple[List[str], str]:
     """
     matches = []
     open_tags = []
-    for match in re.findall(r"\[[^]]+\]\n?", text):
+    for match in re.findall(r"(?<!\x1b)\[[^]]+\]\n?", text):
         text = text.replace(match, "")  # Remove i7 debug tags.
         tag_name = match.strip()[1:-1]  # Strip starting '[' and trailing ']'.
 
@@ -531,7 +531,10 @@ class GitGlulxMLEnvironment(textworld.Environment):
             return None
 
         result = ffi.gc(result, lib.free)
-        return ffi.string(result).decode('utf-8')
+        result = ffi.string(result).decode('utf-8')
+        result = result.replace("\\033[", "\033[")
+
+        return result
 
     def reset(self) -> GlulxGameState:
         if self.game_running:
@@ -549,6 +552,8 @@ class GitGlulxMLEnvironment(textworld.Environment):
         c_feedback = ffi.gc(c_feedback, lib.free)
 
         start_output = ffi.string(c_feedback).decode('utf-8')
+        start_output = start_output.replace("\\033[", "\033[")
+
 
         if not self._state_tracking:
             self.enable_extra_info("score")
@@ -591,6 +596,12 @@ class GitGlulxMLEnvironment(textworld.Environment):
             paragraphs = ["\n".join(textwrap.wrap(paragraph, width=80)) for paragraph in paragraphs]
             msg = "\n".join(paragraphs)
 
+            #"\n-= Kitchen =-\nYou arrive in a \x1b[33;1mkitchen\x1b[0m. A standard one.\n\nYou see a \x1b[33;1mrefrigerator\x1b[0m. You check the price tag that's still affixed\nto the \x1b[33;1mrefrigerator\x1b[0m. 100 bucks? What a deal! You'll have to ask where\nthey got this! You see a \x1b[33;1mcounter\x1b[0m. The \x1b[33;1mcounter\x1b[0m is typical.\nBut the thing hasn't got anything on it. Look out! It's a- oh, never mind, it's\njust a \x1b[33;1mstove\x1b[0m. But there isn't a thing on it. Look over there! a\n\x1b[33;1mkitchen island\x1b[0m. You wonder idly who left that here. The\n\x1b[33;1mkitchen island\x1b[0m is usual. On the \x1b[33;1mkitchen island\x1b[0m you see a\n\x1b[33;1mnote\x1b[0m.\n\nThere is a closed \x1b[33;1mscreen door\x1b[0m leading east. There is an open\n\x1b[33;1mwooden door\x1b[0m leading west. You need an unblocked exit? You should try\ngoing north. You don't like doors? Why not try going south, that entranceway is\nunblocked.\n\n\nYour score has just gone up by one point.\n"
+
+            highlights = re.findall(r"\x1b[^\x1b]+\x1b\[0m", msg)
+            for highlight in set(highlights):
+                msg = rreplace(msg, highlight, highlight[7:-4], msg.count(highlight) - 1)
+
         outfile.write(msg + "\n")
 
         if mode == "text":
@@ -599,3 +610,8 @@ class GitGlulxMLEnvironment(textworld.Environment):
 
         if mode == 'ansi':
             return outfile
+
+
+def rreplace(s, old, new, occurrence):
+    li = s.rsplit(old, occurrence)
+    return new.join(li)

@@ -17,5 +17,13 @@ type o : t {
             kind :: "object-like";
             definition :: "object-like is portable.";
         }
+
+        code :: """
+            Before printing the name of a thing (called the target) while looking, examining or listing contents:
+                say "[bold type][italic type]";
+
+            After printing the name of a thing (called the target) while looking, examining or listing contents:
+                say "[roman type]";
+        """;
     }
 }

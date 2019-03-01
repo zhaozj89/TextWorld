@@ -232,9 +232,6 @@ def main():
         from textworld.envs.wrappers import HtmlViewer
         env = HtmlViewer(env, port=args.viewer)
 
-    if args.mode == "human" or args.very_verbose:
-        print("Using {}.\n".format(env.__class__.__name__))
-
     game_state = env.reset()
     if args.refresh:
         plot_final(game_state.max_score, args.max_steps, args.game)
@@ -243,7 +240,13 @@ def main():
     history = []
     scores = [0]
     if args.mode == "human" or args.verbose:
-        env.render()
+        text = env.render(mode="text")
+        banner, intro = text.split(game_state.objective)
+        print(banner[2:], end="")
+        paragraphs = intro.split("\n")
+        paragraphs = ["\n".join(textwrap.wrap(paragraph, width=80)) for paragraph in paragraphs]
+        intro = "\n".join(paragraphs)
+
 
     plot(scores, best[:len(scores)], game_state.max_score, args.max_steps)
 
@@ -264,20 +267,24 @@ def main():
         text += colorize(msg.split(" red")[-1], color="yellow")
 
         print(text)
-        input("Press [enter] to continue...")
+        input("Press [enter] to start...")
+        print("\n\n" + colorize(game_state.objective, "yellow", bold=True))
+        print(intro)
 
-        msg_player = "So far, you have scored {}/{} points in {}/{} moves".format(game_state.score, game_state.max_score,
-                                                                                game_state.nb_moves, args.max_steps)
-        print(colorize(msg_player, "cyan", bold=True))
+        # msg_player = "So far, you have scored {}/{} points in {}/{} moves".format(game_state.score, game_state.max_score,
+        #                                                                           game_state.nb_moves, args.max_steps)
+        #print(colorize(msg_player, "cyan", bold=True))
 
-        msg_agent  = "while the RL agent has scored {}/{} points in {}/{} moves.".format(best[game_state.nb_moves], game_state.max_score,
-                                                                                        game_state.nb_moves, args.max_steps)
-        print(colorize(msg_agent, "red", bold=True))
+        # msg_agent  = "while the RL agent has scored {}/{} points in {}/{} moves.".format(best[game_state.nb_moves], game_state.max_score,
+        #                                                                                  game_state.nb_moves, args.max_steps)
+        #print(colorize(msg_agent, "red", bold=True))
+        print("Your score: " + colorize(str(game_state.score), "cyan", bold=True))
+        print("Agent's score: " + colorize(str(best[game_state.nb_moves]), "red", bold=True))
         print("\nWhat do you want to do?")
 
         score = 0
         done = False
-        for t in range(args.max_steps) if args.max_steps > 0 else itertools.count():
+        for _ in range(args.max_steps) if args.max_steps > 0 else itertools.count():
             command = agent.act(game_state, score, done)
             game_state, score, done = env.step(command)
             scores.append(score)
@@ -286,20 +293,23 @@ def main():
             if args.mode == "human" or args.verbose:
                 env.render()
 
-            msg_player = "So far, you have scored {}/{} points in {}/{} moves".format(game_state.score, game_state.max_score,
-                                                                                      game_state.nb_moves, args.max_steps)
-            print(colorize(msg_player, "cyan", bold=True))
+            # msg_player = "So far, you have scored {}/{} points in {}/{} moves".format(game_state.score, game_state.max_score,
+            #                                                                           game_state.nb_moves, args.max_steps)
+            #print(colorize(msg_player, "cyan", bold=True))
 
             agent_score, agent_moves = best[-1], len(best)
             if game_state.nb_moves < len(best):
                 agent_score, agent_moves = best[game_state.nb_moves], game_state.nb_moves
 
-            msg_agent = "while the RL agent has scored {}/{} points in {}/{} moves.".format(agent_score, game_state.max_score,
-                                                                                            agent_moves, args.max_steps)
-            if game_state.nb_moves >= len(best):
-                msg_agent += " [Won]" if best[-1] >= game_state.max_score else " [Lost]"
+            # msg_agent = "while the RL agent has scored {}/{} points in {}/{} moves.".format(agent_score, game_state.max_score,
+            #                                                                                 agent_moves, args.max_steps)
+            # if game_state.nb_moves >= len(best):
+            #     msg_agent += " [Won]" if best[-1] >= game_state.max_score else " [Lost]"
 
-            print(colorize(msg_agent, "red", bold=True))
+            #print(colorize(msg_agent, "red", bold=True))
+
+            print("Your score: " + colorize(str(game_state.score), "cyan", bold=True))
+            print("Agent's score: " + colorize(str(agent_score), "red", bold=True))
             print()
 
             plot(scores, best[:len(scores)], game_state.max_score, args.max_steps)
