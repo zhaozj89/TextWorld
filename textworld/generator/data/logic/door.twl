@@ -16,6 +16,8 @@ type d : t {
         close/d  :: $at(P, r) & $link(r, d, r') & $link(r', d, r) & open(d) & free(r, r') & free(r', r) -> closed(d);
 
         examine/d :: at(P, r) & $link(r, d, r') -> at(P, r);  # Nothing changes.
+
+        enter/d :: at(P, r) & $link(r, d, r') -> at(P, r');
     }
 
     reverse_rules {
@@ -69,6 +71,8 @@ type d : t {
             lock/d :: "lock {d} with {k}" :: "locking {d} with the {k}";
 
             examine/d :: "examine {d}" :: "examining {d}";
+
+            enter/d :: "enter {d}" :: "entering {d}";
         }
     }
 }

@@ -18,6 +18,7 @@ from glk import ffi, lib
 from io import StringIO
 
 import textworld
+from textworld.utils import str2bool
 from textworld.generator.game import Game, GameProgression
 from textworld.generator.inform7 import Inform7Game
 from textworld.logic import Action, State
@@ -587,6 +588,9 @@ class GitGlulxMLEnvironment(textworld.Environment):
         outfile = StringIO() if mode in ['ansi', "text"] else sys.stdout
 
         msg = self.game_state.feedback.rstrip() + "\n"
+        if str2bool(os.environ.get("TEXTWORLD_DEBUG", False)):
+            msg = self.game_state._raw.rstrip() + "\n"
+
         if self.display_command_during_render and self.game_state.command is not None:
             msg = '> ' + self.game_state.command + "\n" + msg
 
@@ -595,8 +599,6 @@ class GitGlulxMLEnvironment(textworld.Environment):
             paragraphs = msg.split("\n")
             paragraphs = ["\n".join(textwrap.wrap(paragraph, width=80)) for paragraph in paragraphs]
             msg = "\n".join(paragraphs)
-
-            #"\n-= Kitchen =-\nYou arrive in a \x1b[33;1mkitchen\x1b[0m. A standard one.\n\nYou see a \x1b[33;1mrefrigerator\x1b[0m. You check the price tag that's still affixed\nto the \x1b[33;1mrefrigerator\x1b[0m. 100 bucks? What a deal! You'll have to ask where\nthey got this! You see a \x1b[33;1mcounter\x1b[0m. The \x1b[33;1mcounter\x1b[0m is typical.\nBut the thing hasn't got anything on it. Look out! It's a- oh, never mind, it's\njust a \x1b[33;1mstove\x1b[0m. But there isn't a thing on it. Look over there! a\n\x1b[33;1mkitchen island\x1b[0m. You wonder idly who left that here. The\n\x1b[33;1mkitchen island\x1b[0m is usual. On the \x1b[33;1mkitchen island\x1b[0m you see a\n\x1b[33;1mnote\x1b[0m.\n\nThere is a closed \x1b[33;1mscreen door\x1b[0m leading east. There is an open\n\x1b[33;1mwooden door\x1b[0m leading west. You need an unblocked exit? You should try\ngoing north. You don't like doors? Why not try going south, that entranceway is\nunblocked.\n\n\nYour score has just gone up by one point.\n"
 
             highlights = re.findall(r"\x1b[^\x1b]+\x1b\[0m", msg)
             for highlight in set(highlights):

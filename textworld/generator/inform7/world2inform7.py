@@ -844,7 +844,11 @@ class Inform7Game:
                 say "Can't see any [object] on the floor! Try taking the [object] from the [container] instead.";
                 rule fails.
 
+        Understand the commands "pick", "get" as something new.
+        Understand "pick [something] up" as removing it from.
+        Understand "pick up [something]" as removing it from.
         Understand "take [something]" as removing it from.
+        Understand "get [something]" as removing it from.
 
         Rule for supplying a missing second noun while removing:
             if restrict commands option is false and noun is on a supporter (called the supporter):
