@@ -23,31 +23,31 @@ After examining an open container which contains nothing:
 
 
 Before printing the name of a thing (called the target) while looking, examining or listing contents:
-	say "[bold type][italic type]";
+	say "\033[bracket]33;1m";
 
 After printing the name of a thing (called the target) while looking, examining or listing contents:
-	say "[roman type]";
+	say "\033[bracket]0m";
 
 
 The r_1 and the r_0 and the r_4 and the r_2 and the r_3 and the r_5 are rooms.
 
 The internal name of r_1 is "kitchen".
 The printed name of r_1 is "-= Kitchen =-".
-The kitchen part 0 is some text that varies. The kitchen part 0 is "You arrive in a [bold type][italic type]kitchen[roman type]. A standard one.
+The kitchen part 0 is some text that varies. The kitchen part 0 is "You arrive in a \033[bracket]33;1mkitchen\033[bracket]0m. A standard one.
 
- You see a [bold type][italic type]refrigerator[roman type]. You check the price tag that's still affixed to the [bold type][italic type]refrigerator[roman type]. 100 bucks? What a deal! You'll have to ask where they got this![if c_2 is open and there is something in the c_2] The [bold type][italic type]refrigerator[roman type] contains [a list of things in the c_2].[end if]".
-The kitchen part 1 is some text that varies. The kitchen part 1 is "[if c_2 is open and the c_2 contains nothing] The [bold type][italic type]refrigerator[roman type] is empty! What a waste of a day![end if]".
-The kitchen part 2 is some text that varies. The kitchen part 2 is " You see a [bold type][italic type]counter[roman type]. The [bold type][italic type]counter[roman type] is typical.[if there is something on the s_1] On the [bold type][italic type]counter[roman type] you can see [a list of things on the s_1].[end if]".
+ You see a \033[bracket]33;1mrefrigerator\033[bracket]0m. You check the price tag that's still affixed to the \033[bracket]33;1mrefrigerator\033[bracket]0m. 100 bucks? What a deal! You'll have to ask where they got this![if c_2 is open and there is something in the c_2] The \033[bracket]33;1mrefrigerator\033[bracket]0m contains [a list of things in the c_2].[end if]".
+The kitchen part 1 is some text that varies. The kitchen part 1 is "[if c_2 is open and the c_2 contains nothing] The \033[bracket]33;1mrefrigerator\033[bracket]0m is empty! What a waste of a day![end if]".
+The kitchen part 2 is some text that varies. The kitchen part 2 is " You see a \033[bracket]33;1mcounter\033[bracket]0m. The \033[bracket]33;1mcounter\033[bracket]0m is typical.[if there is something on the s_1] On the \033[bracket]33;1mcounter\033[bracket]0m you can see [a list of things on the s_1].[end if]".
 The kitchen part 3 is some text that varies. The kitchen part 3 is "[if there is nothing on the s_1] But the thing hasn't got anything on it.[end if]".
-The kitchen part 4 is some text that varies. The kitchen part 4 is " Look out! It's a- oh, never mind, it's just a [bold type][italic type]stove[roman type]. [if there is something on the s_2]You see [a list of things on the s_2] on the [bold type][italic type]stove[roman type].[end if]".
+The kitchen part 4 is some text that varies. The kitchen part 4 is " Look out! It's a- oh, never mind, it's just a \033[bracket]33;1mstove\033[bracket]0m. [if there is something on the s_2]You see [a list of things on the s_2] on the \033[bracket]33;1mstove\033[bracket]0m.[end if]".
 The kitchen part 5 is some text that varies. The kitchen part 5 is "[if there is nothing on the s_2]But there isn't a thing on it.[end if]".
-The kitchen part 6 is some text that varies. The kitchen part 6 is " Look over there! a [bold type][italic type]kitchen island[roman type]. You wonder idly who left that here. The [bold type][italic type]kitchen island[roman type] is usual.[if there is something on the s_3] On the [bold type][italic type]kitchen island[roman type] you see [a list of things on the s_3].[end if]".
+The kitchen part 6 is some text that varies. The kitchen part 6 is " Look over there! a \033[bracket]33;1mkitchen island\033[bracket]0m. You wonder idly who left that here. The \033[bracket]33;1mkitchen island\033[bracket]0m is usual.[if there is something on the s_3] On the \033[bracket]33;1mkitchen island\033[bracket]0m you see [a list of things on the s_3].[end if]".
 The kitchen part 7 is some text that varies. The kitchen part 7 is "[if there is nothing on the s_3] But the thing is empty, unfortunately. Oh! Why couldn't there just be stuff on it?[end if]".
 The kitchen part 8 is some text that varies. The kitchen part 8 is "
 
  There is [if d_1 is open]an open[otherwise]a closed[end if]".
-The kitchen part 9 is some text that varies. The kitchen part 9 is " [bold type][italic type]screen door[roman type] leading east. There is [if d_0 is open]an open[otherwise]a closed[end if]".
-The kitchen part 10 is some text that varies. The kitchen part 10 is " [bold type][italic type]wooden door[roman type] leading west. You need an unblocked exit? You should try going north. You don't like doors? Why not try going south, that entranceway is unblocked.".
+The kitchen part 9 is some text that varies. The kitchen part 9 is " \033[bracket]33;1mscreen door\033[bracket]0m leading east. There is [if d_0 is open]an open[otherwise]a closed[end if]".
+The kitchen part 10 is some text that varies. The kitchen part 10 is " \033[bracket]33;1mwooden door\033[bracket]0m leading west. You need an unblocked exit? You should try going north. You don't like doors? Why not try going south, that entranceway is unblocked.".
 The description of r_1 is "[kitchen part 0][kitchen part 1][kitchen part 2][kitchen part 3][kitchen part 4][kitchen part 5][kitchen part 6][kitchen part 7][kitchen part 8][kitchen part 9][kitchen part 10]".
 
 west of r_1 and east of r_0 is a door called d_0.
@@ -56,49 +56,49 @@ The r_3 is mapped north of r_1.
 east of r_1 and west of r_4 is a door called d_1.
 The internal name of r_0 is "bedroom".
 The printed name of r_0 is "-= Bedroom =-".
-The bedroom part 0 is some text that varies. The bedroom part 0 is "You are in a [bold type][italic type]bedroom[roman type]. A standard kind of place.
+The bedroom part 0 is some text that varies. The bedroom part 0 is "You are in a \033[bracket]33;1mbedroom\033[bracket]0m. A standard kind of place.
 
- You can make out a [bold type][italic type]chest drawer[roman type]. There's something strange about this being here, but you can't put your finger on it.[if c_0 is open and there is something in the c_0] The [bold type][italic type]chest drawer[roman type] contains [a list of things in the c_0].[end if]".
-The bedroom part 1 is some text that varies. The bedroom part 1 is "[if c_0 is open and the c_0 contains nothing] The [bold type][italic type]chest drawer[roman type] is empty! What a waste of a day![end if]".
+ You can make out a \033[bracket]33;1mchest drawer\033[bracket]0m. There's something strange about this being here, but you can't put your finger on it.[if c_0 is open and there is something in the c_0] The \033[bracket]33;1mchest drawer\033[bracket]0m contains [a list of things in the c_0].[end if]".
+The bedroom part 1 is some text that varies. The bedroom part 1 is "[if c_0 is open and the c_0 contains nothing] The \033[bracket]33;1mchest drawer\033[bracket]0m is empty! What a waste of a day![end if]".
 The bedroom part 2 is some text that varies. The bedroom part 2 is " You see [if c_1 is locked]a locked[else if c_1 is open]an opened[otherwise]a closed[end if]".
-The bedroom part 3 is some text that varies. The bedroom part 3 is " [bold type][italic type]antique trunk[roman type] right there by you.[if c_1 is open and there is something in the c_1] The [bold type][italic type]antique trunk[roman type] contains [a list of things in the c_1]. There's something strange about this being here, but you can't put your finger on it.[end if]".
-The bedroom part 4 is some text that varies. The bedroom part 4 is "[if c_1 is open and the c_1 contains nothing] The [bold type][italic type]antique trunk[roman type] is empty! What a waste of a day![end if]".
-The bedroom part 5 is some text that varies. The bedroom part 5 is " Look over there! a [bold type][italic type]king-size bed[roman type]. Now why would someone leave that there? [if there is something on the s_0]You see [a list of things on the s_0] on the [bold type][italic type]king-size bed[roman type].[end if]".
+The bedroom part 3 is some text that varies. The bedroom part 3 is " \033[bracket]33;1mantique trunk\033[bracket]0m right there by you.[if c_1 is open and there is something in the c_1] The \033[bracket]33;1mantique trunk\033[bracket]0m contains [a list of things in the c_1]. There's something strange about this being here, but you can't put your finger on it.[end if]".
+The bedroom part 4 is some text that varies. The bedroom part 4 is "[if c_1 is open and the c_1 contains nothing] The \033[bracket]33;1mantique trunk\033[bracket]0m is empty! What a waste of a day![end if]".
+The bedroom part 5 is some text that varies. The bedroom part 5 is " Look over there! a \033[bracket]33;1mking-size bed\033[bracket]0m. Now why would someone leave that there? [if there is something on the s_0]You see [a list of things on the s_0] on the \033[bracket]33;1mking-size bed\033[bracket]0m.[end if]".
 The bedroom part 6 is some text that varies. The bedroom part 6 is "[if there is nothing on the s_0]But oh no! there's nothing on this piece of trash.[end if]".
 The bedroom part 7 is some text that varies. The bedroom part 7 is "
 
  There is [if d_0 is open]an open[otherwise]a closed[end if]".
-The bedroom part 8 is some text that varies. The bedroom part 8 is " [bold type][italic type]wooden door[roman type] leading east.".
+The bedroom part 8 is some text that varies. The bedroom part 8 is " \033[bracket]33;1mwooden door\033[bracket]0m leading east.".
 The description of r_0 is "[bedroom part 0][bedroom part 1][bedroom part 2][bedroom part 3][bedroom part 4][bedroom part 5][bedroom part 6][bedroom part 7][bedroom part 8]".
 
 east of r_0 and west of r_1 is a door called d_0.
 The internal name of r_4 is "backyard".
 The printed name of r_4 is "-= Backyard =-".
-The backyard part 0 is some text that varies. The backyard part 0 is "You have moved into the most typical of all possible [bold type][italic type]backyard[roman type]s.
+The backyard part 0 is some text that varies. The backyard part 0 is "You have moved into the most typical of all possible \033[bracket]33;1mbackyard\033[bracket]0ms.
 
- You see a gleam over in a corner, where you can see a [bold type][italic type]set of chairs[roman type]. [if there is something on the s_10]You see [a list of things on the s_10] on the [bold type][italic type]set of chairs[roman type].[end if]".
-The backyard part 1 is some text that varies. The backyard part 1 is "[if there is nothing on the s_10]But oh no! there's nothing on this piece of junk. You think about smashing the [bold type][italic type]set of chairs[roman type] to bits, throwing the bits in the dump, etc, until you get bored.[end if]".
-The backyard part 2 is some text that varies. The backyard part 2 is " What's that over there? It looks like it's a [bold type][italic type]bbq[roman type]. I guess it's true what they say, if you're looking for a [bold type][italic type]bbq[roman type], go to TextWorld. [if there is something on the s_8]On the [bold type][italic type]bbq[roman type] you see [a list of things on the s_8].[end if]".
-The backyard part 3 is some text that varies. The backyard part 3 is "[if there is nothing on the s_8]However, the [bold type][italic type]bbq[roman type], like an empty [bold type][italic type]bbq[roman type], has nothing on it.[end if]".
-The backyard part 4 is some text that varies. The backyard part 4 is " You can see a [bold type][italic type]patio table[roman type]. The [bold type][italic type]patio table[roman type] is normal.[if there is something on the s_9] On the [bold type][italic type]patio table[roman type] you see [a list of things on the s_9].[end if]".
+ You see a gleam over in a corner, where you can see a \033[bracket]33;1mset of chairs\033[bracket]0m. [if there is something on the s_10]You see [a list of things on the s_10] on the \033[bracket]33;1mset of chairs\033[bracket]0m.[end if]".
+The backyard part 1 is some text that varies. The backyard part 1 is "[if there is nothing on the s_10]But oh no! there's nothing on this piece of junk. You think about smashing the \033[bracket]33;1mset of chairs\033[bracket]0m to bits, throwing the bits in the dump, etc, until you get bored.[end if]".
+The backyard part 2 is some text that varies. The backyard part 2 is " What's that over there? It looks like it's a \033[bracket]33;1mbbq\033[bracket]0m. I guess it's true what they say, if you're looking for a \033[bracket]33;1mbbq\033[bracket]0m, go to TextWorld. [if there is something on the s_8]On the \033[bracket]33;1mbbq\033[bracket]0m you see [a list of things on the s_8].[end if]".
+The backyard part 3 is some text that varies. The backyard part 3 is "[if there is nothing on the s_8]However, the \033[bracket]33;1mbbq\033[bracket]0m, like an empty \033[bracket]33;1mbbq\033[bracket]0m, has nothing on it.[end if]".
+The backyard part 4 is some text that varies. The backyard part 4 is " You can see a \033[bracket]33;1mpatio table\033[bracket]0m. The \033[bracket]33;1mpatio table\033[bracket]0m is normal.[if there is something on the s_9] On the \033[bracket]33;1mpatio table\033[bracket]0m you see [a list of things on the s_9].[end if]".
 The backyard part 5 is some text that varies. The backyard part 5 is "[if there is nothing on the s_9] But oh no! there's nothing on this piece of junk.[end if]".
 The backyard part 6 is some text that varies. The backyard part 6 is "
 
  There is [if d_1 is open]an open[otherwise]a closed[end if]".
-The backyard part 7 is some text that varies. The backyard part 7 is " [bold type][italic type]screen door[roman type] leading west. You need an unguarded exit? You should try going south.".
+The backyard part 7 is some text that varies. The backyard part 7 is " \033[bracket]33;1mscreen door\033[bracket]0m leading west. You need an unguarded exit? You should try going south.".
 The description of r_4 is "[backyard part 0][backyard part 1][backyard part 2][backyard part 3][backyard part 4][backyard part 5][backyard part 6][backyard part 7]".
 
 west of r_4 and east of r_1 is a door called d_1.
 The r_5 is mapped south of r_4.
 The internal name of r_2 is "living room".
 The printed name of r_2 is "-= Living Room =-".
-The living room part 0 is some text that varies. The living room part 0 is "You're now in a [bold type][italic type]living room[roman type].
+The living room part 0 is some text that varies. The living room part 0 is "You're now in a \033[bracket]33;1mliving room\033[bracket]0m.
 
- You can see a [bold type][italic type]couch[roman type]. [if there is something on the s_5]On the [bold type][italic type]couch[roman type] you make out [a list of things on the s_5].[end if]".
+ You can see a \033[bracket]33;1mcouch\033[bracket]0m. [if there is something on the s_5]On the \033[bracket]33;1mcouch\033[bracket]0m you make out [a list of things on the s_5].[end if]".
 The living room part 1 is some text that varies. The living room part 1 is "[if there is nothing on the s_5]But the thing is empty, unfortunately.[end if]".
-The living room part 2 is some text that varies. The living room part 2 is " You smell an intriguing smell, and follow it to a [bold type][italic type]low table[roman type]. The [bold type][italic type]low table[roman type] is ordinary.[if there is something on the s_6] On the [bold type][italic type]low table[roman type] you see [a list of things on the s_6]. Huh, weird.[end if]".
-The living room part 3 is some text that varies. The living room part 3 is "[if there is nothing on the s_6] However, the [bold type][italic type]low table[roman type], like an empty [bold type][italic type]low table[roman type], has nothing on it.[end if]".
-The living room part 4 is some text that varies. The living room part 4 is " You can see a [bold type][italic type]tv[roman type]. Wow, isn't TextWorld just the best? [if there is something on the s_7]On the [bold type][italic type]tv[roman type] you see [a list of things on the s_7].[end if]".
+The living room part 2 is some text that varies. The living room part 2 is " You smell an intriguing smell, and follow it to a \033[bracket]33;1mlow table\033[bracket]0m. The \033[bracket]33;1mlow table\033[bracket]0m is ordinary.[if there is something on the s_6] On the \033[bracket]33;1mlow table\033[bracket]0m you see [a list of things on the s_6]. Huh, weird.[end if]".
+The living room part 3 is some text that varies. The living room part 3 is "[if there is nothing on the s_6] However, the \033[bracket]33;1mlow table\033[bracket]0m, like an empty \033[bracket]33;1mlow table\033[bracket]0m, has nothing on it.[end if]".
+The living room part 4 is some text that varies. The living room part 4 is " You can see a \033[bracket]33;1mtv\033[bracket]0m. Wow, isn't TextWorld just the best? [if there is something on the s_7]On the \033[bracket]33;1mtv\033[bracket]0m you see [a list of things on the s_7].[end if]".
 The living room part 5 is some text that varies. The living room part 5 is "[if there is nothing on the s_7]But the thing is empty, unfortunately. Hm. Oh well[end if]".
 The living room part 6 is some text that varies. The living room part 6 is "
 
@@ -108,14 +108,14 @@ The description of r_2 is "[living room part 0][living room part 1][living room 
 The r_1 is mapped north of r_2.
 The internal name of r_3 is "bathroom".
 The printed name of r_3 is "-= Bathroom =-".
-The bathroom part 0 is some text that varies. The bathroom part 0 is "You are in a [bold type][italic type]bathroom[roman type]. A normal one.
+The bathroom part 0 is some text that varies. The bathroom part 0 is "You are in a \033[bracket]33;1mbathroom\033[bracket]0m. A normal one.
 
  You make out [if c_3 is locked]a locked[else if c_3 is open]an opened[otherwise]a closed[end if]".
-The bathroom part 1 is some text that varies. The bathroom part 1 is " [bold type][italic type]toilet[roman type] right there by you.[if c_3 is open and there is something in the c_3] The [bold type][italic type]toilet[roman type] contains [a list of things in the c_3].[end if]".
-The bathroom part 2 is some text that varies. The bathroom part 2 is "[if c_3 is open and the c_3 contains nothing] The [bold type][italic type]toilet[roman type] is empty! What a waste of a day![end if]".
-The bathroom part 3 is some text that varies. The bathroom part 3 is " You see a [bold type][italic type]bath[roman type].[if c_4 is open and there is something in the c_4] The [bold type][italic type]bath[roman type] contains [a list of things in the c_4].[end if]".
-The bathroom part 4 is some text that varies. The bathroom part 4 is "[if c_4 is open and the c_4 contains nothing] The [bold type][italic type]bath[roman type] is empty, what a horrible day![end if]".
-The bathroom part 5 is some text that varies. The bathroom part 5 is " You make out a [bold type][italic type]sink[roman type]. The [bold type][italic type]sink[roman type] is standard.[if there is something on the s_4] On the [bold type][italic type]sink[roman type] you make out [a list of things on the s_4].[end if]".
+The bathroom part 1 is some text that varies. The bathroom part 1 is " \033[bracket]33;1mtoilet\033[bracket]0m right there by you.[if c_3 is open and there is something in the c_3] The \033[bracket]33;1mtoilet\033[bracket]0m contains [a list of things in the c_3].[end if]".
+The bathroom part 2 is some text that varies. The bathroom part 2 is "[if c_3 is open and the c_3 contains nothing] The \033[bracket]33;1mtoilet\033[bracket]0m is empty! What a waste of a day![end if]".
+The bathroom part 3 is some text that varies. The bathroom part 3 is " You see a \033[bracket]33;1mbath\033[bracket]0m.[if c_4 is open and there is something in the c_4] The \033[bracket]33;1mbath\033[bracket]0m contains [a list of things in the c_4].[end if]".
+The bathroom part 4 is some text that varies. The bathroom part 4 is "[if c_4 is open and the c_4 contains nothing] The \033[bracket]33;1mbath\033[bracket]0m is empty, what a horrible day![end if]".
+The bathroom part 5 is some text that varies. The bathroom part 5 is " You make out a \033[bracket]33;1msink\033[bracket]0m. The \033[bracket]33;1msink\033[bracket]0m is standard.[if there is something on the s_4] On the \033[bracket]33;1msink\033[bracket]0m you make out [a list of things on the s_4].[end if]".
 The bathroom part 6 is some text that varies. The bathroom part 6 is "[if there is nothing on the s_4] But the thing hasn't got anything on it.[end if]".
 The bathroom part 7 is some text that varies. The bathroom part 7 is "
 
@@ -125,7 +125,7 @@ The description of r_3 is "[bathroom part 0][bathroom part 1][bathroom part 2][b
 The r_1 is mapped south of r_3.
 The internal name of r_5 is "garden".
 The printed name of r_5 is "-= Garden =-".
-The garden part 0 is some text that varies. The garden part 0 is "I am so happy to announce that you are now in the [bold type][italic type]garden[roman type]. You begin to take stock of what's here.
+The garden part 0 is some text that varies. The garden part 0 is "I am so happy to announce that you are now in the \033[bracket]33;1mgarden\033[bracket]0m. You begin to take stock of what's here.
 
 
 
