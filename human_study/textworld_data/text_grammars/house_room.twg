@@ -5,15 +5,15 @@
 # Inform7 snippets
 #-----------------
 #Shouldn't need to be messed with. These are shortcuts for when you need to use i7 code. Probably a bad idea to include symbols or tokens inside these
-i7_closed/open:[if (obj) is open]an open[otherwise]a closed[end if]
+i7_closed/open:[if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
 i7_list_in:[a list of things in the (obj)]
 i7_list_on:[a list of things on the (obj)]
 i7_empty:[if (obj) contains nothing]an empty[otherwise]a[end if]
-inform7:[if (obj) is locked]a locked[else if (obj) is open]an open[otherwise]a closed[end if]
-inform7A:[if (obj) is locked]A locked[else if (obj) is open]An open[otherwise]A closed[end if]
-inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an open[otherwise]a closed[end if]
-inform7noun:[if (obj) is locked]locked[else if (obj) is open]open[otherwise]closed[end if]
-inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open]open[otherwise]closed[end if]
+inform7:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
+inform7A:[if (obj) is locked]A locked[else if (obj) is open]An [adjective of the verb open][otherwise]A [adjective of the verb close][end if]
+inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
+inform7noun:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
+inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
 
 #Room Intro#
 #----------
@@ -79,36 +79,15 @@ dec_walked_into:walked into;shown up in;sauntered into
 announce_mood:sorry;pleased;excited;stoked;so happy;honoured;required;obligated
 signquality:decrepit;rusty;laminated;crooked;well framed
 sign:sign;placard;notice;signboard;board
+
 #Description Separators
 #-------
-#Used to separate the description of different object types
-
-#First
-#first:First, you look for (next object type);First, you scan the room for (next object type);You first scan the room for (next object type)
-#Middle
-#middle:After that, you look for (next object type);Once you've ascertained the amount of (previous object type), you start looking for (next object type);
-#Last
-#last:and lastly, you check for (next object type)
-
-#Container Descriptions
-#----------------------
-#Rules for Container Descriptions
-#Good idea to subdivide these into difficulty levels
-#room_desc_(c): generates all container descriptions
-#containerdescription: contains all physical exterior descriptions of containers
-#room_desc_(c)_1_name: describes the container as an adj+noun
-#room_dec_(c)_1_noun: describes the container as a noun
-#room_desc_(c)_content: decides if we append a description of the container's contents depending on if the container is open or closed
-#opencontainer:what is appended if the container is open
-#room_desc_(c)_2_adj: adds an adjective and a list of contents (creates doubled adjectives?)
-#room_desc_(c)_2: list of contents without an adjective
 
 room_desc_(c):#containerdescription##room_desc_(c)_content#
 #special_container#.
 containerdescription:#room_desc_(c)_1_name#;#room_desc_(c)_1_noun#
 room_desc_(c)_content:[if (obj) is open and there is something in the (obj)] #opencontainer##suffix#[end if][if (obj) is open and the (obj) contains nothing] #emptyreaction#[end if]
 opencontainer:The (name) contains #i7_list_in#
-#room_desc_(c)_2_adj#;#room_desc_(c)_2#
 emptyreaction:The (name-n) is empty, what a horrible day!;The (name-n) is empty! What a waste of a day!;The (name-n) is empty! This is the worst thing that could possibly happen, ever!;Empty! What kind of nightmare TextWorld is this?;What a letdown! The (name-n) is empty!
 room_desc_(c)_1_name:#reg-a#;#normal-a#;#difficult-a#;#moredifficult-a#;#playful-a#
 
@@ -179,7 +158,7 @@ d4:In it, you can see #i7_list_in#.
 
 # E #
 
-e1:[if (obj) is open]#room_desc_(c)_multi_open_noun#.[else if (obj) is locked]The (name-n) is locked.[otherwise]The (name-n) is closed.[end if]
+e1:[if (obj) is open]#room_desc_(c)_multi_open_noun#.[else if (obj) is locked]The (name-n) is locked.[otherwise]The (name-n) is [adjective of the verb close].[end if]
 
 # F #
 
@@ -192,7 +171,7 @@ f6:The (name-n) #reminds_you# the containers #ofyouryouth#. Oh, how they also co
 
 # G #
 
-g1:[if (obj) is open]#room_desc_(c)_multi_open_adj#.[else if (obj) is locked]The (name-adj) one is locked.[otherwise]The (name-adj) one is closed.[end if]
+g1:[if (obj) is open]#room_desc_(c)_multi_open_adj#.[else if (obj) is locked]The (name-adj) one is locked.[otherwise]The (name-adj) one is [adjective of the verb close].[end if]
 
 # H #
 
@@ -212,10 +191,10 @@ foundin:in;found in
 it_is:It is;You can see that it is;Upon examination, you see that it is
 name_var:(name);(name-n), which looks (name-adj),;(name-adj) looking (name-n)
 contained:contained;held;had;had in it;revealed;concealed;sheltered;offered you;revealed to you;guarded;protected
-inform7:[if (obj) is locked]a locked[else if (obj) is open]an opened[otherwise]a closed[end if]
-inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an opened[otherwise]a closed[end if]
-inform7noun:[if (obj) is locked]locked[else if (obj) is open]opened[otherwise]closed[end if]
-inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open]opened[otherwise]closed[end if]
+inform7:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
+inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
+inform7noun:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
+inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
 listwithis: [is-are a list of things in the (obj)]
 lookthere:Look over there;Wow! look at that
 ContentsC-:Contents-;Contained within-;Inside are the following-;Inventory is as follows-;Here's what's inside
@@ -284,18 +263,18 @@ room_desc_exits:There [is an|are] [exit|exits] to the (dir).
 room_desc_doors_closed:#easy0a#.
 room_desc_doors_open:#easy0b#.
 #[if (name) is open]#room_desc_doors_open#[else if (name) is closed]#room_desc_doors_open#[end if]
-#room_(d)_exit_desc_alt:[If (name) is open]#easy2#[else if (name) closed] closed [end if];[If (name) is open]#medium2#[else if (name) is closed] closed [end if];[If (name) is open]#hard2#[else if (name) is closed] closed [end if]
-#room_(d)_exit_desc:[if (name) is open]#easy3#[else if (name) is closed] closed [end if];[If (name) is open]#medium3#[else if (name) is closed] closed [end if];[If (name) is open]#hard3#[else if (name) is closed]closed[end if]
+#room_(d)_exit_desc_alt:[If (name) is open]#easy2#[else if (name) closed] [adjective of the verb close] [end if];[If (name) is open]#medium2#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#hard2#[else if (name) is closed] [adjective of the verb close] [end if]
+#room_(d)_exit_desc:[if (name) is open]#easy3#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#medium3#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#hard3#[else if (name) is closed][adjective of the verb close][end if]
 
 #Templates for Exit Descriptions
 
 # 0a #
 
-easy0a:There are (^) closed doors, (name-indefinite), here;Let's see how many closed doors there are. Looks like (^), (name-indefinite);There are (^) closed doors here, (name-indefinite);
+easy0a:There are (^) [adjective of the verb close] doors, (name-indefinite), here;Let's see how many [adjective of the verb close] doors there are. Looks like (^), (name-indefinite);There are (^) [adjective of the verb close] doors here, (name-indefinite);
 
 # 0b #
 
-easy0b:There are (^) open doors, (name-indefinite), here;Let's see how many open doors there are. Looks like (^), (name-indefinite)
+easy0b:There are (^) [adjective of the verb open] doors, (name-indefinite), here;Let's see how many open doors there are. Looks like (^), (name-indefinite)
 
 # 1 #
 

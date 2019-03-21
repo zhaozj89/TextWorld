@@ -10,8 +10,8 @@ The Cooking Game
 
 This type of game was used for the competition *First TextWorld Problems* [1]_.
 The overall objective of the game is to locate the kitchen, read the cookbook,
-fetch the recipe's ingredients, process them according to the recipe, prepare
-the meal, and eat it. To control the game's difficulty, one can specify the
+fetch the recipe's ingredients, process them according to the recipe, mix them,
+and eat your meal. To control the game's difficulty, one can specify the
 amount of skills that are involved to reach the goal (see skills section below).
 
 Skills
@@ -45,6 +45,7 @@ References
 """
 
 import re
+import json
 import itertools
 import textwrap
 import argparse
@@ -58,6 +59,7 @@ from numpy.random import RandomState
 
 import textworld
 from textworld import GameMaker
+from textworld.generator.data import KB
 from textworld.generator.maker import WorldRoom, WorldEntity
 from textworld.generator.game import Quest, Event, GameOptions
 from textworld.logic import Proposition
@@ -76,8 +78,8 @@ ROTTEN_ADJECTIVES = ["rotten", "expired", "rancid"]
 TYPES_OF_COOKING = ["raw", "fried", "roasted", "grilled"]
 TYPES_OF_CUTTING = ["uncut", "chopped", "sliced", "diced"]
 
-TYPES_OF_COOKING_VERBS = {"fried": "fry", "roasted": "roast", "grilled": "grill"}
-TYPES_OF_CUTTING_VERBS = {"chopped": "chop", "sliced": "slice", "diced": "dice"}
+TYPES_OF_COOKING_VERBS = {"fried": "{fry}", "roasted": "{roast}", "grilled": "{grill}"}
+TYPES_OF_CUTTING_VERBS = {"chopped": "{chop}", "sliced": "{slice}", "diced": "{dice}"}
 
 FOODS_SPLITS = {
     'train': [
@@ -371,7 +373,7 @@ ENTITIES = {
         "adjs": ["conventional"],
         "locations": ["kitchen"],
         "properties": [],
-        "desc": ["Useful for frying things."],
+        "desc": ["Useful for [present participle of the verb {fry}] things."],
     },
     "oven": {
         "type": "oven",
@@ -379,7 +381,7 @@ ENTITIES = {
         "adjs": ["conventional"],
         "locations": ["kitchen"],
         "properties": [],
-        "desc": ["Useful for roasting things."],
+        "desc": ["Useful for [present participle of the verb {roast}] things."],
     },
 
     # Pantry
@@ -399,7 +401,7 @@ ENTITIES = {
         "adjs": ["recent"],
         "locations": ["backyard"],
         "properties": [],
-        "desc": ["Useful for grilling things."],
+        "desc": ["Useful for [present participle of the verb {grill}] things."],
     },
     "patio table": {
         "type": "s",
@@ -868,7 +870,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     # Find kitchen.
     kitchen = M.find_by_name("kitchen")
 
-    # The following predicates will be used to force the "prepare meal"
+    # The following predicates will be used to force the "mix ingredients"
     # command to happen in the kitchen.
     M.add_fact("cooking_location", kitchen, recipe)
 
@@ -1035,7 +1037,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     # 0. Drop unneeded objects.
     for entity in M.inventory.content:
         if entity not in ingredient_foods:
-            walkthrough.append("drop {}".format(entity.name))
+            walkthrough.append("{{drop}} {}".format(entity.name))
 
     # 1. Collect the ingredients.
     for food, type_of_cooking, type_of_cutting in ingredients:
@@ -1046,12 +1048,12 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         walkthrough += move(M, G, current_room, food_room)
 
         if food.parent.has_property("closed"):
-            walkthrough.append("open {}".format(food.parent.name))
+            walkthrough.append("{{open}} {}".format(food.parent.name))
 
         if food.parent == food_room:
-            walkthrough.append("take {}".format(food.name))
+            walkthrough.append("{{take}} {}".format(food.name))
         else:
-            walkthrough.append("take {} from {}".format(food.name, food.parent.name))
+            walkthrough.append("{{take}} {} from {}".format(food.name, food.parent.name))
 
         current_room = food_room
 
@@ -1063,16 +1065,16 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         for food, type_of_cooking, _ in ingredients:
             if type_of_cooking == "fried":
                 stove = M.find_by_name("stove")
-                walkthrough.append("cook {} with {}".format(food.name, stove.name))
+                walkthrough.append("{{cook}} {} with {}".format(food.name, stove.name))
             elif type_of_cooking == "roasted":
                 oven = M.find_by_name("oven")
-                walkthrough.append("cook {} with {}".format(food.name, oven.name))
+                walkthrough.append("{{cook}} {} with {}".format(food.name, oven.name))
             elif type_of_cooking == "grilled":
                 toaster = M.find_by_name("BBQ")
                 # 3.a move to the backyard.
                 walkthrough += move(M, G, kitchen, toaster.parent)
                 # 3.b grill the food.
-                walkthrough.append("cook {} with {}".format(food.name, toaster.name))
+                walkthrough.append("{{cook}} {} with {}".format(food.name, toaster.name))
                 # 3.c move back to the kitchen.
                 walkthrough += move(M, G, toaster.parent, kitchen)
 
@@ -1089,29 +1091,29 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
                 if free_up_space:
                     ingredient_to_drop = ingredients[(i + 1) % len(ingredients)][0]
-                    walkthrough.append("drop {}".format(ingredient_to_drop.name))
+                    walkthrough.append("{{drop}} {}".format(ingredient_to_drop.name))
 
                 # Assume knife is reachable.
                 if knife_on_the_floor:
-                    walkthrough.append("take {}".format(knife.name))
+                    walkthrough.append("{{take}} {}".format(knife.name))
                 else:
-                    walkthrough.append("take {} from {}".format(knife.name, knife_location))
+                    walkthrough.append("{{take}} {} from {}".format(knife.name, knife_location))
 
                 if type_of_cutting == "chopped":
-                    walkthrough.append("chop {} with {}".format(food.name, knife.name))
+                    walkthrough.append("{{chop}} {} with {}".format(food.name, knife.name))
                 elif type_of_cutting == "sliced":
-                    walkthrough.append("slice {} with {}".format(food.name, knife.name))
+                    walkthrough.append("{{slice}} {} with {}".format(food.name, knife.name))
                 elif type_of_cutting == "diced":
-                    walkthrough.append("dice {} with {}".format(food.name, knife.name))
+                    walkthrough.append("{{dice}} {} with {}".format(food.name, knife.name))
 
-                walkthrough.append("drop {}".format(knife.name))
+                walkthrough.append("{{drop}} {}".format(knife.name))
                 knife_on_the_floor = True
                 if free_up_space:
                     walkthrough.append("take {}".format(ingredient_to_drop.name))
 
     # 5. Prepare and eat meal.
-    walkthrough.append("prepare meal")
-    walkthrough.append("eat meal")
+    walkthrough.append("{{mix}} ingredients")
+    walkthrough.append("{{eat}} meal")
 
     cookbook_desc = "You open the copy of 'Cooking: A Modern Approach (3rd Ed.)' and start reading:\n"
     recipe = textwrap.dedent(
@@ -1138,7 +1140,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         if cooking_verb:
             recipe_directions.append(cooking_verb + " the " + ingredient[0].name)
 
-    recipe_directions.append("prepare meal")
+    recipe_directions.append("{mix} the ingredients")
     recipe_directions = "\n  ".join(recipe_directions)
     recipe = recipe.format(ingredients=recipe_ingredients, directions=recipe_directions)
     cookbook.infos.desc = cookbook_desc + recipe
@@ -1168,7 +1170,31 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
                 raise ValueError("Forgot to add closed/locked/open property for '{}'.".format(entity.name))
 
     game = M.build()
-    game.main_quest = M.new_quest_using_commands(walkthrough)
+
+    if settings["fake_commands"]:
+        with open("Fake Language.i7x") as f:
+            fake_commands_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
+
+        with open("french_words_mapping.json") as f:
+            fake_words = json.load(f)
+
+        game.kb.inform7_addons_code += fake_commands_code.format(**fake_words)
+    else:
+
+        with open("french_words_mapping.json") as f:
+            fake_words = json.load(f)
+
+        fake_words = dict(zip(*(sorted(fake_words.keys()),) * 2))
+
+    for entity in M._entities.values():
+        if entity.infos.desc:
+            entity.infos.desc = entity.infos.desc.format(**fake_words)
+
+    objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
+                 " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words))
+    walkthrough = [command.format(**fake_words) for command in walkthrough]
+    # print(" > ".join(walkthrough))
+    # game.main_quest = M.new_quest_using_commands(walkthrough)
 
     # Collect infos about this game.
     metadata = {
@@ -1184,8 +1210,6 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     game.extras["recipe"] = recipe
     game.extras["walkthrough"] = walkthrough
-    objective = ("You are hungry! Let's cook a delicious meal. Check the cookbook"
-                 " in the kitchen for the recipe. Once done, enjoy your meal!")
     game.objective = objective
 
     game.metadata = metadata
@@ -1222,6 +1246,20 @@ def build_argparser(parser=None):
                        help="Control which foods can be used. Can either be"
                             " 'train', 'valid', or 'test'."
                             " Default: foods from all dataset splits can be used.")
+
+    group.add_argument("--highlight", action="store_true",
+                       help="Highlight entity names (objects, rooms and directions).")
+    group.add_argument("--fake-entities", action="store_true",
+                       help="Replace entity names with fake words (loaded from fake_words_mapping.json).")
+    group.add_argument("--fake-commands", action="store_true",
+                       help="Replace action verbs with fake words (loaded from fake_words_mapping.json).")
+    group.add_argument("--entity-only", action="store_true",
+                       help="Only show entity names, i.e. no context.")
+    #group.add_argument("--minimap", action="store_true",
+    #                   help="Highlight entity names (objects, rooms and directions).")
+    group.add_argument("--suffle-description", action="store_true",
+                       help="Every sentences of a block of text (room description, command feedback)"
+                            " are going to be shuffled before being displayed.")
     return parser
 
 

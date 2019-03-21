@@ -446,11 +446,11 @@ class Inform7Game:
 
         # Disable implicitly taking something.
         source += textwrap.dedent("""\
-        Rule for implicitly taking something (called target):
+        Rule for implicitly taking something (called target) (this is the you need to take it first rule):
             if target is fixed in place:
-                say "The [target] is fixed in place.";
+                say "The [target] is fixed in place." (A);
             otherwise:
-                say "You need to take the [target] first.";
+                say "[We] need to [take] the [target] first." (B);
                 set pronouns from target;
             stop.
 
@@ -465,53 +465,6 @@ class Inform7Game:
                 it is likely;
             if the noun is not nothing and the second noun is not nothing and the player's command matches the text printed name of the noun and the player's command matches the text printed name of the second noun:
                 it is very likely.  [Handle action with two arguments.]
-
-        """)
-
-        # Useful for listing room contents with their properties.
-        source += textwrap.dedent("""\
-        Printing the content of the room is an activity.
-        Rule for printing the content of the room:
-            let R be the location of the player;
-            say "Room contents:[line break]";
-            list the contents of R, with newlines, indented, including all contents, with extra indentation.
-
-        """)
-
-        # Useful for listing world contents with their properties.
-        source += textwrap.dedent("""\
-        Printing the content of the world is an activity.
-        Rule for printing the content of the world:
-            let L be the list of the rooms;
-            say "World: [line break]";
-            repeat with R running through L:
-                say "  [the internal name of R][line break]";
-            repeat with R running through L:
-                say "[the internal name of R]:[line break]";
-                if the list of things in R is empty:
-                    say "  nothing[line break]";
-                otherwise:
-                    list the contents of R, with newlines, indented, including all contents, with extra indentation.
-
-        """)
-
-        # Useful for listing inventory contents with their properties.
-        source += textwrap.dedent("""\
-        Printing the content of the inventory is an activity.
-        Rule for printing the content of the inventory:
-            say "Inventory:[line break]";
-            list the contents of the player, with newlines, indented, giving inventory information, including all contents, with extra indentation.
-
-        """)
-
-        # Useful for listing off-stage contents with their properties.
-        source += textwrap.dedent("""\
-        Printing the content of nowhere is an activity.
-        Rule for printing the content of nowhere:
-            say "Nowhere:[line break]";
-            let L be the list of the off-stage things;
-            repeat with thing running through L:
-                say "  [thing][line break]";
 
         """)
 
@@ -530,56 +483,6 @@ class Inform7Game:
 
         """)
 
-        # Print properties of objects when listing the inventory contents and the room contents.
-        source += textwrap.dedent("""\
-        After printing the name of something (called target) while
-        printing the content of the room
-        or printing the content of the world
-        or printing the content of the inventory
-        or printing the content of nowhere:
-            follow the property-aggregation rules for the target.
-
-        The property-aggregation rules are an object-based rulebook.
-        The property-aggregation rulebook has a list of text called the tagline.
-
-        [At the moment, we only support "open/unlocked", "closed/unlocked" and "closed/locked" for doors and containers.]
-        [A first property-aggregation rule for an openable open thing (this is the mention open openables rule):
-            add "open" to the tagline.
-
-        A property-aggregation rule for an openable closed thing (this is the mention closed openables rule):
-            add "closed" to the tagline.
-
-        A property-aggregation rule for an lockable unlocked thing (this is the mention unlocked lockable rule):
-            add "unlocked" to the tagline.
-
-        A property-aggregation rule for an lockable locked thing (this is the mention locked lockable rule):
-            add "locked" to the tagline.]
-
-        A first property-aggregation rule for an openable lockable open unlocked thing (this is the mention open openables rule):
-            add "open" to the tagline.
-
-        A property-aggregation rule for an openable lockable closed unlocked thing (this is the mention closed openables rule):
-            add "closed" to the tagline.
-
-        A property-aggregation rule for an openable lockable closed locked thing (this is the mention locked openables rule):
-            add "locked" to the tagline.
-
-        A property-aggregation rule for a lockable thing (called the lockable thing) (this is the mention matching key of lockable rule):
-            let X be the matching key of the lockable thing;
-            if X is not nothing:
-                add "match [X]" to the tagline.
-
-        A property-aggregation rule for an edible off-stage thing (this is the mention eaten edible rule):
-            add "eaten" to the tagline.
-
-        The last property-aggregation rule (this is the print aggregated properties rule):
-            if the number of entries in the tagline is greater than 0:
-                say " ([tagline])";
-                rule succeeds;
-            rule fails;
-
-        """)
-
         objective_parts, objective_text = split_string(objective, "objective")
         objective_parts = textwrap.indent(objective_parts, "        ")
         source += textwrap.dedent("""\
@@ -593,7 +496,7 @@ class Inform7Game:
         Carry out printing the objective:
             say "[objective]".
 
-        Understand "goal" as printing the objective.
+        [Understand "goal" as printing the objective.] [Disabled for the human study]
 
         """)
 
@@ -605,56 +508,19 @@ class Inform7Game:
         Setting action variables for taking:
             now previous locale is the holder of the noun.
 
-        Report taking something from the location:
-            say "You pick up [the noun] from the ground." instead.
+        Report taking something from the location (this is the taking something from the ground rule):
+            say "[We] [pick] up [the noun] from the ground." (A) instead.
 
-        Report taking something:
-            say "You take [the noun] from [the previous locale]." instead.
+        Report taking something (this is the taking something from somewhere rule):
+            say "[We] [take] [the noun] from [the previous locale]." (A) instead.
 
-        Report dropping something:
-            say "You drop [the noun] on the ground." instead.
+        Report dropping something (this is the dropping something on the ground rule):
+            say "[We] [drop] [the noun] on the ground." (A) instead.
 
         """)
 
         # Special command to print game state.
         source += textwrap.dedent("""\
-        The print state option is a truth state that varies.
-        The print state option is usually false.
-
-        Turning on the print state option is an action applying to nothing.
-        Carry out turning on the print state option:
-            Now the print state option is true.
-
-        Turning off the print state option is an action applying to nothing.
-        Carry out turning off the print state option:
-            Now the print state option is false.
-
-        Printing the state is an activity.
-        Rule for printing the state:
-            let R be the location of the player;
-            say "Room: [line break] [the internal name of R][line break]";
-            [say "[line break]";
-            carry out the printing the content of the room activity;]
-            say "[line break]";
-            carry out the printing the content of the world activity;
-            say "[line break]";
-            carry out the printing the content of the inventory activity;
-            say "[line break]";
-            carry out the printing the content of nowhere activity;
-            say "[line break]".
-
-        Printing the entire state is an action applying to nothing.
-        Carry out printing the entire state:
-            say "-=STATE START=-[line break]";
-            carry out the printing the state activity;
-            say "[line break]Score:[line break] [score]/[maximum score][line break]";
-            say "[line break]Objective:[line break] [objective][line break]";
-            say "[line break]Inventory description:[line break]";
-            say "  You are carrying: [a list of things carried by the player].[line break]";
-            say "[line break]Room description:[line break]";
-            try looking;
-            say "[line break]-=STATE STOP=-";
-
         Every turn:
             if extra description command option is true:
                 say "<description>";
@@ -666,26 +532,17 @@ class Inform7Game:
                 say "</inventory>";
             if extra score command option is true:
                 say "<score>[line break][score][line break]</score>";
-            if print state option is true:
-                try printing the entire state;
 
-        When play ends:
-            if print state option is true:
-                try printing the entire state;
 
         After looking:
             carry out the printing the things on the floor activity.
-
-        Understand "print_state" as printing the entire state.
-        Understand "enable print state option" as turning on the print state option.
-        Understand "disable print state option" as turning off the print state option.
 
         """)
 
         # Disable implicitly opening/unlocking door.
         source += textwrap.dedent("""\
-        Before going through a closed door (called the blocking door):
-            say "You have to open the [blocking door] first.";
+        Before going through a closed door (called the blocking door) (this is the can't go through door rule):
+            say "[We] have to [open] the [blocking door] first." (A);
             stop.
 
         Before opening a locked door (called the locked door):
@@ -693,7 +550,7 @@ class Inform7Game:
             if X is nothing:
                 say "The [locked door] is welded shut.";
             otherwise:
-                say "You have to unlock the [locked door] with the [X] first.";
+                say "[We] have to [unlock] the [locked door] with the [X] first.";
             stop.
 
         Before opening a locked container (called the locked container):
@@ -701,7 +558,7 @@ class Inform7Game:
             if X is nothing:
                 say "The [locked container] is welded shut.";
             otherwise:
-                say "You have to unlock the [locked container] with the [X] first.";
+                say "[We] have to [unlock] the [locked container] with the [X] first.";
             stop.
 
         """)
@@ -727,7 +584,7 @@ class Inform7Game:
             say "  lock ... with ...:   lock a door or a container with a key[line break]";
             say "  unlock ... with ...: unlock a door or a container with a key[line break]";
 
-        Understand "help" as displaying help message.
+        [Understand "help" as displaying help message.] [Disabled for the human study]
 
         """)
 
@@ -836,12 +693,12 @@ class Inform7Game:
 
         Before taking a thing (called the object) when the object is on a supporter (called the supporter):
             if the restrict commands option is true and taking allowed flag is false:
-                say "Can't see any [object] on the floor! Try taking the [object] from the [supporter] instead.";
+                say "[We] [can't see] any [object] on the floor! Try [present participle of the verb take] the [object] from the [supporter] instead.";
                 rule fails.
 
         Before of taking a thing (called the object) when the object is in a container (called the container):
             if the restrict commands option is true and taking allowed flag is false:
-                say "Can't see any [object] on the floor! Try taking the [object] from the [container] instead.";
+                say "[We] [can't see] any [object] on the floor! Try [present participle of the verb take] the [object] from the [container] instead.";
                 rule fails.
 
         Understand "take [something]" as removing it from.

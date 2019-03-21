@@ -37,14 +37,16 @@ type object {
         }
 
         code :: """
+            Use undo prevention.
+
             Restarting immediately is an action out of world.
             Carry out restarting immediately:
                 abide by the immediately restart the VM rule.
 
             Understand the command "restart" as something new.
             Understand the command "quit" as something new.
-            Understand "restart" as restarting immediately.
             Understand "quit" as restarting immediately.
+            Understand "restart" as restarting immediately.
         """;
     }
 }

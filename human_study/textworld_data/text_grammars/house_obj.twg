@@ -300,8 +300,7 @@ key_metal:antiqued;brushed;hammered;polished;satin;rusty
 door_what_is:imposing;sturdy;well-built;durable;robust;rugged;hefty;commanding;grand;noble;ominous;towering;manageable;solid;stuffy
 #State descriptors
 #-----------------
-force_open:force open;open;break open;bash open;crack open
-openable_desc:[if open]It is open.[else if locked]It is locked.[otherwise]It is closed.[end if];[if open]You can see inside it.[else if locked]There is a lock on it and seems impossible to #force_open#.[otherwise]You can't see inside it because the lid's in your way.[end if]
+openable_desc:[if open]It is [adjective of the verb open].[else if locked]It is [adjective of the verb lock].[otherwise]It is [adjective of the verb close].[end if]
 on_desc:On the (name), is [a list of things on the (obj)].;You can see [list of things on the (obj)] on the (name);this (name) has the following upon it, [list of things on the (obj)];you gaze in terror at the [list of things on the (obj)] that lie upon this very (name)!; "now why" you think, "am I looking at [list of things on the (obj)] on this (name)?"
 #Key Match Adjectives
 #These adjectives CANNOT be used elsewhere!

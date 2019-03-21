@@ -94,21 +94,22 @@ type RECIPE {
                 say  "[base of I]";
 
             [Preparing a meal]
+            To mix is a verb.
             Preparing meal is an action applying to nothing.
             Before preparing meal:
                 if location is not the cooking location of the recipe:
-                    say "Can only prepare meal in the [cooking location of the recipe].";
+                    say "Can only [mix] the ingredients in the [cooking location of the recipe].";
                     rule fails;
                 Repeat with ingredient running through the ingredients of the recipe:
                     let F be the base of the ingredient;
                     if player does not carry the F:
-                        say "The recipe requires [a ingredient].";
+                        say "The [recipe] requires [a ingredient].";
                         rule fails;
                     if type of cooking of F is not type of cooking of ingredient:
-                        say "The recipe requires [a ingredient].";
+                        say "The [recipe] requires [a ingredient].";
                         rule fails;
                     if type of cutting of F is not type of cutting of ingredient:
-                        say "The recipe requires [a ingredient].";
+                        say "The [recipe] requires [a ingredient].";
                         rule fails;
 
             Carry out preparing meal:
@@ -118,7 +119,7 @@ type RECIPE {
                 now the player carries the meal of the recipe;
                 set pronouns from the meal of the recipe.
 
-            Understand "prepare meal" as preparing meal.
+            Understand "mix ingredients" as preparing meal.
         """;
     }
 }

@@ -19,11 +19,16 @@ type o : t {
         }
 
         code :: """
+            The entity highlighting option is a truth state that varies.
+            The entity highlighting option is usually false.
+
             Before printing the name of a thing (called the target) while looking, examining or listing contents:
-                say "[bold type][italic type]";
+                if entity highlighting option is true:
+                    say "[bold type][italic type]";
 
             After printing the name of a thing (called the target) while looking, examining or listing contents:
-                say "[roman type]";
+                if entity highlighting option is true:
+                    say "[roman type]";
         """;
     }
 }

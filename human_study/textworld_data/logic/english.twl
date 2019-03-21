@@ -1,0 +1,17 @@
+
+type english {
+    inform7 {
+        type {
+            kind :: "object";
+        }
+
+        code :: """
+            To say adjective of (V - a verb):
+                if the verb open is V:
+                    say "open";
+                otherwise:
+                    say "[past participle of V]";
+
+        """;
+    }
+}
