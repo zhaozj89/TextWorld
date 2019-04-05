@@ -5,15 +5,15 @@
 # Inform7 snippets
 #-----------------
 #Shouldn't need to be messed with. These are shortcuts for when you need to use i7 code. Probably a bad idea to include symbols or tokens inside these
-i7_closed/open:[if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
+i7_closed/open:[if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
 i7_list_in:[a list of things in the (obj)]
 i7_list_on:[a list of things on the (obj)]
 i7_empty:[if (obj) contains nothing]an empty[otherwise]a[end if]
-inform7:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
-inform7A:[if (obj) is locked]A locked[else if (obj) is open]An [adjective of the verb open][otherwise]A [adjective of the verb close][end if]
-inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
-inform7noun:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
-inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
+inform7:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+inform7A:[if (obj) is locked]A [adjective of the verb {lock}][else if (obj) is open]An [adjective of the verb {open}][otherwise]A [adjective of the verb {close}][end if]
+inform7noa:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+inform7noun:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
+inform7nounnoa:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
 
 #Room Intro#
 #----------
@@ -59,7 +59,7 @@ revisit:You have re-entered the (name).;You re-enter the (name). You're so confu
 022:This is going to sound unbelievable, but you've just entered a (name);You're not going to believe this, but you've just entered a (name)
 023:You make a grand eccentric entrance into a (name);You make another one of your grand eccentric entrances into a (name)
 024:Look at you, bigshot, walking into a (name) like it isn't some huge deal
-025:Look around you. Take it all in. It's not every day someone gets to be in a (name)
+025:[Present participle of the verb {look}] around you. Take it all in. It's not every day someone gets to be in a (name)
 026:You've seen better (name-n)s, but at least this one seems pretty (name-adj);I just think it's awesome that you're in a (name) now;I just think it's great that you've just entered a (name)
 027:A #signquality# #sign# tells you that you are now in the (name);Look at that #sign#! What does it say? It says Welcome to the (name)? Well that's cool
 028:This just in- You, in the (name);Welcome to the (name);Wow! You're in a (name);Here we are in the (name);You've entered a (name);This (name-n) you have just entered is definitely (name-adj)
@@ -158,7 +158,7 @@ d4:In it, you can see #i7_list_in#.
 
 # E #
 
-e1:[if (obj) is open]#room_desc_(c)_multi_open_noun#.[else if (obj) is locked]The (name-n) is locked.[otherwise]The (name-n) is [adjective of the verb close].[end if]
+e1:[if (obj) is open]#room_desc_(c)_multi_open_noun#.[else if (obj) is locked]The (name-n) is [adjective of the verb {lock}].[otherwise]The (name-n) is [adjective of the verb {close}].[end if]
 
 # F #
 
@@ -171,7 +171,7 @@ f6:The (name-n) #reminds_you# the containers #ofyouryouth#. Oh, how they also co
 
 # G #
 
-g1:[if (obj) is open]#room_desc_(c)_multi_open_adj#.[else if (obj) is locked]The (name-adj) one is locked.[otherwise]The (name-adj) one is [adjective of the verb close].[end if]
+g1:[if (obj) is open]#room_desc_(c)_multi_open_adj#.[else if (obj) is locked]The (name-adj) one is [adjective of the verb {lock}].[otherwise]The (name-adj) one is [adjective of the verb {close}].[end if]
 
 # H #
 
@@ -191,12 +191,12 @@ foundin:in;found in
 it_is:It is;You can see that it is;Upon examination, you see that it is
 name_var:(name);(name-n), which looks (name-adj),;(name-adj) looking (name-n)
 contained:contained;held;had;had in it;revealed;concealed;sheltered;offered you;revealed to you;guarded;protected
-inform7:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
-inform7noa:[if (obj) is locked]a locked[else if (obj) is open]an [adjective of the verb open][otherwise]a [adjective of the verb close][end if]
-inform7noun:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
-inform7nounnoa:[if (obj) is locked]locked[else if (obj) is open][adjective of the verb open][otherwise][adjective of the verb close][end if]
+inform7:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+inform7noa:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+inform7noun:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
+inform7nounnoa:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
 listwithis: [is-are a list of things in the (obj)]
-lookthere:Look over there;Wow! look at that
+lookthere:{Look} over there;Wow! look at that
 ContentsC-:Contents-;Contained within-;Inside are the following-;Inventory is as follows-;Here's what's inside
 
 #Supporter Descriptions
@@ -257,30 +257,30 @@ room:room;place;part of the game;zone;chamber;area;sector
 #room_desc_doors_open: describes a group of open doors in the room
 
 room_desc_(d):There is #i7_closed/open# (name) leading (dir).
-room_desc_(dir):There is an exit to the (dir).;There is an exit to the (dir). Don't worry, there is no door.;You need an exit without a door? You should try going (dir).;You don't like doors? Why not try going (dir), that entranceway is not blocked by one.
+room_desc_(dir):There is an exit to the (dir).;There is an exit to the (dir). Don't worry, there is no door.;You need an exit without a door? You should try [present participle of the verb {go}] (dir).;You don't like doors? Why not try [present participle of the verb {go}] (dir), that entranceway is not blocked by one.
 room_exit_desc:#easy1#.;#medium1#.;#hard1#.
 room_desc_exits:There [is an|are] [exit|exits] to the (dir).
 room_desc_doors_closed:#easy0a#.
 room_desc_doors_open:#easy0b#.
 #[if (name) is open]#room_desc_doors_open#[else if (name) is closed]#room_desc_doors_open#[end if]
-#room_(d)_exit_desc_alt:[If (name) is open]#easy2#[else if (name) closed] [adjective of the verb close] [end if];[If (name) is open]#medium2#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#hard2#[else if (name) is closed] [adjective of the verb close] [end if]
-#room_(d)_exit_desc:[if (name) is open]#easy3#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#medium3#[else if (name) is closed] [adjective of the verb close] [end if];[If (name) is open]#hard3#[else if (name) is closed][adjective of the verb close][end if]
+#room_(d)_exit_desc_alt:[If (name) is open]#easy2#[else if (name) closed] [adjective of the verb {close}] [end if];[If (name) is open]#medium2#[else if (name) is closed] [adjective of the verb {close}] [end if];[If (name) is open]#hard2#[else if (name) is closed] [adjective of the verb {close}] [end if]
+#room_(d)_exit_desc:[if (name) is open]#easy3#[else if (name) is closed] [adjective of the verb {close}] [end if];[If (name) is open]#medium3#[else if (name) is closed] [adjective of the verb {close}] [end if];[If (name) is open]#hard3#[else if (name) is closed][adjective of the verb {close}][end if]
 
 #Templates for Exit Descriptions
 
 # 0a #
 
-easy0a:There are (^) [adjective of the verb close] doors, (name-indefinite), here;Let's see how many [adjective of the verb close] doors there are. Looks like (^), (name-indefinite);There are (^) [adjective of the verb close] doors here, (name-indefinite);
+easy0a:There are (^) [adjective of the verb {close}] doors, (name-indefinite), here;Let's see how many [adjective of the verb {close}] doors there are. Looks like (^), (name-indefinite);There are (^) [adjective of the verb {close}] doors here, (name-indefinite);
 
 # 0b #
 
-easy0b:There are (^) [adjective of the verb open] doors, (name-indefinite), here;Let's see how many open doors there are. Looks like (^), (name-indefinite)
+easy0b:There are (^) [adjective of the verb {open}] doors, (name-indefinite), here;Let's see how many open doors there are. Looks like (^), (name-indefinite)
 
 # 1 #
 
 easy1:There [is an|are] [exit|exits] to the (dir);There [is an|are] [exit|exits] to the (dir). And hey, don't worry, [they are|it's] unblocked
 medium1:[An exit|Exits] unblocked [lies|lie] to the (dir);You can go (dir) from here without having to deal with any doors
-hard1:it looks like you can exit to the (dir), if doors aren't really your #yourthing#;if you want to leave, and doors really aren't your #yourthing# you could try going (dir);If you're not really a door person, you could leave by the (dir);If you're not really a doors fan, you could leave by the (dir);not a fan of the doors? Why not go (dir);Hot tip- if you go (dir), you won't have to deal with any doors
+hard1:it looks like you can exit to the (dir), if doors aren't really your #yourthing#;if you want to leave, and doors really aren't your #yourthing# you could try [present participle of the verb {go}] (dir);If you're not really a door person, you could leave by the (dir);If you're not really a doors fan, you could leave by the (dir);not a fan of the doors? Why not go (dir);Hot tip- if you go (dir), you won't have to deal with any doors
 
 
 # 2 #
@@ -293,7 +293,7 @@ hard2:How do you get out? Well, there [is a door|are doors] to the (dir) of you
 
 # 3 #
 
-easy3:The [exit|exits] to the (dir) [is|are] going through (name)
+easy3:The [exit|exits] to the (dir) [is|are] [present participle of the verb {go}] through (name)
 medium3:The (dir) [exit|exits] [has|have] (name-indefinite) blocking [it|them]
 hard3:The (dir) [exit|exits] [has|have] (name-n-indefinite) blocking [it|them]. the (name-n) [is|are] (name-adj)
 
@@ -305,7 +305,7 @@ door_what:leading;facing;heading
 #prefixes
 #-----------
 #To be affixed before object descriptions. Keep away from doors. Prefixes start with a uppercase letter and end with "a"
-prefix:You see a gleam over in a corner, where you can see a;What's that over there? It looks like it's a;You scan the room, seeing a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;You smell #smelltype# smell, and follow it to a;Were you looking for a (name-n)? Because look over there, it's a;You rest your hand against a wall, but you miss the wall and fall onto a;You scan the room for a (name-n), and you find a;You hear a noise behind you and spin around, but you can't see anything other than a;Look out! It's a- oh, never mind, it's just a;Look over there! a;Oh, great. Here's a;Hey, want to see a (name-n)? Look over there, a;If you haven't noticed it already, there seems to be something there by the wall, it's a;You bend down to tie your shoe. When you stand up, you notice a;Oh wow! Is that what I think it is? It is! It's a;You lean against the wall, inadvertently pressing a secret button. The wall opens up to reveal a;You see a;As if things weren't amazing enough already, you can even see a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a
+prefix:You see a gleam over in a corner, where you can see a;What's that over there? It looks like it's a;You scan the room, seeing a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;You smell #smelltype# smell, and follow it to a;Were you [present participle of the verb {look}] for a (name-n)? Because {look} over there, it's a;You rest your hand against a wall, but you miss the wall and fall onto a;You scan the room for a (name-n), and you find a;You hear a noise behind you and spin around, but you can't see anything other than a;Look out! It's a- oh, never mind, it's just a;{Look} over there! a;Oh, great. Here's a;Hey, want to see a (name-n)? {Look} over there, a;If you haven't noticed it already, there seems to be something there by the wall, it's a;You bend down to tie your shoe. When you stand up, you notice a;Oh wow! Is that what I think it is? It is! It's a;You lean against the wall, inadvertently pressing a secret button. The wall opens up to reveal a;You see a;As if things weren't amazing enough already, you can even see a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a;#how_see# a
 prefix-multi:You see a gleam over in a corner, where you can see ;What's that over there? It looks like it's ;You scan the room, seeing ;#how_see# ;You bend down to tie your shoe. When you stand up, you notice ;You smell #smelltype# smell, and follow it to ;You can suddenly see ;
 prefix_(c):#prefix#
 prefix_(s):#prefix#
@@ -314,16 +314,16 @@ prefix_(s):#prefix#
 #-----------
 #To be affixed after object descriptions. Keep away from doors. Keep in mind a suffix is usually (but not always) followed by a prefix. Suffixes start with punctuation and end with a period (or exclamation/question mark).
 suffix_meta:. There's something about an object in a room that's just so... TextWorld.;. You can't really describe the (name-n) besides that it's (name-adj).;. Does this look like anything mentioned in the instructions?;. What a great pairing of adjectives and nouns!;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.;. Make a note of this, you might have to put stuff on or in it later on.
-suffix_fulfillment:. A (name-n)... Is that really what you were looking for?;. Is this it? Is this what you came to TextWorld to see? a (name-n)?;. Hmm. You always thought you'd be more excited to see a (name-n) in a room.;. Is this what you came to TextWorld for? This... (name-n)?;. You look around you, at all the containers and supporters, doors and objects, and you think to yourself. Why? Why Textworld?
+suffix_fulfillment:. A (name-n)... Is that really what you were looking for?;. Is this it? Is this what you came to TextWorld to see? a (name-n)?;. Hmm. You always thought you'd be more excited to see a (name-n) in a room.;. Is this what you came to TextWorld for? This... (name-n)?;. You {look} around you, at all the containers and supporters, doors and objects, and you think to yourself. Why? Why Textworld?
 suffix_price_schtick:. You check the price tag #pricetagexplain#. #pricebad#?! That's ridiculous! #youknow# my #friendtype#, #myfriend#? I'm sure my friend could get you one of those for #pricegood#!;. You check the price tag #pricetagexplain#. #pricebad#?! That's ridiculous! #Iknow# #afriend# who could get you one of those for #pricegood#!;. You look at the price tag #pricetagexplain#. #pricebad#?! Where'd they buy this (name-n), #expensiveplace#?;. You check the price tag #pricetagexplain#. #pricegood#? What a deal! You'll have to ask where they got this!;. Wow, check out the price tag #pricetagexplain#! #pricebad#!;#emptymain#;#emptymainperiod#
-suffix_(r):. Okay, just remember what you're here to do, and everything will go great.;. You try to gain information on your surroundings by using a technique you call 'looking.';. You can barely contain your excitement.;. The room seems oddly familiar, as though it were only superficially different from the other rooms in the building.;. You decide to just list off a complete list of everything you see in the room, because hey, why not?;. I guess you better just go and list everything you see here.;. You start to take note of what's in the room.;. You decide to start listing off everything you see in the room, as if you were in a text adventure.;. The room is well lit.;. You begin to take stock of what's here.;. You begin to take stock of what's in the room.;. You begin looking for stuff.;. Let's see what's in here.;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#
+suffix_(r):. Okay, just remember what you're here to do, and everything will go great.;. You try to gain information on your surroundings by using a technique you call '[present participle of the verb {look}].';. You can barely contain your excitement.;. The room seems oddly familiar, as though it were only superficially different from the other rooms in the building.;. You decide to just list off a complete list of everything you see in the room, because hey, why not?;. I guess you better just go and list everything you see here.;. You start to take note of what's in the room.;. You decide to start listing off everything you see in the room, as if you were in a text adventure.;. The room is well lit.;. You begin to take stock of what's here.;. You begin to take stock of what's in the room.;. You begin [present participle of the verb {look}] for stuff.;. Let's see what's in here.;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#
 ### Cut for length ###
 suffix:.;. You shudder, but continue examining the room.;. You wonder idly who left that here.;. Now why would someone leave that there?;. There's something strange about this being here, but you can't put your finger on it.;. There's something strange about this thing being here, but you don't have time to worry about that now.;. Huh, weird.;, so there's that.;!;. Hmmm... what else, what else?;. Wow, isn't TextWorld just the best?;. I mean, just wow! Isn't TextWorld just the best?;. You can't wait to tell the folks at home about this!;. Something scurries by right in the corner of your eye. Probably nothing.;. You idly wonder how they came up with the name TextWorld for this place. It's pretty fitting.;. Suddenly, you bump your head on the ceiling, but it's not such a bad bump that it's going to prevent you from looking at objects and even things.;. Now that's what I call TextWorld!;. Classic TextWorld.;. The light flickers for a second, but nothing else happens.;.;.;.;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty30#;#empty31#;#empty32#;#suffix_price_schtick#;#suffix_fulfillment#;#suffix_meta#
 
 ###Multi suffixes need to be more flexible than normal ones###
 suffix-multi:.;. You shudder, but continue examining the room.;. You wonder idly who put this stuff here.;. There's something strange about this stuff being here, but you can't put your finger on it.;. There's something strange about this stuff being here, but you don't have time to worry about that now.;. Huh, weird.;, so there's that.;, so why not take a picture, it'll last longer!;. It doesn't get any more TextWorld than this!;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty36#;#empty37#;#empty38#;#empty39#;#empty40#;#empty41#;#empty42#;#empty43#;#empty44#;#empty45#;
 suffix_(s)_mid:.;. You shudder, but continue examining the (name-n).;. You wonder idly who left that here.;. Now why would someone leave that there?;#suffix_meta#;. Why don't you take a picture of it, it'll last longer!;!;. Wow, isn't TextWorld just the best?;. I guess it's true what they say, if you're looking for a (name-n), go to TextWorld.;. What a coincidence, weren't you just thinking about a (name-n)?;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty36#;#empty37#;#empty38#;#empty39#;#empty40#;
-suffix_(s)_end:.;. You shudder, but continue examining the room.;. There's something strange about this being here, but you can't put your finger on it.;. There's something strange about this thing being here, but you don't have time to worry about that now.;. Huh, weird.;, so there's that.;. Hmmm... what else, what else?;. I mean, just wow! Isn't TextWorld just the best?;. You can't wait to tell the folks at home about this!;. Something scurries by right in the corner of your eye. Probably nothing.;. You idly wonder how they came up with the name TextWorld for this place. It's pretty fitting.;. Suddenly, you bump your head on the ceiling, but it's not such a bad bump that it's going to prevent you from looking at objects and even things.;. Wow! Just like in the movies!;. It doesn't get more TextWorld than this!;. Now that's what I call TextWorld!;. Classic TextWorld.;#suffix#;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty36#;#empty37#;#empty38#;#empty39#;#empty40#;
+suffix_(s)_end:.;. You shudder, but continue examining the room.;. There's something strange about this being here, but you can't put your finger on it.;. There's something strange about this thing being here, but you don't have time to worry about that now.;. Huh, weird.;, so there's that.;. Hmmm... what else, what else?;. I mean, just wow! Isn't TextWorld just the best?;. You can't wait to tell the folks at home about this!;. Something scurries by right in the corner of your eye. Probably nothing.;. You idly wonder how they came up with the name TextWorld for this place. It's pretty fitting.;. Suddenly, you bump your head on the ceiling, but it's not such a bad bump that it's going to prevent you from [present participle of the verb {look}] at objects and even things.;. Wow! Just like in the movies!;. It doesn't get more TextWorld than this!;. Now that's what I call TextWorld!;. Classic TextWorld.;#suffix#;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty36#;#empty37#;#empty38#;#empty39#;#empty40#;
 suffix_(s)_end_angry:. You move on, clearly #upsetwith# TextWorld.;. You move on, clearly #upsetwith# your TextWorld experience.;. Sometimes, just sometimes, TextWorld can just be the worst.;. What's the point of an empty (name-n)?;. Hopefully this doesn't make you too upset.;. You make a mental note to not get your hopes up the next time you see a (name-n) in a room.;. ;. Hopefully, this discovery doesn't ruin your TextWorld experience!;. You swear loudly.;. This always happens!;. This always happens, here in TextWorld!;. Silly (name-n), silly, empty, good for nothing (name-n).;. You think about smashing the (name-n) to bits, throwing the bits #intheblank#, etc, until you get bored and decide to move on.;. Aw, here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n)! oh well.;. Aw, here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n).;. Aw, here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n).;. Aw, here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n).;. Aw, here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n).;. Aw, and here you were, all excited for there to be things on it!;. Oh! Why couldn't there just be stuff on it?;. Hm. Oh well;. What, you think everything in TextWorld should have stuff on it?;. It would have been so cool if there was stuff on the (name-n).;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty36#;#empty37#;#empty38#;#empty39#;#empty40#;#empty41#;#empty42#;#empty43#;#empty44#;#empty45#;#empty46#;#empty47#;#empty48#;#empty49#;#empty50#;
 #fix expandables in
 #-----------

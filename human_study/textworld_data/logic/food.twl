@@ -158,7 +158,7 @@ type f : o {
             To slice is a verb.
             Carry out slicing a carried food (called the food item) with a thing (called the tool) (this is the slicing stuff rule):
                 if the food item is not uncut:
-                    say "The [food item] has already been [past particple of the verb cut]." (A);
+                    say "The [food item] has already been [past participle of the verb cut]." (A);
                     stop;
                 Now the food item is sliced;
                 say "[We] [slice] the [food item]." (B).
@@ -169,7 +169,7 @@ type f : o {
             To dice is a verb.
             Carry out dicing a carried food (called the food item) with a thing (called the tool) (this is the dicing stuff rule):
                 if the food item is not uncut:
-                    say "The [food item] has already been [past particple of the verb cut]." (A);
+                    say "The [food item] has already been [past participle of the verb cut]." (A);
                     stop;
                 Now the food item is diced;
                 say "[We] [dice] the [food item]." (B).
@@ -180,7 +180,7 @@ type f : o {
             To chop is a verb.
             Carry out chopping a carried food (called the food item) with a thing (called the tool) (this is the chopping stuff rule):
                 if the food item is not uncut:
-                    say "The [food item] has already been [past particple of the verb cut]." (A);
+                    say "The [food item] has already been [past participle of the verb cut]." (A);
                     stop;
                 Now the food item is chopped;
                 say "[We] [chop] the [food item]." (B).

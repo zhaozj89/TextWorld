@@ -26,6 +26,13 @@ def parse_args():
     parser.add_argument("--hints", action="store_true",
                         help="Provide commands autocompletion and quest progression"
                              " when --mode=human.")
+    parser.add_argument("--read-from",
+                        help="Read commands from a file then resume play. Default: no commands are read.")
+    parser.add_argument("--write-to",
+                        help="Write commands to a file. Default: no commands are saved.")
+
+    parser.add_argument("--transcript",
+                        help="Path to the transcript file. Default: transcript won't be saved.")
     parser.add_argument("-v", "--verbose", action="store_true",
                         help="Verbose mode.")
     parser.add_argument("-vv", "--very-verbose", action="store_true",
@@ -61,18 +68,38 @@ def main():
     if args.mode == "human" or args.verbose:
         env.render()
 
+    initial_commands = []
+    if args.read_from:
+        with open(args.read_from) as f:
+            initial_commands = [l for l in f.read().split("\n") if l]
+
+    write_to = None
+    if args.write_to:
+        write_to = open(args.write_to, "w")
+
     reward = 0
     done = False
+    for t in range(args.max_steps) if args.max_steps > 0 else itertools.count():
+        if t < len(initial_commands):
+            command = initial_commands[t]
+            env._display_command_during_render = True
+        else:
+            command = agent.act(game_state, reward, done)
+            env._display_command_during_render = False
 
-    for _ in range(args.max_steps) if args.max_steps > 0 else itertools.count():
-        command = agent.act(game_state, reward, done)
         game_state, reward, done = env.step(command)
 
         if args.mode == "human" or args.verbose:
             env.render()
 
+        if write_to:
+            write_to.write(command + "\n")
+
         if done:
             break
+
+    if args.write_to:
+        write_to.close()
 
     env.close()
     print("Done after {} steps. Score {}/{}.".format(game_state.nb_moves, game_state.score, game_state.max_score))

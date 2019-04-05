@@ -13,6 +13,8 @@ To {drop} is a verb.
 To {put} is a verb.
 To {insert} is a verb.
 To {look} is a verb.
+To {lock} is a verb.
+To {unlock} is a verb.
 To {inventory} is a verb.
 To {examine} is a verb.
 To {eat} is a verb.
@@ -30,6 +32,8 @@ Understand the command "{drop}" as "drop".
 Understand the command "{put}" as "put".
 Understand the command "{insert}" as "insert".
 Understand the command "{look}" as "look".
+Understand the command "{lock}" as "lock".
+Understand the command "{unlock}" as "unlock".
 Understand the command "{inventory}" as "inventory".
 Understand the command "{examine}" as "examine".
 Understand the command "{eat}" as "eat".
@@ -54,6 +58,8 @@ Understand the command "drink", "swallow", "sip" as something new.
 Understand the command "go", "walk", "run" as something new.
 Understand the command "enter" as something new.
 Understand the command "mix" as something new.
+Understand the command "lock" as something new.
+Understand the command "unlock" as something new.
 
 
 Part 2 - Overwriting messages
@@ -169,13 +175,43 @@ The dropping something on the ground rule response (A) is "[The actor] [{drop}] 
 The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
 
 To say adjective of (V - a verb):
-	if the verb open is V:
+	if the verb {open} is V:
 		say "[past participle of the verb {open}]";
-	else if the verb close is V:
+	else if the verb {close} is V:
 		say "[past participle of the verb {close}]";
+	else if the verb {lock} is V:
+		say "[past participle of the verb {lock}]";
 
 
-Part 4 - Disabling all remaining English commands
+Part 4 - Display the list of commands
+
+Carry out displaying help message (this is the new displaying help message rule):
+	say "[fixed letter spacing]Available commands:[line break]";
+	say "  {chop} ... with ...   [line break]";
+	say "  {close} ...           [line break]";
+	say "  {cook} ... with ...   [line break]";
+	say "  {dice} ... with ...   [line break]";
+	say "  {drink} ...           [line break]";
+	say "  {drop} ...            [line break]";
+	say "  {eat} ...             [line break]";
+	say "  {examine} ...         [line break]";
+	say "  {go} ...              [line break]";
+	say "  {insert} ... into ... [line break]";
+	say "  {inventory}           [line break]";
+	say "  {lock} ... with ...   [line break]";
+	say "  {look}                [line break]";
+	say "  {mix} ...             [line break]";
+	say "  {open} ...            [line break]";
+	say "  {put} ... on ...      [line break]";
+	say "  {slice} ... with ...  [line break]";
+	say "  {take} ... from ...   [line break]";
+	say "  {take} ...            [line break]";
+	say "  {unlock} ... with ... [line break]";
+	stop.
+
+The new displaying help message rule is listed first in carry out displaying help message.
+
+Part 5 - Disabling all remaining English commands
 
 Understand the command "stand" as something new.
 Understand the command "remove" as something new.

@@ -12,6 +12,32 @@ type english {
                 otherwise:
                     say "[past participle of V]";
 
+            Displaying help message is an action applying to nothing.
+            Carry out displaying help message:
+                say "[fixed letter spacing]Available commands:[line break]";
+                say " chop ... with ...   [line break]";
+                say " put ... on ...      [line break]";
+                say " drop ...            [line break]";
+                say " cook ... with ...   [line break]";
+                say " insert ... into ... [line break]";
+                say " drink ...           [line break]";
+                say " inventory           [line break]";
+                say " go ...              [line break]";
+                say " close ...           [line break]";
+                say " eat ...             [line break]";
+                say " take ...            [line break]";
+                say " slice ... with ...  [line break]";
+                say " take ... from ...   [line break]";
+                say " lock ... with ...   [line break]";
+                say " unlock ... with ... [line break]";
+                say " open ...            [line break]";
+                say " examine ...         [line break]";
+                say " dice ... with ...   [line break]";
+                say " look                [line break]";
+                say " mix ...             [line break]";
+
+            Understand "help" as displaying help message.
+
         """;
     }
 }

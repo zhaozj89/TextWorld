@@ -1120,7 +1120,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     """
     Recipe #1
     ---------
-    Gather all following ingredients and follow the directions to prepare this tasty meal.
+    {{Gather}} all following ingredients and {{follow}} the directions to {{prepare}} this tasty meal.
 
     Ingredients:
       {ingredients}
@@ -1171,28 +1171,46 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     game = M.build()
 
+    #with open("french_words_mapping.json") as f:
+    with open("fake_words_mapping.json") as f:
+        fake_words = json.load(f)
+
     if settings["fake_commands"]:
         with open("Fake Language.i7x") as f:
             fake_commands_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
 
-        with open("french_words_mapping.json") as f:
-            fake_words = json.load(f)
-
-        game.kb.inform7_addons_code += fake_commands_code.format(**fake_words)
+        game.kb.inform7_addons_code += fake_commands_code.format(**fake_words["actions"])
     else:
+        fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
 
-        with open("french_words_mapping.json") as f:
-            fake_words = json.load(f)
-
-        fake_words = dict(zip(*(sorted(fake_words.keys()),) * 2))
-
+    # Fill placeholders
     for entity in M._entities.values():
         if entity.infos.desc:
-            entity.infos.desc = entity.infos.desc.format(**fake_words)
+            entity.infos.desc = entity.infos.desc.format(**fake_words["actions"])
+
+    def _swap_words(text, mapping):
+        if text is None:
+            return None
+
+        return "".join(mapping.get(w, w) for w in re.split(r"(\W+)", text))
+
+    if settings["fake_entities"]:
+        for entity in M._entities.values():
+            entity.infos.name = _swap_words(entity.infos.name, fake_words["words"])
+            entity.infos.noun = _swap_words(entity.infos.noun, fake_words["words"])
+            entity.infos.adj = _swap_words(entity.infos.adj, fake_words["words"])
+            entity.infos.desc = _swap_words(entity.infos.desc, fake_words["words"])
+            # new_name = _swap_words(entity.infos.name, fake_words)
+            # print("{} => {}".format(entity.infos.name, new_name))
+            #entity.infos.name = new_name
+            #entity.infos.noun = new_name
+            #entity.infos.adj = None
+            #entity.infos.desc = None  # Force regeneration of the descriptions.
+
 
     objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
-                 " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words))
-    walkthrough = [command.format(**fake_words) for command in walkthrough]
+                 " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))
+    walkthrough = [command.format(**fake_words["actions"]) for command in walkthrough]
     # print(" > ".join(walkthrough))
     # game.main_quest = M.new_quest_using_commands(walkthrough)
 

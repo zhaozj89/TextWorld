@@ -296,11 +296,11 @@ food_what:appetizing;delicious;tasty;appealing;delectable;heavenly;inviting;savo
 (k)_desc:The [noun] is cold to the touch;The [noun] is #key_weight#.;The metal of the [noun] is #key_metal#.;The [noun] looks useful.
 key_weight:heavy;light;weighty;surprisingly heavy;heavier than it looks
 key_metal:antiqued;brushed;hammered;polished;satin;rusty
-(d)_desc:The [noun] looks #door_what_is#.;It's a #door_what_is# [noun];It is what it is, a [noun].
+(d)_desc:The [noun] looks #door_what_is#.;It's a #door_what_is# [noun].;It is what it is, a [noun].
 door_what_is:imposing;sturdy;well-built;durable;robust;rugged;hefty;commanding;grand;noble;ominous;towering;manageable;solid;stuffy
 #State descriptors
 #-----------------
-openable_desc:[if open]It is [adjective of the verb open].[else if locked]It is [adjective of the verb lock].[otherwise]It is [adjective of the verb close].[end if]
+openable_desc:[if open]It is [adjective of the verb {open}].[else if locked]It is [adjective of the verb {lock}].[otherwise]It is [adjective of the verb {close}].[end if]
 on_desc:On the (name), is [a list of things on the (obj)].;You can see [list of things on the (obj)] on the (name);this (name) has the following upon it, [list of things on the (obj)];you gaze in terror at the [list of things on the (obj)] that lie upon this very (name)!; "now why" you think, "am I looking at [list of things on the (obj)] on this (name)?"
 #Key Match Adjectives
 #These adjectives CANNOT be used elsewhere!

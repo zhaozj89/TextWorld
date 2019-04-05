@@ -565,7 +565,7 @@ class Inform7Game:
 
         # Add new actions.
         source += textwrap.dedent("""\
-        Displaying help message is an action applying to nothing.
+        [Displaying help message is an action applying to nothing.
         Carry out displaying help message:
             say "[fixed letter spacing]Available commands:[line break]";
             say "  look:                describe the current room[line break]";
@@ -584,7 +584,7 @@ class Inform7Game:
             say "  lock ... with ...:   lock a door or a container with a key[line break]";
             say "  unlock ... with ...: unlock a door or a container with a key[line break]";
 
-        [Understand "help" as displaying help message.] [Disabled for the human study]
+        Understand "help" as displaying help message.] [Disabled for the human study]
 
         """)
 
