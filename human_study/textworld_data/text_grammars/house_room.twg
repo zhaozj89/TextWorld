@@ -5,13 +5,13 @@
 # Inform7 snippets
 #-----------------
 #Shouldn't need to be messed with. These are shortcuts for when you need to use i7 code. Probably a bad idea to include symbols or tokens inside these
-i7_closed/open:[if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+i7_closed/open:[if (obj) is open][an adjective of the verb {open}][otherwise][an adjective of the verb {close}][end if]
 i7_list_in:[a list of things in the (obj)]
 i7_list_on:[a list of things on the (obj)]
 i7_empty:[if (obj) contains nothing]an empty[otherwise]a[end if]
-inform7:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
-inform7A:[if (obj) is locked]A [adjective of the verb {lock}][else if (obj) is open]An [adjective of the verb {open}][otherwise]A [adjective of the verb {close}][end if]
-inform7noa:[if (obj) is locked]a [adjective of the verb {lock}][else if (obj) is open]an [adjective of the verb {open}][otherwise]a [adjective of the verb {close}][end if]
+inform7:[if (obj) is locked][an adjective of the verb {lock}][else if (obj) is open][an adjective of the verb {open}][otherwise][an adjective of the verb {close}][end if]
+inform7A:[if (obj) is locked][An adjective of the verb {lock}][else if (obj) is open][An adjective of the verb {open}][otherwise][An adjective of the verb {close}][end if]
+inform7noa:[if (obj) is locked][an adjective of the verb {lock}][else if (obj) is open][an adjective of the verb {open}][otherwise][an adjective of the verb {close}][end if]
 inform7noun:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
 inform7nounnoa:[if (obj) is locked][adjective of the verb {lock}][else if (obj) is open][adjective of the verb {open}][otherwise][adjective of the verb {close}][end if]
 

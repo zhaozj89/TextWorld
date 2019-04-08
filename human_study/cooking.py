@@ -1179,9 +1179,12 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         with open("Fake Language.i7x") as f:
             fake_commands_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
 
-        game.kb.inform7_addons_code += fake_commands_code.format(**fake_words["actions"])
+        game.kb.inform7_addons_code += fake_commands_code.format(**{**fake_words["actions"], **fake_words["words"]})
     else:
         fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
+
+    objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
+                 " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))
 
     # Fill placeholders
     for entity in M._entities.values():
@@ -1195,6 +1198,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         return "".join(mapping.get(w, w) for w in re.split(r"(\W+)", text))
 
     if settings["fake_entities"]:
+        objective = _swap_words(objective, fake_words["words"])
         for entity in M._entities.values():
             entity.infos.name = _swap_words(entity.infos.name, fake_words["words"])
             entity.infos.noun = _swap_words(entity.infos.noun, fake_words["words"])
@@ -1207,9 +1211,6 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
             #entity.infos.adj = None
             #entity.infos.desc = None  # Force regeneration of the descriptions.
 
-
-    objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
-                 " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))
     walkthrough = [command.format(**fake_words["actions"]) for command in walkthrough]
     # print(" > ".join(walkthrough))
     # game.main_quest = M.new_quest_using_commands(walkthrough)

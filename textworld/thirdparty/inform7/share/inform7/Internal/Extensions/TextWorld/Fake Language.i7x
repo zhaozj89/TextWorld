@@ -23,23 +23,28 @@ To {carry} is a verb.
 To {go} is a verb.
 To {mix} is a verb.
 
-Section 1/1 - Declare new command aliases
+Section 1/1 - Declare temporary command aliases
 
-Understand the command "{open}" as "open".
-Understand the command "{close}" as "close".
-Understand the command "{take}" as "take".
-Understand the command "{drop}" as "drop".
-Understand the command "{put}" as "put".
-Understand the command "{insert}" as "insert".
-Understand the command "{look}" as "look".
-Understand the command "{lock}" as "lock".
-Understand the command "{unlock}" as "unlock".
-Understand the command "{inventory}" as "inventory".
-Understand the command "{examine}" as "examine".
-Understand the command "{eat}" as "eat".
-Understand the command "{drink}" as "drink".
-Understand the command "{go}" as "go".
-Understand the command "{mix}" as "mix".
+Understand the command "open2" as "open".
+Understand the command "close2" as "close".
+Understand the command "take2" as "take".
+Understand the command "drop2" as "drop".
+Understand the command "put2" as "put".
+Understand the command "insert2" as "insert".
+Understand the command "look2" as "look".
+Understand the command "lock2" as "lock".
+Understand the command "unlock2" as "unlock".
+Understand the command "inventory2" as "inventory".
+Understand the command "examine2" as "examine".
+Understand the command "eat2" as "eat".
+Understand the command "drink2" as "drink".
+Understand the command "go2" as "go".
+Understand the command "mix2" as "mix".
+
+Understand the command "slice2" as "slice".
+Understand the command "dice2" as "dice".
+Understand the command "chop2" as "chop".
+Understand the command "cook2" as "cook".
 
 Section 1/2 - Forget old commands
 
@@ -61,6 +66,35 @@ Understand the command "mix" as something new.
 Understand the command "lock" as something new.
 Understand the command "unlock" as something new.
 
+Understand the command "cook" as something new.
+Understand the command "slice" as something new.
+Understand the command "chop" as something new.
+Understand the command "dice" as something new.
+Understand the command "cut" as something new.
+
+Understand the command "burn", "light" as something new.
+
+Section 1/3 - Declare new command aliases
+
+Understand the command "{open}" as "open2".
+Understand the command "{close}" as "close2".
+Understand the command "{take}" as "take2".
+Understand the command "{drop}" as "drop2".
+Understand the command "{put}" as "put2".
+Understand the command "{insert}" as "insert2".
+Understand the command "{look}" as "look2".
+Understand the command "{lock}" as "lock2".
+Understand the command "{unlock}" as "unlock2".
+Understand the command "{inventory}" as "inventory2".
+Understand the command "{examine}" as "examine2".
+Understand the command "{eat}" as "eat2".
+Understand the command "{drink}" as "drink2".
+Understand the command "{mix}" as "mix2".
+
+Understand the command "{slice}" as "slice2".
+Understand the command "{dice}" as "dice2".
+Understand the command "{chop}" as "chop2".
+Understand the command "{cook}" as "cook2".
 
 Part 2 - Overwriting messages
 
@@ -83,6 +117,10 @@ The standard report eating rule response (A) is "[We] [{eat}] [the noun]. Not ba
 The standard report eating rule response (B) is "[The actor] [{eat}] [the noun].".
 The print empty inventory rule response (A) is "[We] [are] [present participle of the verb {carry}] nothing.".
 The print standard inventory rule response (A) is "[We] [are] [present participle of the verb {carry}]:[line break]".
+The standard report locking rule response (A) is "[We] [{lock}] [the noun].".
+The standard report locking rule response (B) is "[The actor] [{lock}] [the noun].".
+The standard report unlocking rule response (A) is "[We] [{unlock}] [the noun].".
+The standard report unlocking rule response (B) is "[The actor] [{unlock}] [the noun].".
 
 Section 2/1 - Error messages
 
@@ -95,6 +133,16 @@ The can't insert something into itself rule response (A) is "[We] [can't {put}] 
 The can't put something on itself rule response (A) is "[We] [can't {put}] something on top of itself.".
 The can't put onto what's not a supporter rule response (A) is "{put}ing things on [the second noun] [would achieve] nothing.".
 The block drinking rule response (A) is "[There's] nothing suitable to [{drink}] here.".
+The block vaguely going rule response (A) is "You'll have to say which direction to {go} in.".
+The can't go through undescribed doors rule response (A) is "[We] [can't {go}] that way.".
+The can't go that way rule response (A) is "[We] [can't {go}] that way.".
+The can't lock without a lock rule response (A) is "[regarding the noun][Those] [don't] seem to be something [we] [can] {lock}.".
+The can't unlock without a lock rule response (A) is "[regarding the noun][Those] [don't] seem to be something [we] [can] {unlock}.".
+The can't unlock what's already unlocked rule response (A) is "[regarding the noun][They're] [past participle of the verb {unlock}] at the [if story tense is present
+				tense]moment[otherwise]time[end if].".
+The can't open what's locked rule response (A) is "[regarding the noun][They] [seem] to be [past participle of the verb {lock}].".
+The can't lock what's already locked rule response (A) is "[regarding the noun][They're] [past participle of the verb {lock}] at the [if story tense is present
+				tense]moment[otherwise]time[end if].".
 
 Section 2/2 - Clarification messages
 
@@ -110,14 +158,6 @@ To {cut} is a verb.
 To {slice} is a verb.
 To {dice} is a verb.
 To {chop} is a verb.
-Understand the command "{slice}" as "slice".
-Understand the command "{dice}" as "dice".
-Understand the command "{chop}" as "chop".
-
-Understand the command "slice" as something new.
-Understand the command "chop" as something new.
-Understand the command "dice" as something new.
-Understand the command "cut" as something new.
 
 The generic cut not allowed rule response (A) is "You need to specify how you want to [{cut}] [the noun]. Either [{slice}], [{dice}], or [{chop}] it.".
 The can only cut cuttable food rule response (A) is "Can only [{cut}] cuttable food.".
@@ -140,8 +180,6 @@ To say (v - type of cutting):
 		say "cube";
 
 To {cook} is a verb.
-Understand the command "{cook}" as "cook".
-Understand the command "cook" as something new.
 The cooking requires a source of heat rule response (A) is "[Present participle of the verb {cook}] requires a source of heat.".
 The cook only cookable things rule response (A) is "Can only [infinitive of the verb {cook}] food.".
 
@@ -211,7 +249,40 @@ Carry out displaying help message (this is the new displaying help message rule)
 
 The new displaying help message rule is listed first in carry out displaying help message.
 
-Part 5 - Disabling all remaining English commands
+Part 5 - Replacing compass directions
+
+Understand "s", "south" as a mistake ("That's not a verb I recognise.").
+Understand "n", "north" as a mistake ("That's not a verb I recognise.").
+Understand "w", "west" as a mistake ("That's not a verb I recognise.").
+Understand "e", "east" as a mistake ("That's not a verb I recognise.").
+Understand "sw", "southwest" as a mistake ("That's not a verb I recognise.").
+Understand "se", "southeast" as a mistake ("That's not a verb I recognise.").
+Understand "nw", "northwest" as a mistake ("That's not a verb I recognise.").
+Understand "ne", "northeast" as a mistake ("That's not a verb I recognise.").
+Understand "u", "up" as a mistake ("That's not a verb I recognise.").
+Understand "d", "down" as a mistake ("That's not a verb I recognise.").
+Understand "in", "out" as a mistake ("That's not a verb I recognise.").
+
+Understand "{go} [direction]" as going.
+Understand "{go} s/south" as a mistake ("That's not a direction I recognise.").
+Understand "{go} n/north" as a mistake ("That's not a direction I recognise.").
+Understand "{go} e/east" as a mistake ("That's not a direction I recognise.").
+Understand "{go} w/west" as a mistake ("That's not a direction I recognise.").
+Understand "{go} sw/southwest" as a mistake ("That's not a direction I recognise.").
+Understand "{go} nw/northwest" as a mistake ("That's not a direction I recognise.").
+Understand "{go} se/southeast" as a mistake ("That's not a direction I recognise.").
+Understand "{go} ne/northeast" as a mistake ("That's not a direction I recognise.").
+Understand "{go} u/up" as a mistake ("That's not a direction I recognise.").
+Understand "{go} d/down" as a mistake ("That's not a direction I recognise.").
+Understand "{go} in/out" as a mistake ("That's not a direction I recognise.").
+
+Understand "{south}" as south.
+Understand "{north}" as north.
+Understand "{east}" as east.
+Understand "{west}" as west.
+
+
+Part 6 - Disabling all remaining English commands
 
 Understand the command "stand" as something new.
 Understand the command "remove" as something new.
@@ -255,7 +326,6 @@ Understand the command "taste" as something new.
 Understand the command "touch", "feel" as something new.
 Understand the command "rub", "shine", "polish", "sweep", "clean", "dust", "wipe" and "scrub" as something new.
 Understand the command "tie", "attach", "fasten" as something new.
-Understand the command "burn", "light" as something new.
 Understand the command "jump", "skip", "hop" as something new.
 Understand the command "verify" as something new.
 Understand the command "version" as something new.

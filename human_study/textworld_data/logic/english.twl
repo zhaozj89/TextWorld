@@ -12,6 +12,16 @@ type english {
                 otherwise:
                     say "[past participle of V]";
 
+            The dummy-adjective is a thing. The dummy-adjective is nowhere.
+
+            To say an adjective of (V - a verb):
+                now the printed name of dummy-adjective is "[adjective of V]";
+                say "[a dummy-adjective]";
+
+            To say An adjective of (V - a verb):
+                now the printed name of dummy-adjective is "[adjective of V]";
+                say "[A dummy-adjective]";
+
             Displaying help message is an action applying to nothing.
             Carry out displaying help message:
                 say "[fixed letter spacing]Available commands:[line break]";
