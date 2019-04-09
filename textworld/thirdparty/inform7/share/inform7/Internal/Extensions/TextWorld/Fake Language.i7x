@@ -220,6 +220,9 @@ The before preparing meal rule response (B) is "The {recipe} requires [a ingredi
 The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
 The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
 
+Understand "{take} all" as taking all.
+Understand "{take} each" as taking all.
+Understand "{take} everything" as taking all.
 
 Part 4 - Display the list of commands
 
