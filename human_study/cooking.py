@@ -1032,8 +1032,12 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         M.grammar.options.highlight = True
 
     #with open("french_words_mapping.json") as f:
-    with open("fake_words_mapping.json") as f:
-        fake_words = json.load(f)
+    if settings["swap"]:
+        with open("swap_words_mapping.json") as f:
+            fake_words = json.load(f)
+    else:
+        with open("fake_words_mapping.json") as f:
+            fake_words = json.load(f)
 
     if not settings["fake_entities"]:
         fake_words["words"] = dict(zip(*((fake_words["words"].keys(),) * 2)))
@@ -1284,6 +1288,8 @@ def build_argparser(parser=None):
                        help="Replace action verbs with fake words (loaded from fake_words_mapping.json).")
     group.add_argument("--entity-only", action="store_true",
                        help="Only show entity names, i.e. no context.")
+    group.add_argument("--swap", action="store_true",
+                       help="Swap action verbs (loaded from swap_words_mapping.json).")
     #group.add_argument("--minimap", action="store_true",
     #                   help="Highlight entity names (objects, rooms and directions).")
     group.add_argument("--suffle-description", action="store_true",

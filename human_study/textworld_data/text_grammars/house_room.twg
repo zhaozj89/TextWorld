@@ -20,6 +20,7 @@ inform7nounnoa:[if (obj) is locked][adjective of the verb {lock}][else if (obj) 
 #Text for introducing the room. ex: "Greetings, you are now in the hot kitchen"
 # dec:[if unvisited]#GREETING!# #dec_type##suffix_(r)#[otherwise]#revisit#[end if];[if unvisited]#dec_type##suffix_(r)#[otherwise]#revisit#[end if]
 dec:#dec_type##suffix_(r)#
+dec_empty:#dec_type##suffix_empty_(r)#
 
 ### First time in room ###
 dec_type:#reg-0#;#normal-0#;#difficult-0#;#moredifficult-0#;#playful-0#
@@ -249,13 +250,6 @@ room:room;place;part of the game;zone;chamber;area;sector
 #Exit Descriptions
 #----------------
 
-#room_desc_(d): describes a single door in the room
-#room_desc_(dir): describes a single unblocked exit in the room
-#room_exit_desc: describes multiple unlocked exits in the room
-#room_desc_exits: possible unnecessary
-#room_desc_doors_closed: describes a group of closed doors in the room
-#room_desc_doors_open: describes a group of open doors in the room
-
 room_desc_(d):There is #i7_closed/open# (name) leading (dir).
 room_desc_(dir):There is an exit to the (dir).;There is an exit to the (dir). Don't worry, there is no door.;You need an exit without a door? You should try [present participle of the verb {go}] (dir).;You don't like doors? Why not try [present participle of the verb {go}] (dir), that entranceway is not blocked by one.
 room_exit_desc:#easy1#.;#medium1#.;#hard1#.
@@ -317,6 +311,7 @@ suffix_meta:. There's something about an object in a room that's just so... Text
 suffix_fulfillment:. A (name-n)... Is that really what you were looking for?;. Is this it? Is this what you came to TextWorld to see? a (name-n)?;. Hmm. You always thought you'd be more excited to see a (name-n) in a room.;. Is this what you came to TextWorld for? This... (name-n)?;. You {look} around you, at all the containers and supporters, doors and objects, and you think to yourself. Why? Why Textworld?
 suffix_price_schtick:. You check the price tag #pricetagexplain#. #pricebad#?! That's ridiculous! #youknow# my #friendtype#, #myfriend#? I'm sure my friend could get you one of those for #pricegood#!;. You check the price tag #pricetagexplain#. #pricebad#?! That's ridiculous! #Iknow# #afriend# who could get you one of those for #pricegood#!;. You look at the price tag #pricetagexplain#. #pricebad#?! Where'd they buy this (name-n), #expensiveplace#?;. You check the price tag #pricetagexplain#. #pricegood#? What a deal! You'll have to ask where they got this!;. Wow, check out the price tag #pricetagexplain#! #pricebad#!;#emptymain#;#emptymainperiod#
 suffix_(r):. Okay, just remember what you're here to do, and everything will go great.;. You try to gain information on your surroundings by using a technique you call '[present participle of the verb {look}].';. You can barely contain your excitement.;. The room seems oddly familiar, as though it were only superficially different from the other rooms in the building.;. You decide to just list off a complete list of everything you see in the room, because hey, why not?;. I guess you better just go and list everything you see here.;. You start to take note of what's in the room.;. You decide to start listing off everything you see in the room, as if you were in a text adventure.;. The room is well lit.;. You begin to take stock of what's here.;. You begin to take stock of what's in the room.;. You begin [present participle of the verb {look}] for stuff.;. Let's see what's in here.;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#
+suffix_empty_(r):. You can barely contain your disappointment. The room is empty.;. The room seems oddly familiar, as though it were only superficially different from the other empty rooms in the building.;. I guess you better just go and list everything you see here but there's nothing in here.;. You start to take note of what's in the room. That's easy there's nothing to see.;. The room is well lit and empty.;. You begin [present participle of the verb {look}] for stuff but there's nothing really.;. Let's see what's in here... there's only emptiness.
 ### Cut for length ###
 suffix:.;. You shudder, but continue examining the room.;. You wonder idly who left that here.;. Now why would someone leave that there?;. There's something strange about this being here, but you can't put your finger on it.;. There's something strange about this thing being here, but you don't have time to worry about that now.;. Huh, weird.;, so there's that.;!;. Hmmm... what else, what else?;. Wow, isn't TextWorld just the best?;. I mean, just wow! Isn't TextWorld just the best?;. You can't wait to tell the folks at home about this!;. Something scurries by right in the corner of your eye. Probably nothing.;. You idly wonder how they came up with the name TextWorld for this place. It's pretty fitting.;. Suddenly, you bump your head on the ceiling, but it's not such a bad bump that it's going to prevent you from looking at objects and even things.;. Now that's what I call TextWorld!;. Classic TextWorld.;. The light flickers for a second, but nothing else happens.;.;.;.;#emptymainperiod#;#emptymain#;#empty1#;#empty2#;#empty3#;#empty4#;#empty5#;#empty6#;#empty7#;#empty8#;#empty9#;#empty10#;#empty11#;#empty12#;#empty13#;#empty14#;#empty15#;#empty16#;#empty17#;#empty18#;#empty19#;#empty20#;#empty21#;#empty22#;#empty23#;#empty24#;#empty25#;#empty26#;#empty27#;#empty28#;#empty29#;#empty30#;#empty31#;#empty32#;#empty33#;#empty34#;#empty35#;#empty30#;#empty31#;#empty32#;#suffix_price_schtick#;#suffix_fulfillment#;#suffix_meta#
 

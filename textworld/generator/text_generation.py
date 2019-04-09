@@ -164,6 +164,10 @@ def assign_description_to_room(room, game, grammar):
 
     # Convert the objects into groupings based on adj/noun/type
     objs = [o for o in room.content if KnowledgeBase.default().types.is_descendant_of(o.type, KnowledgeBase.default().types.CLASS_HOLDER)]
+
+    if len(objs) == 0:
+        room_desc = expand_clean_replace("#dec_empty#", grammar, room, game.infos)
+
     groups = OrderedDict()
     groups["adj"] = OrderedDict()
     groups["noun"] = OrderedDict()
