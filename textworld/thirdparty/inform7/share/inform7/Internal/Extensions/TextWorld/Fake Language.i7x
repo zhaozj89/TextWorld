@@ -89,7 +89,7 @@ Understand the command "{inventory}" as "inventory2".
 Understand the command "{examine}" as "examine2".
 Understand the command "{eat}" as "eat2".
 Understand the command "{drink}" as "drink2".
-Understand the command "{mix}" as "mix2".
+Understand "{mix} {ingredients}" as preparing meal.
 
 Understand the command "{slice}" as "slice2".
 Understand the command "{dice}" as "dice2".
@@ -171,13 +171,13 @@ The chopping stuff rule response (B) is "[We] [{chop}] the [food item].".
 
 To say (v - type of cutting):
 	if v is uncut:
-		say "non-coupe";
+		say "{uncut}";
 	else if v is chopped:
-		say "hache";
+		say "[adjective of the verb {chop}]";
 	else if v is sliced:
-		say "tranche";
+		say "[adjective of the verb {slice}]";
 	else if v is diced:
-		say "cube";
+		say "[adjective of the verb {dice}]";
 
 To {cook} is a verb.
 The cooking requires a source of heat rule response (A) is "[Present participle of the verb {cook}] requires a source of heat.".
@@ -193,19 +193,19 @@ The cook carried food rule response (B) is "[We] [{fry}] the [food item]."
 The cook carried food rule response (C) is "[We] [{roast}] the [food item]."
 The cook carried food rule response (D) is "[We] [{grill}] the [food item]."
 
-The mentioned the type of cooking rule response (A) is "cru ".
-The mentioned the type of cooking rule response (B) is "brule ".
+The mentioned the type of cooking rule response (A) is "{raw} ".
+The mentioned the type of cooking rule response (B) is "[adjective of the verb {burn}] ".
 
 To say Present participle of (V - verb):
 	say "[present participle of V]" in title case.
 
 To say (v - type of cooking):
 	if v is roasted:
-		say "roti";
+		say "[adjective of the verb {roast}]";
 	else if v is grilled:
-		say "grille";
+		say "[adjective of the verb {grill}]";
 	else if v is fried:
-		say "frite";
+		say "[adjective of the verb {fry}]";
 
 The taking something from the ground rule response (A) is "[The actor] [{take}] [the noun] from the ground.".
 The taking something from somewhere rule response (A) is "[The actor] [{take}] [the noun] from [the previous locale].".
@@ -213,12 +213,12 @@ The dropping something on the ground rule response (A) is "[The actor] [{drop}] 
 The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
 
 To say adjective of (V - a verb):
-	if the verb {open} is V:
-		say "[past participle of the verb {open}]";
-	else if the verb {close} is V:
-		say "[past participle of the verb {close}]";
-	else if the verb {lock} is V:
-		say "[past participle of the verb {lock}]";
+	say "[past participle of V]";
+
+The before preparing meal rule response (A) is "Can only [{mix}] the ingredients in the [cooking location of the recipe].".
+The before preparing meal rule response (B) is "The {recipe} requires [a ingredient].".
+The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
+The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
 
 
 Part 4 - Display the list of commands

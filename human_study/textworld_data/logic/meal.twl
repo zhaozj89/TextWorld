@@ -86,30 +86,30 @@ type RECIPE {
 
         code :: """
             [Ingredient]
-            Rule for printing the name of an ingredient-like (called I):
+            Rule for printing the name of an ingredient-like (called I) (this is the printing ingredient name rule):
                 if type of cutting of I is not uncut:
-                    say  "[type of cutting of I] ";
+                    say "[type of cutting of I] ";
                 if type of cooking of I is not raw:
-                    say  "[type of cooking of I] ";
+                    say "[type of cooking of I] ";
                 say  "[base of I]";
 
             [Preparing a meal]
             To mix is a verb.
             Preparing meal is an action applying to nothing.
-            Before preparing meal:
+            Before preparing meal (this is the before preparing meal rule):
                 if location is not the cooking location of the recipe:
-                    say "Can only [mix] the ingredients in the [cooking location of the recipe].";
+                    say "Can only [mix] the ingredients in the [cooking location of the recipe]." (A);
                     rule fails;
                 Repeat with ingredient running through the ingredients of the recipe:
                     let F be the base of the ingredient;
                     if player does not carry the F:
-                        say "The [recipe] requires [a ingredient].";
+                        say "The recipe requires [a ingredient]." (B);
                         rule fails;
                     if type of cooking of F is not type of cooking of ingredient:
-                        say "The [recipe] requires [a ingredient].";
+                        say "The recipe requires [a ingredient]." (C);
                         rule fails;
                     if type of cutting of F is not type of cutting of ingredient:
-                        say "The [recipe] requires [a ingredient].";
+                        say "The recipe requires [a ingredient]." (D);
                         rule fails;
 
             Carry out preparing meal:

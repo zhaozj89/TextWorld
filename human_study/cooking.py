@@ -1033,6 +1033,9 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     with open("fake_words_mapping.json") as f:
         fake_words = json.load(f)
 
+    if not settings["fake_entities"]:
+        fake_words["words"] = dict(zip(*((fake_words["words"].keys(),) * 2)))
+
     def _swap_words(text, mapping):
         if text is None:
             return None
@@ -1209,6 +1212,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
                  " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))
+
     if settings["fake_entities"]:
         objective = _swap_words(objective, fake_words["words"])
 
