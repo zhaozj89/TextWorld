@@ -169,6 +169,20 @@ The dicing stuff rule response (B) is "[We] [{dice}] the [food item].".
 The chopping stuff rule response (A) is "The [food item] has already been [past participle of the verb {cut}]".
 The chopping stuff rule response (B) is "[We] [{chop}] the [food item].".
 
+The taking something from the ground rule response (A) is "[The actor] [{take}] [the noun] from the ground.".
+The taking something from somewhere rule response (A) is "[The actor] [{take}] [the noun] from [the previous locale].".
+The dropping something on the ground rule response (A) is "[The actor] [{drop}] [the noun] on the ground.".
+The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
+
+The before preparing meal rule response (A) is "Can only [{mix}] the ingredients in the [cooking location of the recipe].".
+The before preparing meal rule response (B) is "The {recipe} requires [a ingredient].".
+The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
+The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
+The can't eat inedible raw food rule response (A) is "[We] [should {cook}] [the target] first.".
+The can’t drink unless drinkable rule response (A) is "[We] [can't {drink}] [the noun].".
+The report drinking rule response (A) is "[We] [{drink}] [the noun]. Not bad".
+The report drinking rule response (B) is "[The person asked] just [{drink}] [the noun].".
+
 To say (v - type of cutting):
 	if v is uncut:
 		say "{uncut}";
@@ -207,18 +221,8 @@ To say (v - type of cooking):
 	else if v is fried:
 		say "[adjective of the verb {fry}]";
 
-The taking something from the ground rule response (A) is "[The actor] [{take}] [the noun] from the ground.".
-The taking something from somewhere rule response (A) is "[The actor] [{take}] [the noun] from [the previous locale].".
-The dropping something on the ground rule response (A) is "[The actor] [{drop}] [the noun] on the ground.".
-The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
-
 To say adjective of (V - a verb):
 	say "[past participle of V]";
-
-The before preparing meal rule response (A) is "Can only [{mix}] the ingredients in the [cooking location of the recipe].".
-The before preparing meal rule response (B) is "The {recipe} requires [a ingredient].".
-The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
-The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
 
 Understand "{take} all" as taking all.
 Understand "{take} each" as taking all.

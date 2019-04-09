@@ -42,7 +42,7 @@ class GrammarOptions:
     __slots__ = ['theme', 'names_to_exclude', 'include_adj', 'blend_descriptions',
                  'ambiguous_instructions', 'only_last_action',
                  'blend_instructions',
-                 'allowed_variables_numbering', 'unique_expansion']
+                 'allowed_variables_numbering', 'unique_expansion', 'highlight']
 
     def __init__(self, options=None, **kwargs):
         if isinstance(options, GrammarOptions):
@@ -72,6 +72,8 @@ class GrammarOptions:
         #: bool: When True, in the game objective, objects of interest might
         #:       be refer to by their type or adjective rather than full name.
         self.ambiguous_instructions = options.get("ambiguous_instructions", False)
+        #: bool: When True, entities will be highlighted in the game.
+        self.highlight = options.get("highlight", False)
 
     def serialize(self) -> Mapping:
         """ Serialize this object.

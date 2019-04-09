@@ -15,12 +15,11 @@ from textworld.generator.text_grammar import fix_determinant
 from textworld.logic import Placeholder
 
 
-def highlight(text):
-    return "[bold type][italic type]{}[roman type]".format(text)
-    if str2bool(os.environ.get("TEXTWORLD_ANSI")):
-        return "\\033[bracket]33;1m{}\\033[bracket]0m".format(text)
-    else:
+def highlight(text, flag=False):
+    if flag:
         return "[bold type][italic type]{}[roman type]".format(text)
+
+    return text
 
 
 class CountOrderedDict(OrderedDict):
@@ -550,8 +549,8 @@ def expand_clean_replace(symbol, grammar, obj, game_infos):
     obj_infos = game_infos[obj.id]
     phrase = grammar.expand(symbol)
     phrase = phrase.replace("(obj)", obj_infos.id)
-    phrase = phrase.replace("(name)", highlight(obj_infos.name))
-    phrase = phrase.replace("(name-n)", highlight(obj_infos.noun if obj_infos.adj else obj_infos.name))
+    phrase = phrase.replace("(name)", highlight(obj_infos.name, grammar.options.highlight))
+    phrase = phrase.replace("(name-n)", highlight(obj_infos.noun if obj_infos.adj else obj_infos.name, grammar.options.highlight))
     phrase = phrase.replace("(name-adj)", obj_infos.adj if obj_infos.adj else grammar.expand("#ordinary_adj#"))
     if obj.type != "":
         phrase = phrase.replace("(name-t)", KnowledgeBase.default().types.get_description(obj.type))

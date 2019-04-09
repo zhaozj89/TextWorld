@@ -1028,6 +1028,8 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     M.quests = quests
 
+    if settings["highlight"]:
+        M.grammar.options.highlight = True
 
     #with open("french_words_mapping.json") as f:
     with open("fake_words_mapping.json") as f:
@@ -1202,6 +1204,9 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         game.kb.inform7_addons_code += fake_commands_code.format(**{**fake_words["actions"], **fake_words["words"]})
     else:
         fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
+
+    if settings["highlight"]:
+        game.kb.inform7_addons_code += "\nThe entity highlighting option is true.\n"
 
     # Fill placeholders
     for entity in M._entities.values():
