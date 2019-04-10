@@ -1218,6 +1218,21 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
             entity.infos.desc = entity.infos.desc.format(**fake_words["actions"])
             entity.infos.desc = _swap_words(entity.infos.desc, fake_words["words"])
 
+    if settings["entity_only"]:
+        def _replace_words(text, whitelist):
+            if text is None:
+                return None
+
+            return ", ".join(sorted(set(re.findall("(" + "|".join(whitelist) + ")", text))))
+
+        entity_names = set(entity.infos.name for entity in M._entities.values() if entity.infos.name)
+        for room in M.rooms:
+            room.infos.desc = _replace_words(room.infos.desc, entity_names)
+
+        with open("Entity Only Language.i7x") as f:
+            entity_only_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
+
+        game.kb.inform7_addons_code += entity_only_code
 
     objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
                  " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))

@@ -37,7 +37,8 @@ type english {
                 say " eat ...             [line break]";
                 say " take ...            [line break]";
                 say " slice ... with ...  [line break]";
-                say " take ... from ...   [line break]";
+                say " close ...           [line break]";
+                say " enter ...           [line break]";
                 say " lock ... with ...   [line break]";
                 say " unlock ... with ... [line break]";
                 say " open ...            [line break]";
