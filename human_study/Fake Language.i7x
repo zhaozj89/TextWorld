@@ -272,22 +272,6 @@ Understand "d", "down" as a mistake ("That's not a verb I recognise.").
 Understand "in", "out" as a mistake ("That's not a verb I recognise.").
 
 Understand "{go} [direction]" as going.
-Understand "{go} s/south" as a mistake ("That's not a direction I recognise.").
-Understand "{go} n/north" as a mistake ("That's not a direction I recognise.").
-Understand "{go} e/east" as a mistake ("That's not a direction I recognise.").
-Understand "{go} w/west" as a mistake ("That's not a direction I recognise.").
-Understand "{go} sw/southwest" as a mistake ("That's not a direction I recognise.").
-Understand "{go} nw/northwest" as a mistake ("That's not a direction I recognise.").
-Understand "{go} se/southeast" as a mistake ("That's not a direction I recognise.").
-Understand "{go} ne/northeast" as a mistake ("That's not a direction I recognise.").
-Understand "{go} u/up" as a mistake ("That's not a direction I recognise.").
-Understand "{go} d/down" as a mistake ("That's not a direction I recognise.").
-Understand "{go} in/out" as a mistake ("That's not a direction I recognise.").
-
-Understand "{south}" as south.
-Understand "{north}" as north.
-Understand "{east}" as east.
-Understand "{west}" as west.
 
 
 Part 6 - Disabling all remaining English commands

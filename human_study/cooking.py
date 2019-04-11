@@ -1031,8 +1031,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     if settings["highlight"]:
         M.grammar.options.highlight = True
 
-    #with open("french_words_mapping.json") as f:
-    if settings["swap"]:
+    if settings["swap_commands"]:
         with open("swap_words_mapping.json") as f:
             fake_words = json.load(f)
     else:
@@ -1197,17 +1196,21 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     game = M.build()
 
-    # #with open("french_words_mapping.json") as f:
-    # with open("fake_words_mapping.json") as f:
-    #     fake_words = json.load(f)
+    if not settings["fake_commands"]:
+        fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
 
-    if settings["fake_commands"]:
+
+    if settings["fake_commands"] or settings["fake_entities"] or settings["swap_commands"]:
         with open("Fake Language.i7x") as f:
             fake_commands_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
 
         game.kb.inform7_addons_code += fake_commands_code.format(**{**fake_words["actions"], **fake_words["words"]})
-    else:
-        fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
+
+        if settings["fake_entities"]:
+            with open("Fake Directions.i7x") as f:
+                fake_directions_code = "\n".join(f.read().split("\n")[1:-1]) + "\n\n\n"
+
+            game.kb.inform7_addons_code += fake_directions_code.format(**{**fake_words["actions"], **fake_words["words"]})
 
     if settings["highlight"]:
         game.kb.inform7_addons_code += "\nThe entity highlighting option is true.\n"
@@ -1303,7 +1306,7 @@ def build_argparser(parser=None):
                        help="Replace action verbs with fake words (loaded from fake_words_mapping.json).")
     group.add_argument("--entity-only", action="store_true",
                        help="Only show entity names, i.e. no context.")
-    group.add_argument("--swap", action="store_true",
+    group.add_argument("--swap-commands", action="store_true",
                        help="Swap action verbs (loaded from swap_words_mapping.json).")
     #group.add_argument("--minimap", action="store_true",
     #                   help="Highlight entity names (objects, rooms and directions).")
