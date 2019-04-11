@@ -1196,9 +1196,8 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     game = M.build()
 
-    if not settings["fake_commands"]:
+    if not settings["fake_commands"] and not settings["swap_commands"]:
         fake_words["actions"] = dict(zip(*((fake_words["actions"].keys(),) * 2)))
-
 
     if settings["fake_commands"] or settings["fake_entities"] or settings["swap_commands"]:
         with open("Fake Language.i7x") as f:

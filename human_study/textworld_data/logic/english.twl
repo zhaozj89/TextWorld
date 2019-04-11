@@ -25,13 +25,13 @@ type english {
             Displaying help message is an action applying to nothing.
             Carry out displaying help message:
                 say "[fixed letter spacing]Available commands:[line break]";
+                say " inventory           [line break]";
                 say " chop ... with ...   [line break]";
                 say " put ... on ...      [line break]";
                 say " drop ...            [line break]";
                 say " cook ... with ...   [line break]";
                 say " insert ... into ... [line break]";
                 say " drink ...           [line break]";
-                say " inventory           [line break]";
                 say " go ...              [line break]";
                 say " close ...           [line break]";
                 say " eat ...             [line break]";

@@ -15,7 +15,6 @@ To {insert} is a verb.
 To {look} is a verb.
 To {lock} is a verb.
 To {unlock} is a verb.
-To {inventory} is a verb.
 To {examine} is a verb.
 To {eat} is a verb.
 To {drink} is a verb.
@@ -34,7 +33,6 @@ Understand the command "insert2" as "insert".
 Understand the command "look2" as "look".
 Understand the command "lock2" as "lock".
 Understand the command "unlock2" as "unlock".
-Understand the command "inventory2" as "inventory".
 Understand the command "examine2" as "examine".
 Understand the command "eat2" as "eat".
 Understand the command "drink2" as "drink".
@@ -55,7 +53,7 @@ Understand the command "get", "pick" as something new.
 Understand the command "drop", "throw", "discard" as something new.
 Understand the command "put" as something new.
 Understand the command "insert" as something new.
-Understand the command "inventory", "inv", "i" as something new.
+Understand the command "inv", "i" as something new.
 Understand the command "look", "l" as something new.
 Understand the command "examine", "x", "watch", "describe", "check" as something new.
 Understand the command "eat" as something new.
@@ -85,16 +83,34 @@ Understand the command "{insert}" as "insert2".
 Understand the command "{look}" as "look2".
 Understand the command "{lock}" as "lock2".
 Understand the command "{unlock}" as "unlock2".
-Understand the command "{inventory}" as "inventory2".
 Understand the command "{examine}" as "examine2".
 Understand the command "{eat}" as "eat2".
 Understand the command "{drink}" as "drink2".
-Understand "{mix} {ingredients}" as preparing meal.
-
+Understand the command "{mix}" as "mix2".
 Understand the command "{slice}" as "slice2".
 Understand the command "{dice}" as "dice2".
 Understand the command "{chop}" as "chop2".
 Understand the command "{cook}" as "cook2".
+
+Section 1/4 - Remove dummy command aliases
+
+Understand the command "open2" as something new.
+Understand the command "close2" as something new.
+Understand the command "take2" as something new.
+Understand the command "drop2" as something new.
+Understand the command "put2" as something new.
+Understand the command "insert2" as something new.
+Understand the command "look2" as something new.
+Understand the command "lock2" as something new.
+Understand the command "unlock2" as something new.
+Understand the command "examine2" as something new.
+Understand the command "eat2" as something new.
+Understand the command "drink2" as something new.
+Understand the command "slice2" as something new.
+Understand the command "dice2" as something new.
+Understand the command "chop2" as something new.
+Understand the command "cook2" as something new.
+Understand the command "mix2" as something new.
 
 Part 2 - Overwriting messages
 
@@ -152,6 +168,8 @@ The use player's holdall to avoid exceeding carrying capacity rule response (A) 
 
 Part 3 - Overwriting TextWorld stuff
 
+The ingredients-topic is "{ingredients}".
+
 The can't go through door rule response (A) is "[We] have to [{open}] the [blocking door] first.".
 
 To {cut} is a verb.
@@ -174,10 +192,11 @@ The taking something from somewhere rule response (A) is "[The actor] [{take}] [
 The dropping something on the ground rule response (A) is "[The actor] [{drop}] [the noun] on the ground.".
 The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
 
-The before preparing meal rule response (A) is "Can only [{mix}] the ingredients in the [cooking location of the recipe].".
+The before preparing meal rule response (A) is "Can only [infinitive of the verb {mix}] the ingredients in the [cooking location of the recipe].".
 The before preparing meal rule response (B) is "The {recipe} requires [a ingredient].".
 The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
 The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
+The before preparing meal rule response (E) is "I don't know how to [infinitive of the verb {mix}] [topic understood].".
 The can't eat inedible raw food rule response (A) is "[We] [should {cook}] [the target] first.".
 The can’t drink unless drinkable rule response (A) is "[We] [can't {drink}] [the noun].".
 The report drinking rule response (A) is "[We] [{drink}] [the noun]. Not bad".
@@ -232,6 +251,7 @@ Part 4 - Display the list of commands
 
 Carry out displaying help message (this is the new displaying help message rule):
 	say "[fixed letter spacing]Available commands:[line break]";
+	say "  inventory             [line break]";
 	say "  {chop} ... with ...   [line break]";
 	say "  {close} ...           [line break]";
 	say "  {cook} ... with ...   [line break]";
@@ -243,7 +263,6 @@ Carry out displaying help message (this is the new displaying help message rule)
 	say "  {examine} ...         [line break]";
 	say "  {go} ...              [line break]";
 	say "  {insert} ... into ... [line break]";
-	say "  {inventory}           [line break]";
 	say "  {lock} ... with ...   [line break]";
 	say "  {look}                [line break]";
 	say "  {mix} ...             [line break]";

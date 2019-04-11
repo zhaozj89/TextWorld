@@ -21,17 +21,16 @@
     "go": "slice",
     "grill": "cook",
     "insert": "drop",
-    "inventory": "take",
     "lock": "unlock",
     "look": "lock",
-    "mix": "inventory",
+    "mix": "roast",
     "open": "gather",
     "prepare": "go",
     "put": "open",
     "roast": "look",
     "slice": "check",
     "take": "burn",
-    "unlock": "roast"
+    "unlock": "take"
   },
   "words": {
     "BBQ": "BBQ",

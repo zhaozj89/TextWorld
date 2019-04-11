@@ -95,10 +95,20 @@ type RECIPE {
 
             [Preparing a meal]
             To mix is a verb.
-            Preparing meal is an action applying to nothing.
+            The ingredients-topic is some text that varies. The ingredients-topic is usually "ingredients".
+            Preparing something is an action applying to a thing.
+            Carry out preparing something:
+                try preparing meal "[noun]".
+
+            Preparing meal is an action applying to one topic.
             Before preparing meal (this is the before preparing meal rule):
+                if topic understood exactly matches the text ingredients-topic:
+                    do nothing;
+                otherwise:
+                    say "I don't know how to [infinitive of the verb mix] [topic understood]." (E);
+                    rule fails;
                 if location is not the cooking location of the recipe:
-                    say "Can only [mix] the ingredients in the [cooking location of the recipe]." (A);
+                    say "Can only [infinitive of the verb mix] the ingredients in the [cooking location of the recipe]." (A);
                     rule fails;
                 Repeat with ingredient running through the ingredients of the recipe:
                     let F be the base of the ingredient;
@@ -119,7 +129,8 @@ type RECIPE {
                 now the player carries the meal of the recipe;
                 set pronouns from the meal of the recipe.
 
-            Understand "mix ingredients" as preparing meal.
+            Understand "mix [text]" as preparing meal.
+            Understand "mix [something]" as preparing something.
         """;
     }
 }
