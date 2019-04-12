@@ -50,6 +50,7 @@ import itertools
 import textwrap
 import argparse
 from pprint import pprint
+from collections import defaultdict
 
 from typing import Mapping, Union, Dict, Optional, List, Tuple
 
@@ -64,6 +65,7 @@ from textworld.generator.maker import WorldRoom, WorldEntity
 from textworld.generator.game import Quest, Event, GameOptions
 from textworld.logic import Proposition
 from textworld.generator.graph_networks import DIRECTIONS, reverse_direction
+from textworld.generator.graph_networks import relative_2d_constraint_layout
 
 from textworld.utils import encode_seeds
 
@@ -1269,6 +1271,54 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
                        specs=skills_uuid,
                        seeds=encode_seeds([options.seeds[k] for k in sorted(options.seeds)]))
     game.metadata["uuid"] = uuid
+
+    # Compute data for minimap
+
+    G = nx.Graph()
+    constraints = []
+    G.add_nodes_from(room.id for room in game.world.rooms)
+
+    def is_positioning_fact(proposition: Proposition):
+        return proposition.name in ["north_of", "south_of", "east_of", "west_of"]
+
+    positioning_facts = [fact for fact in game.world.facts if is_positioning_fact(fact)]
+    for fact in positioning_facts:
+        G.add_edge(fact.arguments[0].name, fact.arguments[1].name)
+        constraints.append((fact.arguments[0].name, fact.name[:-3], fact.arguments[1].name))
+
+    pos = relative_2d_constraint_layout(G, constraints)
+
+    # Shift coordinates to make them all positive.
+    min_x, min_y = np.min(list(zip(*pos.values())), axis=1)
+    pos = {k: (int(v[0] - min_x), int(v[1] - min_y)) for k, v in pos.items()}
+
+    abbreviations = defaultdict(int)
+    def _abbreviate(name):
+        abbreviation = name[:2]
+        suffix = ""
+        if abbreviation in abbreviations:
+            suffix = str(abbreviations[abbreviation])
+
+        abbreviations[abbreviation] += 1
+        return abbreviation + suffix
+
+    room2id = {}
+    data = {"nodes": []}
+    for i, room in enumerate(game.world.rooms):
+        room2id[room.id] = i
+        data["nodes"].append({
+            "name": game.infos[room.id].name,
+            "shortname": _abbreviate(game.infos[room.id].name),
+            "fixed": True,
+		    "visibility": "visible",
+            "x": pos[room.id][0], "y": pos[room.id][1]
+            })
+
+    data["links"] = [{"source": room2id[e[0]], "target": room2id[e[1]]} for e in G.edges]
+
+    with open(options.path.replace(".z8", "_minimap.json"), "w") as f:
+        json.dump(data, f, indent=2)
+
     return game
 
 
@@ -1307,8 +1357,8 @@ def build_argparser(parser=None):
                        help="Only show entity names, i.e. no context.")
     group.add_argument("--swap-commands", action="store_true",
                        help="Swap action verbs (loaded from swap_words_mapping.json).")
-    #group.add_argument("--minimap", action="store_true",
-    #                   help="Highlight entity names (objects, rooms and directions).")
+    # group.add_argument("--minimap", action="store_true",
+    #                    help="Highlight entity names (objects, rooms and directions).")
     group.add_argument("--suffle-description", action="store_true",
                        help="Every sentences of a block of text (room description, command feedback)"
                             " are going to be shuffled before being displayed.")

@@ -3,10 +3,11 @@
 
 
 import itertools
+from collections import OrderedDict, defaultdict
+from typing import List, Tuple, Hashable, Dict
+
 import numpy as np
 import networkx as nx
-from collections import OrderedDict
-
 
 DIRECTIONS = ["north", "south", "east", "west"]
 
@@ -15,6 +16,19 @@ directions = OrderedDict([((0, 1), 'north'),
                           ((0, -1), 'south'),
                           ((1, 0), 'east')])
 
+RELATIVE_POSITIONS = {
+    'north': np.array((0, 1)),
+    'south': np.array((0, -1)),
+    'east': np.array((1, 0)),
+    'west': np.array((-1, 0)),
+}
+
+OPPOSITE_RELATIONS = {
+    "north": "south",
+    "south": "north",
+    "east": "west",
+    "west": "east",
+}
 
 def reverse_direction(direction):
     index = DIRECTIONS.index(direction)
@@ -167,3 +181,92 @@ def shortest_path(G, source, target):
     for i in range(len(path) - 1):
             d.append(direction(path[i], path[i+1]))
     return d
+
+
+class InvalidConstraint(NameError):
+    pass
+
+
+def relative_2d_constraint_layout(G: nx.Graph, constraints: List[Tuple[Hashable, str, Hashable]]) -> Dict[Hashable, Tuple[int, int]]:
+    """ Position nodes respecting provided relative 2D contraints.
+
+    Arguments:
+        G: Graph containing the nodes to position nodes.
+        constraints: List of relative positioning contraints. Each constraint
+                     has the following format: (node1, relation, node2) where
+                     relation is either 'north', 'south', 'east' or 'west'.
+                     For instance, ('A', 'north', 'B') would mean node 'A'
+                     should be aligned above (north of) node 'B'.
+
+    Returns:
+        pos: Node positions.
+    """
+    constraints_ = defaultdict(list)
+
+    def _check_existing_constraint(src, relation, dest):
+        existing_constraints = [c for c in constraints_[src] if c[1] == relation]
+        for constraint in existing_constraints:
+            if (src, relation, dest) != constraint:
+                msg = "Find multiple constraints with the same relation for node {}: {} and {}."
+                msg = msg.format(src, (src, relation, dest), constraint)
+                raise InvalidConstraint(msg)
+
+    for src, relation, dest in constraints:
+        opposite_relation = OPPOSITE_RELATIONS[relation]
+        _check_existing_constraint(src, relation, dest)
+        _check_existing_constraint(dest, opposite_relation, src)
+        constraints_[src].append((src, relation, dest))
+        constraints_[dest].append((dest, opposite_relation, src))
+
+    edges = []
+    nodes = list(G.nodes())
+    node = nodes[0]
+    pos = {node: (0, 0)}
+
+    def _used_pos():
+        pos_along_edges = []
+        for e in edges:
+            A, B = pos[e[0]], pos[e[1]]
+            if A[0] == B[0]:  # Y-axis edge.
+                for i in range(A[1], B[1], np.sign(B[1] - A[1])):
+                    pos_along_edges.append((A[0], i))
+            else:  # X-axis edge.
+                for i in range(A[0], B[0], np.sign(B[0] - A[0])):
+                    pos_along_edges.append((i, A[1]))
+
+        return list(pos.values()) + pos_along_edges
+
+    def _move_subgraph(pos, offset, pivot):
+        for n, p in pos.items():
+            if np.any(offset * (offset + p - pivot) > 0):
+                pos[n] = tuple(p + offset)
+
+    openset = [node]
+    closedset = set()
+
+    while len(openset) > 0:
+        node = openset.pop(0)
+        closedset.add(node)
+
+        for constraint in constraints_[node]:
+            condition = constraint[1]
+            target = constraint[-1]
+
+            if target in openset or target in closedset:
+                edges.append((node, target))
+                continue
+
+            openset.append(target)
+
+            src_pos = np.array(pos[node])
+            offset = RELATIVE_POSITIONS[condition]
+            target_pos = tuple(src_pos - offset)
+
+            if target_pos in _used_pos():
+                _move_subgraph(pos, offset, src_pos)
+
+            pos[target] = tuple(pos[node] - offset)
+            edges.append((node, target))
+
+    pos = {k: tuple(np.array(v).tolist()) for k, v in pos.items()}
+    return pos

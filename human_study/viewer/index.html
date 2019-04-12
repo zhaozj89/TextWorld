@@ -1,0 +1,109 @@
+
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script src="http://d3js.org/d3.v2.min.js?2.9.3"></script>
+<style>
+
+svg {
+    border-style: solid;
+    border-width: 10px;
+}
+
+.link {
+  stroke: #000;
+  stroke-width: 0.3em;
+  visibility: hidden;
+}
+
+.node {
+  visibility: hidden;
+}
+
+.node text {
+  stroke:#000;
+  font-family: Helvetica, sans-serif;
+  stroke-width: 0pt;
+  font-weight: bold;
+  cursor: default;
+}
+
+.node rect{
+  stroke:#000;
+  stroke-width:1px;
+  fill:#999;
+}
+
+.visible {
+  visibility: visible;
+}
+
+</style>
+<body>
+<script>
+
+// Specify which version to show.
+var version = 1;
+if (version == 1) {
+  var roomSize = 40;
+  var displayed_name = "shortname";
+}
+else {
+  var roomSize = 100;
+  var displayed_name = "name";
+}
+
+// SVG size.
+var width = 800,
+    height = 600
+
+var svg = d3.select("body").append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+var force = d3.layout.force()
+    .gravity(.05)
+    .distance(100)
+    .charge(-100)
+    .size([width, height]);
+
+d3.json("graphFile.json", function(json) {
+  force
+      .nodes(json.nodes)
+      .links(json.links)
+      .start();
+
+  var link = svg.selectAll(".link")
+      .data(json.links)
+      .enter().append("line")
+      .attr("class", "link")
+      .style("stroke-width", function(d) { return Math.sqrt(d.weight); });
+
+  var node = svg.selectAll(".node")
+      .data(json.nodes)
+      .enter().append("g")
+      .attr("class", function (d) {return "node " + d.visibility})
+    //   .call(force.drag);
+
+  node.append("rect")
+      .attr("width", roomSize)
+      .attr("height", roomSize);
+
+  node.append("text")
+      .attr("dx", roomSize/2)
+      .attr("dy", roomSize/2)
+      .attr("text-anchor", "middle")
+      .attr("alignment-baseline", "middle")
+      .text(function(d) { return d[displayed_name] });
+
+  force.on("tick", function() {
+    link.attr("x1", function(d) { return d.source.x * 1.5 * roomSize + roomSize/2; })
+        .attr("y1", function(d) { return d.source.y * 1.5 * roomSize + roomSize/2; })
+        .attr("x2", function(d) { return d.target.x * 1.5 * roomSize + roomSize/2; })
+        .attr("y2", function(d) { return d.target.y * 1.5 * roomSize + roomSize/2; })
+        .attr("class", function(d) { return "link " + d.source.visibility + " " + d.target.visibility; });
+
+    node.attr("transform", function(d) { return "translate(" + d.x * 1.5 * roomSize + "," + d.y * 1.5 * roomSize + ")"; });
+  });
+});
+
+</script>
