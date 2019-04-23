@@ -6,7 +6,7 @@
 
 svg {
     border-style: solid;
-    border-width: 10px;
+    border-width: 5px;
 }
 
 .link {
@@ -53,8 +53,8 @@ else {
 }
 
 // SVG size.
-var width = 800,
-    height = 600
+var width = 400,
+    height = 300
 
 var svg = d3.select("body").append("svg")
     .attr("width", width)
@@ -95,6 +95,8 @@ d3.json("graphFile.json", function(json) {
       .attr("alignment-baseline", "middle")
       .text(function(d) { return d[displayed_name] });
 
+  // console.log(node.getBBox());
+
   force.on("tick", function() {
     link.attr("x1", function(d) { return d.source.x * 1.5 * roomSize + roomSize/2; })
         .attr("y1", function(d) { return d.source.y * 1.5 * roomSize + roomSize/2; })
@@ -103,6 +105,11 @@ d3.json("graphFile.json", function(json) {
         .attr("class", function(d) { return "link " + d.source.visibility + " " + d.target.visibility; });
 
     node.attr("transform", function(d) { return "translate(" + d.x * 1.5 * roomSize + "," + d.y * 1.5 * roomSize + ")"; });
+    // svg.attr("transform", function(d) { return "translatssse(3, 7)"; });
+    var bbox = svg[0][0].getBBox();
+    var viewBox = [bbox.x, bbox.y, bbox.width, bbox.height].join(" ");
+    // svg.attr("viewBox", viewBox);
+    //console.log(node.selectAll());
   });
 });
 

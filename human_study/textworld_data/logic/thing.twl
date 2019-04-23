@@ -47,6 +47,17 @@ type object {
             Understand the command "quit" as something new.
             Understand "quit" as restarting immediately.
             Understand "restart" as restarting immediately.
+
+            Rule for printing the player's obituary:
+                if story has ended finally:
+                    center "*** The End ***";
+                else:
+                    center "*** You lost! ***";
+                say paragraph break;
+                say "You scored [score] out of a possible [maximum score], in [turn count] turn(s).";
+                say "[bold type]Press any key to restart.";
+                wait for any key;
+                abide by the carry out restarting immediately.
         """;
     }
 }

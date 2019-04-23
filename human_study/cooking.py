@@ -59,6 +59,7 @@ import networkx as nx
 from numpy.random import RandomState
 
 import textworld
+import textworld.text_utils
 from textworld import GameMaker
 from textworld.generator.data import KB
 from textworld.generator.maker import WorldRoom, WorldEntity
@@ -1213,6 +1214,27 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
             game.kb.inform7_addons_code += fake_directions_code.format(**{**fake_words["actions"], **fake_words["words"]})
 
+    if settings["debug"]:
+        debug_code = textwrap.dedent("""\
+        Winning the game is an action out of world applying to one number.
+        Carry out winning the game:
+            increase score by the number understood;
+            end the story finally.
+
+        Understand "win" as winning the game.
+        Understand "win [number]" as winning the game.
+
+        Losing the game is an action out of world applying to one number.
+        Carry out losing the game:
+            increase score by the number understood;
+            end the story.
+
+        Understand "lose" as losing the game.
+        Understand "lose [number]" as losing the game.
+
+        """)
+        game.kb.inform7_addons_code += debug_code
+
     if settings["highlight"]:
         game.kb.inform7_addons_code += "\nThe entity highlighting option is true.\n"
 
@@ -1273,7 +1295,6 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     game.metadata["uuid"] = uuid
 
     # Compute data for minimap
-
     G = nx.Graph()
     constraints = []
     G.add_nodes_from(room.id for room in game.world.rooms)
@@ -1316,7 +1337,18 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     data["links"] = [{"source": room2id[e[0]], "target": room2id[e[1]]} for e in G.edges]
 
-    with open(options.path.replace(".z8", "_minimap.json"), "w") as f:
+    # Get list of fake words relevant to this game.
+    vocab = set(textworld.text_utils.extract_vocab([game]))
+    data["words"] = set()
+    if settings["fake_entities"]:
+        data["words"] |= vocab & set(map(str.lower, fake_words["words"].values()))
+    if settings["fake_commands"] or settings["swap_commands"]:
+        data["words"] |= vocab & set(map(str.lower, fake_words["actions"].values()))
+
+    data["words"] = sorted(data["words"])
+    print("# fake words: {}".format(len(data["words"])))
+
+    with open(options.path.replace(".z8", "_infos.json"), "w") as f:
         json.dump(data, f, indent=2)
 
     return game
@@ -1362,6 +1394,9 @@ def build_argparser(parser=None):
     group.add_argument("--suffle-description", action="store_true",
                        help="Every sentences of a block of text (room description, command feedback)"
                             " are going to be shuffled before being displayed.")
+
+    group.add_argument("--debug", action="store_true",
+                       help="Activate debugging commands: win, lose.")
     return parser
 
 
