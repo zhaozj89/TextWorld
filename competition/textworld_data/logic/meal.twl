@@ -51,6 +51,8 @@ type RECIPE {
         ingredient_1(f);
         ingredient_2(f);
         ingredient_3(f);
+        ingredient_4(f);
+        ingredient_5(f);
         cooking_location(r, RECIPE);
         in(ingredient, RECIPE);
         out(meal, RECIPE);
@@ -61,6 +63,8 @@ type RECIPE {
         make/recipe/1 :: $player_in_cooking_location(P, r) & in(f, I) & $ingredient_1(f) & $out(meal, RECIPE) -> in(meal, I) & edible(meal);
         make/recipe/2 :: $player_in_cooking_location(P, r) & in(f, I) & $ingredient_1(f) & in(f', I) & $ingredient_2(f') & $out(meal, RECIPE) & $used(slot) & used(slot') -> in(meal, I) & free(slot') & edible(meal);
         make/recipe/3 :: $player_in_cooking_location(P, r) & in(f, I) & $ingredient_1(f) & in(f', I) & $ingredient_2(f') & in(f'', I) & $ingredient_3(f'') & $out(meal, RECIPE) & $used(slot) & used(slot') & used(slot'') -> in(meal, I) & free(slot') & free(slot'') & edible(meal);
+        make/recipe/4 :: $player_in_cooking_location(P, r) & in(f, I) & $ingredient_1(f) & in(f', I) & $ingredient_2(f') & in(f'', I) & $ingredient_3(f'') & in(f''', I) & $ingredient_4(f''') & $out(meal, RECIPE) & $used(slot) & used(slot') & used(slot'') & used(slot'') -> in(meal, I) & free(slot') & free(slot'') & free(slot''') & edible(meal);
+        make/recipe/5 :: $player_in_cooking_location(P, r) & in(f, I) & $ingredient_1(f) & in(f', I) & $ingredient_2(f') & in(f'', I) & $ingredient_3(f'') & in(f''', I) & $ingredient_4(f''') & in(f'''', I) & $ingredient_5(f'''') & $out(meal, RECIPE) & $used(slot) & used(slot') & used(slot'') & used(slot''') & used(slot'''') -> in(meal, I) & free(slot') & free(slot'') & free(slot''') & free(slot'''') & edible(meal);
     }
 
     inform7 {
@@ -68,6 +72,8 @@ type RECIPE {
             ingredient_1(f) :: "";  # No equivalent in Inform7.
             ingredient_2(f) :: "";  # No equivalent in Inform7.
             ingredient_3(f) :: "";  # No equivalent in Inform7.
+            ingredient_4(f) :: "";  # No equivalent in Inform7.
+            ingredient_5(f) :: "";  # No equivalent in Inform7.
             cooking_location(r, RECIPE) :: "The cooking location of the {RECIPE} is the {r}.";
             in(ingredient, RECIPE) :: "When play begins, add {ingredient} to the ingredients of the {RECIPE}";
             out(meal, RECIPE) :: "The meal of the {RECIPE} is the {meal}.";
@@ -82,6 +88,8 @@ type RECIPE {
             make/recipe/1 :: "prepare meal" :: "preparing meal";
             make/recipe/2 :: "prepare meal" :: "preparing meal";
             make/recipe/3 :: "prepare meal" :: "preparing meal";
+            make/recipe/4 :: "prepare meal" :: "preparing meal";
+            make/recipe/5 :: "prepare meal" :: "preparing meal";
         }
 
         code :: """

@@ -816,7 +816,7 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
 
     # Decide which ingredients are needed.
     nb_ingredients = skills.get("recipe", 1)
-    assert nb_ingredients > 0 and nb_ingredients <= 3, "recipe must have {1,2,3} ingredients."
+    assert nb_ingredients > 0 and nb_ingredients <= 5, "recipe must have {1,2,3,4,5} ingredients."
     ingredient_foods = place_random_foods(M, nb_ingredients, rng_quest, allowed_foods)
 
     # Sort by name (to help differentiate unique recipes).

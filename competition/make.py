@@ -13,8 +13,17 @@ import textworld
 from textworld.challenges.cooking import SKILLS as SORTED_SKILLS
 
 
-SKILLS = [["recipe1", "recipe2", "recipe3"],
-          ["take1", "take2", "take3"],
+# SKILLS = [["recipe1", "recipe2", "recipe3"],
+#           ["take1", "take2", "take3"],
+#           ["cut"],
+#           ["cook"],
+#           ["open"],
+#           ["drop"],
+#           ["go6", "go9", "go12"],
+#          ]
+
+SKILLS = [["recipe4"],
+          ["take3", "take4"],
           ["cut"],
           ["cook"],
           ["open"],
@@ -70,7 +79,7 @@ def _gen_skills():
                 if skills in seen:
                     continue
 
-                if "recipe1" not in skills and "recipe2" not in skills and "recipe3" not in skills:
+                if "recipe1" not in skills and "recipe2" not in skills and "recipe3" not in skills and "recipe4" not in skills and "recipe5" not in skills:
                     continue  # Invalid game.
 
                 if _includes("take", skills) and (
