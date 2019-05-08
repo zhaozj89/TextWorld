@@ -146,6 +146,10 @@ if __name__ == "__main__":
     options = textworld.GameOptions()
     options.seeds = args.seed
     dirname, basename = os.path.split(args.output)
+    filename, ext = os.path.splitext(basename)
+    if ext:
+        args.format = ext.lstrip(".")
+
     options.path = pjoin(os.path.abspath(dirname), basename)
     options.file_ext = "." + args.format
     options.force_recompile = args.force
@@ -214,7 +218,7 @@ if __name__ == "__main__":
 
     if args.save_overview:
         image = textworld.render.visualize(game)
-        overview_file = game_file.replace(".ulx", ".png")
+        overview_file = game_file.replace(options.file_ext, ".png")
         image.save(overview_file)
 
         if not args.silent:

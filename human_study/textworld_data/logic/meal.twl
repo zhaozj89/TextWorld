@@ -130,6 +130,7 @@ type RECIPE {
                 set pronouns from the meal of the recipe.
 
             Understand "mix [text]" as preparing meal.
+            Understand "mix the [text]" as preparing meal.
             Understand "mix [something]" as preparing something.
         """;
     }

@@ -55,9 +55,13 @@ type object {
                     center "*** You lost! ***";
                 say paragraph break;
                 say "You scored [score] out of a possible [maximum score], in [turn count] turn(s).";
-                say "[bold type]Press any key to restart.";
-                wait for any key;
-                abide by the carry out restarting immediately.
+                if story has ended finally:
+                    say "[bold type]Click [bracket]Done[close bracket] to continue.";
+                    stop game abruptly;
+                else:
+                    say "[bold type]Press any key to restart.";
+                    wait for any key;
+                    abide by the carry out restarting immediately.
         """;
     }
 }

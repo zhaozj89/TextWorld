@@ -6,6 +6,7 @@
 
 import sys
 import argparse
+import traceback
 
 from textworld.generator import Game
 from textworld.generator.logger import GameLogger
@@ -28,12 +29,33 @@ if __name__ == "__main__":
     names = set()
     game_logger = GameLogger()
     for game_filename in args.games:
+        if args.verbose:
+            print(game_filename)
+
         try:
             game = Game.load(game_filename.replace(".ulx", ".json"))
-        except Exception as e:
-            print("Cannot load {}.".format(game))
+
             if args.verbose:
-                print(e)
+                print("\nObjective:")
+                print(game.objective)
+                print("\nWalkthrough:")
+                if "walkthrough" in game.metadata:
+                    print(" > ".join(game.metadata["walkthrough"]))
+                elif game.main_quest.commands:
+                    print(" > ".join(game.main_quest.commands))
+                else:
+                    print("None")
+
+                nb_locations = sum(1 for e in game.infos.values() if e.type == "r")
+                nb_objects = sum(1 for e in game.infos.values() if e.type not in {"r", "d", "P", "I"})
+                print("\n-= Stats =-")
+                print("Nb. locations: {}".format(nb_locations))
+                print("Nb. objects: {}".format(nb_objects))
+
+        except Exception as e:
+            print("Cannot load {}.".format(game_filename))
+            if args.verbose:
+                traceback.print_exc()
 
             continue
 

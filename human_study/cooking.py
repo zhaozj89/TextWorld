@@ -499,6 +499,20 @@ ENTITIES = {
 
 }
 
+# NEIGHBORS = {
+#     "kitchen": ["livingroom", "backyard", "corridor", "pantry"],
+#     "pantry": ["kitchen"],
+#     "livingroom": ["kitchen", "bedroom", "driveway", "corridor"],
+#     "bathroom": ["corridor"],
+#     "bedroom": ["livingroom", "corridor"],
+#     "backyard": ["kitchen", "garden", "shed", "corridor"],
+#     "garden": ["backyard"],
+#     "shed": ["backyard"],
+#     "driveway": ["livingroom", "street", "corridor"],
+#     "street": ["driveway", "supermarket"],
+#     "corridor": ["livingroom", "kitchen", "bedroom", "bathroom", "driveway", "backyard"],
+#     "supermarket": ["street"],
+# }
 NEIGHBORS = {
     "kitchen": ["livingroom", "backyard", "corridor", "pantry"],
     "pantry": ["kitchen"],
@@ -516,15 +530,16 @@ NEIGHBORS = {
 
 ROOMS = [
     ["kitchen"],
-    ["pantry", "livingroom", "corridor", "bedroom", "bathroom"],
-    ["shed", "garden", "backyard"],
+    #["pantry", "livingroom", "corridor", "bedroom", "bathroom"],
+    ["pantry"],
+    ["livingroom", "garden", "backyard"],
     ["driveway", "street", "supermarket"]
 ]
 
 DOORS = [
     {
         "path": ("pantry", "kitchen"),
-        "names": ["frosted-glass door", "plain door"],
+        "names": ["wooden door", "plain door"],
     },
     {
         "path": ("kitchen", "backyard"),
@@ -844,14 +859,14 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     options.nb_rooms = settings.get("go", 1)
     if options.nb_rooms == 1:
         rooms_to_place = ROOMS[:1]
-    elif options.nb_rooms == 6:
+    elif options.nb_rooms == 2:
         rooms_to_place = ROOMS[:2]
-    elif options.nb_rooms == 9:
+    elif options.nb_rooms == 5:
         rooms_to_place = ROOMS[:3]
-    elif options.nb_rooms == 12:
-        rooms_to_place = ROOMS[:4]
+    # elif options.nb_rooms == 12:
+    #     rooms_to_place = ROOMS[:4]
     else:
-        raise ValueError("Cooking games can only have {1, 6, 9, 12} rooms.")
+        raise ValueError("Cooking games can only have {1, 2, 5} rooms.")
 
     G = make_graph_world(rng_map, rooms_to_place, NEIGHBORS, size=(5, 5))
     rooms = M.import_graph(G)
@@ -966,7 +981,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
             _place_one_distractor(same_suffix_list)
 
     # Add distractors foods. The amount is drawn from N(nb_ingredients, 3).
-    nb_distractors = int(rng_objects.randn(1) * 3 + nb_ingredients)
+    nb_distractors = max(int(rng_objects.randn(1) * 3 + nb_ingredients), 0)
     distractors = place_random_foods(M, nb_distractors, rng_objects, allowed_foods)
 
     # Depending on the skills and how the ingredient should be processed
@@ -1062,10 +1077,10 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     walkthrough = []
     current_room = start_room
 
-    # 0. Drop unneeded objects.
-    for entity in M.inventory.content:
-        if entity not in ingredient_foods:
-            walkthrough.append("{{drop}} {}".format(entity.name))
+    # # 0. Drop unneeded objects.
+    # for entity in M.inventory.content:
+    #     if entity not in ingredient_foods:
+    #         walkthrough.append("{{drop}} {}".format(entity.name))
 
     # 1. Collect the ingredients.
     for food, type_of_cooking, type_of_cutting in ingredients:
@@ -1108,7 +1123,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
 
     # 4. Process ingredients (cut).
     if settings.get("cut"):
-        free_up_space = settings.get("drop") and not len(ingredients) == 1
+        free_up_space = False#settings.get("drop") and not len(ingredients) == 1
         knife = M.find_by_name("knife")
         if knife:
             knife_location = knife.parent.name
@@ -1363,7 +1378,7 @@ def build_argparser(parser=None):
     group.add_argument("--take", type=int, default=0,  metavar="INT",
                        help="Number of ingredients to find. It must be less or equal to"
                             " the value of `--recipe`. Default: %(default)s")
-    group.add_argument("--go", type=int, default=1, choices=[1, 6, 9, 12],
+    group.add_argument("--go", type=int, default=1, choices=[1, 2, 5],
                        help="Number of locations in the game (1, 6, 9, or 12). Default: %(default)s")
     group.add_argument('--open', action="store_true",
                        help="Whether containers/doors need to be opened.")
