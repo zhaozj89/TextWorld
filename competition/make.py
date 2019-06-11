@@ -13,17 +13,8 @@ import textworld
 from textworld.challenges.cooking import SKILLS as SORTED_SKILLS
 
 
-# SKILLS = [["recipe1", "recipe2", "recipe3"],
-#           ["take1", "take2", "take3"],
-#           ["cut"],
-#           ["cook"],
-#           ["open"],
-#           ["drop"],
-#           ["go6", "go9", "go12"],
-#          ]
-
-SKILLS = [["recipe4"],
-          ["take3", "take4"],
+SKILLS = [["recipe1", "recipe2", "recipe3"],
+          ["take1", "take2", "take3"],
           ["cut"],
           ["cook"],
           ["open"],
@@ -37,7 +28,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument("--nb-games", type=float, default=1,
                         help="Number of games per skillset to generate. Default: %(default)s")
-    parser.add_argument("--split", choices=["train", "valid", "test"],
+    parser.add_argument("--split", choices=["train", "valid", "valid2", "test"],
                         help="Which dataset split to generate games for.")
     parser.add_argument("--shuffle", action="store_true",
                         help="Shuffle the skillsets. Default: loop through them in order of difficulty.")
@@ -83,12 +74,18 @@ def _gen_skills():
                     continue  # Invalid game.
 
                 if _includes("take", skills) and (
-                    ("recipe1" in skills and "take1" not in skills) or
-                    ("recipe2" in skills and "take2" not in skills) or
-                    ("recipe3" in skills and "take3" not in skills)):
-                    continue  # We fixe recipeN == takeN
+                    ("recipe1" in skills and "take1" not in skills) or  # Fixing recipeN == takeN
+                    ("recipe2" in skills and "take2" not in skills) or  # Fixing recipeN == takeN
+                    ("recipe3" in skills and "take3" not in skills) or  # Fixing recipeN == takeN
+                    ("recipe4" in skills and "take1" in skills) or  # Fixing recipeN ~ takeN
+                    ("recipe4" in skills and "take2" in skills) or  # Fixing recipeN ~ takeN
+                    ("recipe4" in skills and "take5" in skills) or  # Fixing recipeN >= takeN
+                    ("recipe5" in skills and "take1" in skills) or  # Fixing recipeN ~ takeN
+                    ("recipe5" in skills and "take2" in skills) or  # Fixing recipeN ~ takeN
+                    ("recipe5" in skills and "take3" in skills)):   # Fixing recipeN ~ takeN
+                    continue
 
-                if _includes("go", skills) and _includes("take", skills) and "recipe3" not in skills:
+                if _includes("go", skills) and not _includes("take", skills) and "recipe3" not in skills:
                     continue  # When nothing to take and go is needed, force recipe3.
 
                 if "open" in skills and not _includes("take", skills) and not _includes("go", skills):
@@ -108,6 +105,12 @@ def _generate_game(challenge_id, seed, file_format, output):
 
 def main():
     args = parse_args()
+    if args.split == "valid2":
+        SKILLS[0] = ["recipe4"]
+        SKILLS[1] = ["take3", "take4"]
+    elif args.split == "test":
+        SKILLS[0].extend(["recipe4", "recipe5"])
+        SKILLS[1].extend(["take4", "take5"])
 
     if args.nb_processes is None:
         args.nb_processes = multiprocessing.cpu_count()
