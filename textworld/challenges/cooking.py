@@ -845,22 +845,34 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
     for ingredient in shuffled_ingredients[:nb_ingredients_already_in_inventory]:
         M.move(ingredient, M.inventory)
 
+    # Compute inventory capacity.
+    inventory_limit = 10  # More than enough.
+    if skills.get("drop"):
+        inventory_limit = nb_ingredients
+        if nb_ingredients == 1 and skills.get("cut"):
+            inventory_limit += 1  # So we can hold the knife along with the ingredient.
+
     # Add distractors for each ingredient.
-    def _place_one_distractor(candidates):
+    def _place_one_distractor(candidates, ingredient):
         rng_objects.shuffle(candidates)
         for food_name in candidates:
             distractor = M.find_by_name(food_name)
             if distractor:
                 if distractor.parent == ingredient.parent:
-                    break
+                    break  # That object already exists and is considered as a distractor.
 
-                continue
+                continue  # That object already exists. Can't used it as distractor.
 
+            # Place the distractor in the same "container" as the ingredient.
             distractor = place_food(M, food_name, rng_objects, place_it=False)
             ingredient.parent.add(distractor)
             break
 
     for ingredient in ingredient_foods:
+        if ingredient.parent == M.inventory and nb_ingredients_already_in_inventory >= inventory_limit:
+            # If ingredient is in the inventory but inventory is full, do not add distractors.
+            continue
+
         splits = ingredient.name.split()
         if len(splits) == 1:
             continue  # No distractors.
@@ -870,13 +882,13 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
         same_suffix_list = [f for f in allowed_foods if f.endswith(suffix) if f != ingredient.name]
 
         if same_prefix_list:
-            _place_one_distractor(same_prefix_list)
+            _place_one_distractor(same_prefix_list, ingredient)
 
         if same_suffix_list:
-            _place_one_distractor(same_suffix_list)
+            _place_one_distractor(same_suffix_list, ingredient)
 
     # Add distractors foods. The amount is drawn from N(nb_ingredients, 3).
-    nb_distractors = int(rng_objects.randn(1) * 3 + nb_ingredients)
+    nb_distractors = max(0, int(rng_objects.randn(1) * 3 + nb_ingredients))
     distractors = place_random_foods(M, nb_distractors, rng_objects, allowed_foods)
 
     # Depending on the skills and how the ingredient should be processed
@@ -1060,12 +1072,6 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
     cookbook.infos.desc = cookbook_desc + recipe
 
     # Limit capacity of the inventory.
-    inventory_limit = 10  # More than enough.
-    if skills.get("drop"):
-        inventory_limit = nb_ingredients
-        if nb_ingredients == 1 and skills.get("cut"):
-            inventory_limit += 1  # So we can hold the knife along with the ingredient.
-
     for i in range(inventory_limit):
         slot = M.new(type="slot", name="")
         if i < len(M.inventory.content):
