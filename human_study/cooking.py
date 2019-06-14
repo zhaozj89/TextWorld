@@ -863,10 +863,10 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         rooms_to_place = ROOMS[:2]
     elif options.nb_rooms == 5:
         rooms_to_place = ROOMS[:3]
-    # elif options.nb_rooms == 12:
-    #     rooms_to_place = ROOMS[:4]
+    elif options.nb_rooms == 8:
+        rooms_to_place = ROOMS[:4]
     else:
-        raise ValueError("Cooking games can only have {1, 2, 5} rooms.")
+        raise ValueError("Cooking games can only have {1, 2, 5, 8} rooms.")
 
     G = make_graph_world(rng_map, rooms_to_place, NEIGHBORS, size=(5, 5))
     rooms = M.import_graph(G)
@@ -1378,8 +1378,8 @@ def build_argparser(parser=None):
     group.add_argument("--take", type=int, default=0,  metavar="INT",
                        help="Number of ingredients to find. It must be less or equal to"
                             " the value of `--recipe`. Default: %(default)s")
-    group.add_argument("--go", type=int, default=1, choices=[1, 2, 5],
-                       help="Number of locations in the game (1, 6, 9, or 12). Default: %(default)s")
+    group.add_argument("--go", type=int, default=1, choices=[1, 2, 5, 8],
+                       help="Number of locations in the game (1, 2, 5, or 8). Default: %(default)s")
     group.add_argument('--open', action="store_true",
                        help="Whether containers/doors need to be opened.")
     group.add_argument('--cook', action="store_true",

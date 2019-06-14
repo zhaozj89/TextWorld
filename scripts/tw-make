@@ -47,6 +47,7 @@ def parse_args():
                                help="Path where to save the generated game. If it points to a folder,"
                                     " the game's UUID will be used as the filename.")
     general_group.add_argument('--seed', type=int)
+    general_group.add_argument('--seeds', type=int, nargs=4)
     general_group.add_argument('--format', choices=["ulx", "z8"], default="ulx",
                                help="Which format to use when compiling the game. Default: %(default)s")
     general_group.add_argument("--overview", action="store_true",
@@ -139,6 +140,9 @@ if __name__ == "__main__":
 
     if args.seed is None:
         args.seed = np.random.randint(65635)
+
+    if args.seeds is not None:
+        args.seed = {'map': args.seeds[0], 'objects': args.seeds[1], 'quest': args.seeds[2], 'grammar': args.seeds[3]}
 
     if not args.silent:
         print("Global seed: {}".format(args.seed))
