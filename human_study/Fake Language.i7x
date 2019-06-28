@@ -20,7 +20,8 @@ To {eat} is a verb.
 To {drink} is a verb.
 To {carry} is a verb.
 To {go} is a verb.
-To {mix} is a verb.
+To {prepare} is a verb.
+[ To {mix} is a verb. ]
 
 Section 1/1 - Declare temporary command aliases
 
@@ -37,7 +38,8 @@ Understand the command "examine2" as "examine".
 Understand the command "eat2" as "eat".
 Understand the command "drink2" as "drink".
 Understand the command "go2" as "go".
-Understand the command "mix2" as "mix".
+[ Understand the command "mix2" as "mix". ]
+Understand the command "prepare2" as "prepare".
 
 Understand the command "slice2" as "slice".
 Understand the command "dice2" as "dice".
@@ -60,7 +62,8 @@ Understand the command "eat" as something new.
 Understand the command "drink", "swallow", "sip" as something new.
 Understand the command "go", "walk", "run" as something new.
 Understand the command "enter" as something new.
-Understand the command "mix" as something new.
+[ Understand the command "mix" as something new. ]
+Understand the command "prepare" as something new.
 Understand the command "lock" as something new.
 Understand the command "unlock" as something new.
 
@@ -86,7 +89,8 @@ Understand the command "{unlock}" as "unlock2".
 Understand the command "{examine}" as "examine2".
 Understand the command "{eat}" as "eat2".
 Understand the command "{drink}" as "drink2".
-Understand the command "{mix}" as "mix2".
+[ Understand the command "{mix}" as "mix2". ]
+Understand the command "{prepare}" as "prepare2".
 Understand the command "{slice}" as "slice2".
 Understand the command "{dice}" as "dice2".
 Understand the command "{chop}" as "chop2".
@@ -110,7 +114,8 @@ Understand the command "slice2" as something new.
 Understand the command "dice2" as something new.
 Understand the command "chop2" as something new.
 Understand the command "cook2" as something new.
-Understand the command "mix2" as something new.
+[ Understand the command "mix2" as something new. ]
+Understand the command "prepare2" as something new.
 
 Part 2 - Overwriting messages
 
@@ -168,7 +173,8 @@ The use player's holdall to avoid exceeding carrying capacity rule response (A) 
 
 Part 3 - Overwriting TextWorld stuff
 
-The ingredients-topic is "{ingredients}".
+[ The ingredients-topic is "{ingredients}". ]
+The meal-topic is "{meal}".
 
 The can't go through door rule response (A) is "[We] have to [{open}] the [blocking door] first.".
 
@@ -192,11 +198,13 @@ The taking something from somewhere rule response (A) is "[The actor] [{take}] [
 The dropping something on the ground rule response (A) is "[The actor] [{drop}] [the noun] on the ground.".
 The you need to take it first rule response (B) is "[We] need to [{take}] the [target] first.".
 
-The before preparing meal rule response (A) is "Can only [infinitive of the verb {mix}] the ingredients in the [cooking location of the recipe].".
+[The before preparing meal rule response (A) is "Can only [infinitive of the verb {mix}] the ingredients in the [cooking location of the recipe].".]
+The before preparing meal rule response (A) is "Can only [infinitive of the verb {prepare}] the {meal} in the [cooking location of the recipe].".
 The before preparing meal rule response (B) is "The {recipe} requires [a ingredient].".
 The before preparing meal rule response (C) is "The {recipe} requires [a ingredient].".
 The before preparing meal rule response (D) is "The {recipe} requires [a ingredient].".
-The before preparing meal rule response (E) is "I don't know how to [infinitive of the verb {mix}] [topic understood].".
+[The before preparing meal rule response (E) is "I don't know how to [infinitive of the verb {mix}] [topic understood].".]
+The before preparing meal rule response (E) is "I don't know how to [infinitive of the verb {prepare}] [topic understood].".
 The can't eat inedible raw food rule response (A) is "[We] [should {cook}] [the target] first.".
 The can’t drink unless drinkable rule response (A) is "[We] [can't {drink}] [the noun].".
 The report drinking rule response (A) is "[We] [{drink}] [the noun]. Not bad".
@@ -265,7 +273,8 @@ Carry out displaying help message (this is the new displaying help message rule)
 	say "  {insert} ... into ... [line break]";
 	say "  {lock} ... with ...   [line break]";
 	say "  {look}                [line break]";
-	say "  {mix} ...             [line break]";
+	[ say "  {mix} ...             line break"; ]
+	say "  {prepare} ...         [line break]";
 	say "  {open} ...            [line break]";
 	say "  {put} ... on ...      [line break]";
 	say "  {slice} ... with ...  [line break]";

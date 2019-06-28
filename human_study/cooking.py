@@ -10,8 +10,8 @@ The Cooking Game
 
 This type of game was used for the competition *First TextWorld Problems* [1]_.
 The overall objective of the game is to locate the kitchen, read the cookbook,
-fetch the recipe's ingredients, process them according to the recipe, mix them,
-and eat your meal. To control the game's difficulty, one can specify the
+fetch the recipe's ingredients, process them according to the recipe, prepare the meal,
+and eat it. To control the game's difficulty, one can specify the
 amount of skills that are involved to reach the goal (see skills section below).
 
 Skills
@@ -888,7 +888,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     # Find kitchen.
     kitchen = M.find_by_name("kitchen")
 
-    # The following predicates will be used to force the "mix ingredients"
+    # The following predicates will be used to force the "prepare ingredients"
     # command to happen in the kitchen.
     M.add_fact("cooking_location", kitchen, recipe)
 
@@ -1155,7 +1155,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
                     walkthrough.append("take {}".format(ingredient_to_drop.name))
 
     # 5. Prepare and eat meal.
-    walkthrough.append("{mix} ingredients")
+    walkthrough.append("{prepare} meal")
     walkthrough.append("{eat} meal")
 
     cookbook_desc = "You open the copy of 'Cooking: A Modern Approach (3rd Ed.)' and start reading:\n"
@@ -1183,7 +1183,7 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         if cooking_verb:
             recipe_directions.append(cooking_verb + " the " + ingredient[0].name)
 
-    recipe_directions.append("{mix} the ingredients")
+    recipe_directions.append("{prepare} meal")
     recipe_directions = "\n  ".join(recipe_directions)
     recipe = recipe.format(ingredients=recipe_ingredients, directions=recipe_directions)
     cookbook.infos.desc = cookbook_desc + recipe

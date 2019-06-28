@@ -94,21 +94,21 @@ type RECIPE {
                 say  "[base of I]";
 
             [Preparing a meal]
-            To mix is a verb.
-            The ingredients-topic is some text that varies. The ingredients-topic is usually "ingredients".
+            To prepare is a verb.
+            The meal-topic is some text that varies. The meal-topic is usually "meal".
             Preparing something is an action applying to a thing.
             Carry out preparing something:
                 try preparing meal "[noun]".
 
             Preparing meal is an action applying to one topic.
             Before preparing meal (this is the before preparing meal rule):
-                if topic understood exactly matches the text ingredients-topic:
+                if topic understood exactly matches the text meal-topic:
                     do nothing;
                 otherwise:
-                    say "I don't know how to [infinitive of the verb mix] [topic understood]." (E);
+                    say "I don't know how to [infinitive of the verb prepare] [topic understood]." (E);
                     rule fails;
                 if location is not the cooking location of the recipe:
-                    say "Can only [infinitive of the verb mix] the ingredients in the [cooking location of the recipe]." (A);
+                    say "Can only [infinitive of the verb prepare] the meal in the [cooking location of the recipe]." (A);
                     rule fails;
                 Repeat with ingredient running through the ingredients of the recipe:
                     let F be the base of the ingredient;
@@ -129,9 +129,9 @@ type RECIPE {
                 now the player carries the meal of the recipe;
                 set pronouns from the meal of the recipe.
 
-            Understand "mix [text]" as preparing meal.
-            Understand "mix the [text]" as preparing meal.
-            Understand "mix [something]" as preparing something.
+            Understand "prepare [text]" as preparing meal.
+            Understand "prepare the [text]" as preparing meal.
+            Understand "prepare [something]" as preparing something.
         """;
     }
 }
