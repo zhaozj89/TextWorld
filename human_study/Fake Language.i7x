@@ -13,8 +13,8 @@ To {drop} is a verb.
 To {put} is a verb.
 To {insert} is a verb.
 To {look} is a verb.
-To {lock} is a verb.
-To {unlock} is a verb.
+[ To {lock} is a verb. ]
+[ To {unlock} is a verb. ]
 To {examine} is a verb.
 To {eat} is a verb.
 To {drink} is a verb.
@@ -32,8 +32,8 @@ Understand the command "drop2" as "drop".
 Understand the command "put2" as "put".
 Understand the command "insert2" as "insert".
 Understand the command "look2" as "look".
-Understand the command "lock2" as "lock".
-Understand the command "unlock2" as "unlock".
+[ Understand the command "lock2" as "lock".
+Understand the command "unlock2" as "unlock". ]
 Understand the command "examine2" as "examine".
 Understand the command "eat2" as "eat".
 Understand the command "drink2" as "drink".
@@ -84,8 +84,8 @@ Understand the command "{drop}" as "drop2".
 Understand the command "{put}" as "put2".
 Understand the command "{insert}" as "insert2".
 Understand the command "{look}" as "look2".
-Understand the command "{lock}" as "lock2".
-Understand the command "{unlock}" as "unlock2".
+[ Understand the command "{lock}" as "lock2". ]
+[ Understand the command "{unlock}" as "unlock2". ]
 Understand the command "{examine}" as "examine2".
 Understand the command "{eat}" as "eat2".
 Understand the command "{drink}" as "drink2".
@@ -105,8 +105,8 @@ Understand the command "drop2" as something new.
 Understand the command "put2" as something new.
 Understand the command "insert2" as something new.
 Understand the command "look2" as something new.
-Understand the command "lock2" as something new.
-Understand the command "unlock2" as something new.
+[ Understand the command "lock2" as something new. ]
+[ Understand the command "unlock2" as something new. ]
 Understand the command "examine2" as something new.
 Understand the command "eat2" as something new.
 Understand the command "drink2" as something new.
@@ -138,14 +138,17 @@ The standard report eating rule response (A) is "[We] [{eat}] [the noun]. Not ba
 The standard report eating rule response (B) is "[The actor] [{eat}] [the noun].".
 The print empty inventory rule response (A) is "[We] [are] [present participle of the verb {carry}] nothing.".
 The print standard inventory rule response (A) is "[We] [are] [present participle of the verb {carry}]:[line break]".
+
+[
 The standard report locking rule response (A) is "[We] [{lock}] [the noun].".
 The standard report locking rule response (B) is "[The actor] [{lock}] [the noun].".
 The standard report unlocking rule response (A) is "[We] [{unlock}] [the noun].".
 The standard report unlocking rule response (B) is "[The actor] [{unlock}] [the noun].".
+]
 
 Section 2/1 - Error messages
 
-The can't lock what's open rule response (A) is "First [we] [would have] to {close} [the noun].".
+[The can't lock what's open rule response (A) is "First [we] [would have] to {close} [the noun].".]
 The can't open unless openable rule response (A) is "[regarding the noun][They] [aren't] something [we] [can] {open}.".
 The can't open what's already open rule response (A) is "[regarding the noun][They're] already {open}.".
 The can't close unless openable rule response (A) is "[regarding the noun][They] [aren't] something [we] [can] {close}.".
@@ -157,6 +160,8 @@ The block drinking rule response (A) is "[There's] nothing suitable to [{drink}]
 The block vaguely going rule response (A) is "You'll have to say which direction to {go} in.".
 The can't go through undescribed doors rule response (A) is "[We] [can't {go}] that way.".
 The can't go that way rule response (A) is "[We] [can't {go}] that way.".
+
+[
 The can't lock without a lock rule response (A) is "[regarding the noun][Those] [don't] seem to be something [we] [can] {lock}.".
 The can't unlock without a lock rule response (A) is "[regarding the noun][Those] [don't] seem to be something [we] [can] {unlock}.".
 The can't unlock what's already unlocked rule response (A) is "[regarding the noun][They're] [past participle of the verb {unlock}] at the [if story tense is present
@@ -164,6 +169,7 @@ The can't unlock what's already unlocked rule response (A) is "[regarding the no
 The can't open what's locked rule response (A) is "[regarding the noun][They] [seem] to be [past participle of the verb {lock}].".
 The can't lock what's already locked rule response (A) is "[regarding the noun][They're] [past participle of the verb {lock}] at the [if story tense is present
 				tense]moment[otherwise]time[end if].".
+]
 
 Section 2/2 - Clarification messages
 
@@ -267,20 +273,16 @@ Carry out displaying help message (this is the new displaying help message rule)
 	say "  {drink} ...           [line break]";
 	say "  {drop} ...            [line break]";
 	say "  {eat} ...             [line break]";
-	say "  {enter} ...           [line break]";
 	say "  {examine} ...         [line break]";
 	say "  {go} ...              [line break]";
 	say "  {insert} ... into ... [line break]";
-	say "  {lock} ... with ...   [line break]";
 	say "  {look}                [line break]";
-	[ say "  {mix} ...             line break"; ]
 	say "  {prepare} ...         [line break]";
 	say "  {open} ...            [line break]";
 	say "  {put} ... on ...      [line break]";
 	say "  {slice} ... with ...  [line break]";
 	say "  {take} ... from ...   [line break]";
 	say "  {take} ...            [line break]";
-	say "  {unlock} ... with ... [line break]";
 	stop.
 
 The new displaying help message rule is listed first in carry out displaying help message.

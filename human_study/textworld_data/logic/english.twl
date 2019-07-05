@@ -38,14 +38,11 @@ type english {
                 say " take ...            [line break]";
                 say " slice ... with ...  [line break]";
                 say " close ...           [line break]";
-                say " enter ...           [line break]";
-                say " lock ... with ...   [line break]";
-                say " unlock ... with ... [line break]";
                 say " open ...            [line break]";
                 say " examine ...         [line break]";
                 say " dice ... with ...   [line break]";
                 say " look                [line break]";
-                say " mix ...             [line break]";
+                say " prepare ...         [line break]";
 
             Understand "help" as displaying help message.
 

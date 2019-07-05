@@ -16,7 +16,7 @@ type s : t {
 
         code :: """
             After examining a supporter which contains nothing:
-                say "It has nothing on it.".
+                say "The [noun] has nothing on it.".
         """;
     }
 }

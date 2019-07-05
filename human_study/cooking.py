@@ -342,7 +342,9 @@ ENTITIES = {
         "adjs": ["sharp"],
         "locations": ["kitchen.counter", "kitchen.table"],
         "properties": ["sharp"],
-        "desc": [None],
+        "desc": [("The knife can be used for [present participle of the verb {slice}],"
+                  " [present participle of the verb {chop}]"
+                  " and [present participle of the verb {dice}] food.")],
     },
 
     # Kitchen
@@ -376,7 +378,7 @@ ENTITIES = {
         "adjs": ["conventional"],
         "locations": ["kitchen"],
         "properties": [],
-        "desc": ["Useful for [present participle of the verb {fry}] things."],
+        "desc": ["You can {cook} food with it to {fry} them."],
     },
     "oven": {
         "type": "oven",
@@ -384,7 +386,7 @@ ENTITIES = {
         "adjs": ["conventional"],
         "locations": ["kitchen"],
         "properties": [],
-        "desc": ["Useful for [present participle of the verb {roast}] things."],
+        "desc": ["You can {cook} food with it to {roast} them."],
     },
 
     # Pantry
@@ -404,7 +406,7 @@ ENTITIES = {
         "adjs": ["recent"],
         "locations": ["backyard"],
         "properties": [],
-        "desc": ["Useful for [present participle of the verb {grill}] things."],
+        "desc": ["You can {cook} food with it to {grill} them."],
     },
     "patio table": {
         "type": "s",
@@ -823,6 +825,9 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
         * drop : Whether the player's inventory has limited capacity.
         * go : Number of locations in the game (1, 6, 9, or 12).
     """
+    settings["fake_entities"] = settings["fake_entities"] or settings["fake_food_entities"]
+    settings["fake_commands"] = settings["fake_commands"] or settings["fake_food_commands"]
+
     rngs = options.rngs
     rng_map = rngs['map']
     rng_objects = rngs['objects']
@@ -1059,6 +1064,13 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     if not settings["fake_entities"]:
         fake_words["words"] = dict(zip(*((fake_words["words"].keys(),) * 2)))
 
+    if settings["fake_food_entities"]:
+        fake_words["words"] = fake_words["words_food_only"]
+
+    if settings["fake_food_commands"]:
+        fake_words["actions"] = fake_words["actions_food_only"]
+
+
     def _swap_words(text, mapping):
         if text is None:
             return None
@@ -1278,6 +1290,8 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     objective = ("You are hungry! Let's {cook} a delicious meal. {Check} the cookbook"
                  " in the kitchen for the recipe. Once done, {enjoy} your meal!".format(**fake_words["actions"]))
 
+    objective += "\n \n[italic type]Hint: type 'help' to list available commands.[roman type]"
+
     if settings["fake_entities"]:
         objective = _swap_words(objective, fake_words["words"])
 
@@ -1355,10 +1369,10 @@ def make_game(settings: Mapping[str, str], options: Optional[GameOptions] = None
     # Get list of fake words relevant to this game.
     vocab = set(textworld.text_utils.extract_vocab([game]))
     data["words"] = set()
-    if settings["fake_entities"]:
-        data["words"] |= vocab & set(map(str.lower, fake_words["words"].values()))
+    if settings["fake_entities"] or settings["fake_food_entities"]:
+        data["words"] |= vocab & set(map(str.lower, [v for k, v in fake_words["words"].items() if k != v]))
     if settings["fake_commands"] or settings["swap_commands"]:
-        data["words"] |= vocab & set(map(str.lower, fake_words["actions"].values()))
+        data["words"] |= vocab & set(map(str.lower, [v for k, v in fake_words["actions"].items() if k != v]))
 
     data["words"] = sorted(data["words"])
     print("# fake words: {}".format(len(data["words"])))
@@ -1396,8 +1410,13 @@ def build_argparser(parser=None):
 
     group.add_argument("--highlight", action="store_true",
                        help="Highlight entity names (objects, rooms and directions).")
+    group.add_argument("--fake-food-entities", action="store_true",
+                       help="Replace only food entity names with fake words (loaded from fake_words_mapping.json).")
     group.add_argument("--fake-entities", action="store_true",
                        help="Replace entity names with fake words (loaded from fake_words_mapping.json).")
+
+    group.add_argument("--fake-food-commands", action="store_true",
+                       help="Replace food action verbs with fake words (loaded from fake_words_mapping.json).")
     group.add_argument("--fake-commands", action="store_true",
                        help="Replace action verbs with fake words (loaded from fake_words_mapping.json).")
     group.add_argument("--entity-only", action="store_true",
@@ -1410,6 +1429,8 @@ def build_argparser(parser=None):
                        help="Every sentences of a block of text (room description, command feedback)"
                             " are going to be shuffled before being displayed.")
 
+    group.add_argument("--tutorial", action="store_true",
+                       help="Guide the user through their first game.")
     group.add_argument("--debug", action="store_true",
                        help="Activate debugging commands: win, lose.")
     return parser
