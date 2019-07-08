@@ -6,7 +6,7 @@ import os
 from os.path import join as pjoin
 from collections import OrderedDict
 
-from typing import List, Iterable, Union, Optional
+from typing import List, Iterable, Union, Optional, Tuple
 try:
     from typing import Collection
 except ImportError:
@@ -141,6 +141,10 @@ class WorldEntity:
         """
         args = [entity.var for entity in entities]
         self._facts.append(Proposition(name, args))
+
+        if name in ("at", "in", "on"):
+            entities[-1].content.append(entities[0])
+            entities[0].parent = entities[-1]
 
     def remove_fact(self, name: str, *entities: List["WorldEntity"]) -> None:
         args = [entity.var for entity in entities]
@@ -302,8 +306,9 @@ class WorldPath:
         self.dest = dest
         self.dest_exit = dest_exit
         self.door = door
-        self.src.exits[self.src_exit].dest = self.dest.exits[self.dest_exit]
-        self.dest.exits[self.dest_exit].dest = self.src.exits[self.src_exit]
+        if self.src_exit and self.dest_exit:
+            self.src.exits[self.src_exit].dest = self.dest.exits[self.dest_exit]
+            self.dest.exits[self.dest_exit].dest = self.src.exits[self.src_exit]
 
     @property
     def door(self) -> Optional[WorldEntity]:
@@ -340,6 +345,10 @@ class WorldPath:
 
         return facts
 
+    def match(self, exit1: WorldRoomExit, exit2: WorldRoomExit):
+        return ((self.src_exit == exit1.direction and self.dest_exit == exit2.direction) or
+                (self.src_exit == exit2.direction and self.dest_exit == exit1.direction))
+
 
 class GameMaker:
     """ Stateful utility class for handcrafting text-based games.
@@ -366,6 +375,19 @@ class GameMaker:
         self.grammar = textworld.generator.make_grammar()
         self._game = None
         self._distractors_facts = []
+
+    def _get(self, entity: WorldEntity) -> WorldEntity:
+        return self._entities[entity.id]
+
+    def _get_path(self, path: WorldPath) -> WorldPath:
+        for path_ in self.paths:
+            if (path_.src.id == path.src.id and
+                path_.src_exit == path.src_exit and
+                path_.dest.id == path.dest.id and
+                path_.dest_exit == path.dest_exit):
+                return path_
+
+        return None
 
     @property
     def state(self) -> State:
@@ -412,7 +434,37 @@ class GameMaker:
             name: The name of the new fact.
             *entities: A list of `WorldEntity` as arguments to this fact.
         """
-        entities[0].add_fact(name, *entities)
+        entities = [self._get(entity) for entity in entities]
+        if name in (d + "_of" for d in DIRECTIONS):
+            src_exit = name[:-3]
+            dest_exit = reverse_direction(src_exit)
+            path = self.find_path(entities[-1], entities[0])
+            src_exit = entities[-1].exits[src_exit]
+            dest_exit = entities[0].exits[dest_exit]
+            if path is None or not path.match(src_exit, dest_exit):
+                self.connect(src_exit, dest_exit)
+
+        elif name == "link":
+            path = self.find_path(entities[0], entities[-1])
+            if path is None:
+                path = WorldPath(entities[0], None, entities[-1], None)
+                self.paths.append(path)
+
+            path.door = entities[1]
+
+        else:
+            entities[0].add_fact(name, *entities)
+
+    def add(self, holder, *entities: List["WorldEntity"]) -> None:
+        """ Add a list of entities to the holder entity.
+
+        Args:
+            holder: The entity where to add the other entities.
+            *entities: A list of `WorldEntity` to be added.
+        """
+        holder = self._get(holder)
+        entities = [self._get(entity) for entity in entities]
+        holder.add(*entities)
 
     def new_door(self, path: WorldPath, name: Optional[str] = None,
                  desc: Optional[str] = None) -> WorldEntity:
@@ -426,6 +478,7 @@ class GameMaker:
         Returns:
             The newly created door.
         """
+        path = self._get_path(path)
         path.door = self.new(type='d', name=name, desc=desc)
         return path.door
 
@@ -443,7 +496,8 @@ class GameMaker:
         return self.new(type='r', name=name, desc=desc)
 
     def new(self, type: str, name: Optional[str] = None,
-            desc: Optional[str] = None) -> Union[WorldEntity, WorldRoom]:
+            desc: Optional[str] = None,
+            var_id: Optional[str] = None) -> Union[WorldEntity, WorldRoom]:
         """ Creates new entity given its type.
 
         Args:
@@ -457,9 +511,10 @@ class GameMaker:
             * If the `type` is `'r'`, then a `WorldRoom` object is returned.
             * Otherwise, a `WorldEntity` is returned.
         """
-        var_id = type
-        if not KnowledgeBase.default().types.is_constant(type):
-            var_id = get_new(type, self._types_counts)
+        if var_id is None:
+            var_id = type
+            if not KnowledgeBase.default().types.is_constant(type):
+                var_id = get_new(type, self._types_counts)
 
         var = Variable(var_id, type)
         if type == "r":
@@ -501,7 +556,7 @@ class GameMaker:
 
         return entities
 
-    def find_path(self, room1: WorldRoom, room2: WorldRoom) -> Optional[WorldEntity]:
+    def find_path(self, room1: WorldRoom, room2: WorldRoom) -> Optional[WorldPath]:
         for path in self.paths:
             if ((path.src == room1 and path.dest == room2) or
                 (path.src == room2 and path.dest == room1)):
@@ -528,6 +583,7 @@ class GameMaker:
         if self.player in self:
             raise PlayerAlreadySetError()
 
+        room = self._get(room)
         room.add(self.player)
 
     def connect(self, exit1: WorldRoomExit, exit2: WorldRoomExit) -> WorldPath:
@@ -540,6 +596,11 @@ class GameMaker:
         Returns:
             The path created by the link between two rooms, with no door.
         """
+        if exit1.direction != reverse_direction(exit2.direction):
+            msg = ("Only reciprocal connections are supported at the moment,"
+                   " i.e. north-south, south-north, east-west or west-east.")
+            raise ValueError(msg)
+
         if exit1.dest is not None:
             msg = "{}.{} is already linked to {}.{}"
             msg = msg.format(exit1.src, exit1.direction,
@@ -552,8 +613,23 @@ class GameMaker:
                              exit2.dest.src, exit2.dest.direction)
             raise ExitAlreadyUsedError(msg)
 
-        path = WorldPath(exit1.src, exit1.direction, exit2.src, exit2.direction)
-        self.paths.append(path)
+        path = self.find_path(exit1.src, exit2.src)
+        if path is None:
+            path = WorldPath(exit1.src, exit1.direction, exit2.src, exit2.direction)
+            self.paths.append(path)
+
+        else:
+            if path.src == exit1.src:
+                path.src_exit = exit1.direction
+                path.dest_exit = exit2.direction
+            else:
+                path.src_exit = exit2.direction
+                path.dest_exit = exit1.direction
+
+        #path.src.exits[path.src_exit].dest = path.dest.exits[self.dest_exit]
+        #path.dest.exits[path.dest_exit].dest = path.src.exits[self.src_exit]on]
+        # exit1.src.exits[exit1.direction].dest = exit2.src.exits[exit2.direction]
+        # exit2.src.exits[exit2.direction].dest = exit1.src.exits[exit1.directi
         return path
 
     def add_distractors(self, nb_distractors: int) -> None:
@@ -735,6 +811,12 @@ class GameMaker:
         if len(failed_constraints) > 0:
             raise FailedConstraintsError(failed_constraints)
 
+        connected_rooms = set(room.id for path in self.paths for room in (path.src, path.dest))
+        all_rooms = set(room.id for room in self.rooms)
+        if len(all_rooms - connected_rooms) > 0 and len(self.rooms) > 1:
+            msg = "Every room needs to be connected to another if there is more than one."
+            raise ValueError(msg)
+
         return True
 
     def build(self, validate: bool = True) -> Game:
@@ -838,14 +920,30 @@ class GameMaker:
         """
 
         rooms = OrderedDict((n, self.new_room(d.get("name", None))) for n, d in G.nodes.items())
-
+        paths = []
         for src, dest, data in G.edges(data=True):
             src_exit = rooms[src].exits[direction(dest, src)]
             dest_exit = rooms[dest].exits[direction(src, dest)]
             path = self.connect(src_exit, dest_exit)
+            paths.append(path)
 
             if data.get("has_door"):
                 door = self.new_door(path, data['door_name'])
                 door.add_property(data["door_state"])
 
-        return list(rooms.values())
+        return list(rooms.values()), paths
+
+    def import_facts(self, facts: Iterable[Proposition], infos) -> List[WorldEntity]:
+        def _get(variable: Variable):
+            entity = self._named_entities.get(infos[variable.name].name)
+            if entity is None:
+                entity = self._entities.get(variable.name)
+
+            if entity is None:
+                entity = self.new(variable.type, infos[variable.name].name, var_id=variable.name)
+
+            return entity
+
+        for fact in facts:
+            # TODO: check for duplicate facts.
+            self.add_fact(fact.name, *map(_get, fact.arguments))

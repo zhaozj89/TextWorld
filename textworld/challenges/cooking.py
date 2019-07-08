@@ -960,12 +960,18 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
         walkthrough = []
         current_room = start_room
 
-        # 0. Drop unneeded objects.
+        # 0. Find the kitchen and read the cookbook.
+        walkthrough += move(M, current_room, kitchen)
+        current_room = kitchen
+        walkthrough.append("examine cookbook")
+
+        # 1. Drop unneeded objects.
         for entity in M.inventory.content:
             if entity not in ingredient_foods:
                 walkthrough.append("drop {}".format(entity.name))
 
-        # 1. Collect the ingredients.
+
+        # 2. Collect the ingredients.
         for food, type_of_cooking, type_of_cutting in ingredients:
             if food.parent == M.inventory:
                 continue
@@ -983,10 +989,10 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
 
             current_room = food_room
 
-        # 2. Go back to the kitchen.
+        # 3. Go back to the kitchen.
         walkthrough += move(M, current_room, kitchen)
 
-        # 3. Process ingredients (cook).
+        # 4. Process ingredients (cook).
         if skills.get("cook"):
             for food, type_of_cooking, _ in ingredients:
                 if type_of_cooking == "fried":
@@ -1004,7 +1010,7 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
                     # 3.c move back to the kitchen.
                     walkthrough += move(M, toaster.parent, kitchen)
 
-        # 4. Process ingredients (cut).
+        # 5. Process ingredients (cut).
         if skills.get("cut"):
             free_up_space = skills.get("drop") and not len(ingredients) == 1
             knife = M.find_by_name("knife")
@@ -1037,7 +1043,7 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
                     if free_up_space:
                         walkthrough.append("take {}".format(ingredient_to_drop.name))
 
-        # 5. Prepare and eat meal.
+        # 6. Prepare and eat meal.
         walkthrough.append("prepare meal")
         walkthrough.append("eat meal")
 
