@@ -957,8 +957,11 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
         M.compute_graph()  # Needed by the move(...) function called below.
 
         # Build walkthrough.
-        walkthrough = []
         current_room = start_room
+        walkthrough = []
+
+        # Start by checking the inventory.
+        walkthrough.append("inventory")
 
         # 0. Find the kitchen and read the cookbook.
         walkthrough += move(M, current_room, kitchen)
