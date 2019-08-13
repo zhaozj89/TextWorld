@@ -12,11 +12,11 @@ type r {
 
         free(r, r);
 
-        south_of(r, r') = north_of(r', r);
-        east_of(r, r') = west_of(r', r);
+        #south_of(r, r') = north_of(r', r);
+        #east_of(r, r') = west_of(r', r);
 
-        south_of/d(r, d, r') = north_of/d(r', d, r);
-        east_of/d(r, d, r') = west_of/d(r', d, r);
+        #south_of/d(r, d, r') = north_of/d(r', d, r);
+        #east_of/d(r, d, r') = west_of/d(r', d, r);
     }
 
     rules {
