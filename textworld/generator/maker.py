@@ -150,6 +150,10 @@ class WorldEntity:
         args = [entity.var for entity in entities]
         self._facts.remove(Proposition(name, args))
 
+        if name in ("at", "in", "on"):
+            entities[-1].content.remove(entities[0])
+            entities[0].parent = None
+
     def add_property(self, name: str) -> None:
         """ Adds a property to this entity.
 
@@ -178,8 +182,6 @@ class WorldEntity:
 
         for entity in entities:
             self.add_fact(name, entity, self)
-            self.content.append(entity)
-            entity.parent = self
 
     def remove(self, *entities):
         if KnowledgeBase.default().types.is_descendant_of(self.type, "r"):
@@ -193,8 +195,6 @@ class WorldEntity:
 
         for entity in entities:
             self.remove_fact(name, entity, self)
-            self.content.remove(entity)
-            entity.parent = None
 
     def has_property(self, name: str) -> bool:
         """ Determines if this object has a property with the given name.

@@ -919,10 +919,12 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
     if not neverending:
         # Build TextWorld quests.
         quests = []
+        consumed_ingredient_events = []
         for i, ingredient in enumerate(ingredients):
             ingredient_consumed = Event(conditions={M.new_fact("consumed", ingredient[0])})
+            consumed_ingredient_events.append(ingredient_consumed)
             ingredient_burned = Event(conditions={M.new_fact("burned", ingredient[0])})
-            quests.append(Quest(win_events=[], fail_events=[ingredient_consumed, ingredient_burned]))
+            quests.append(Quest(win_events=[], fail_events=[ingredient_burned]))
 
             if ingredient[0] not in M.inventory:
                 holding_ingredient = Event(conditions={M.new_fact("in", ingredient[0], M.inventory)})
@@ -933,9 +935,9 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
                 win_events += [Event(conditions={M.new_fact(ingredient[1], ingredient[0])})]
 
             fail_events = [Event(conditions={M.new_fact(t, ingredient[0])})
-                        for t in set(TYPES_OF_COOKING[1:]) - {ingredient[1]}]  # Wrong cooking.
+                           for t in set(TYPES_OF_COOKING[1:]) - {ingredient[1]}]  # Wrong cooking.
 
-            quests.append(Quest(win_events=win_events, fail_events=fail_events))
+            quests.append(Quest(win_events=win_events, fail_events=[ingredient_consumed] + fail_events))
 
             win_events = []
             if ingredient[2] != TYPES_OF_CUTTING[0] and not ingredient[0].has_property(ingredient[2]):
@@ -944,13 +946,14 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
             fail_events = [Event(conditions={M.new_fact(t, ingredient[0])})
                         for t in set(TYPES_OF_CUTTING[1:]) - {ingredient[2]}]  # Wrong cutting.
 
-            quests.append(Quest(win_events=win_events, fail_events=fail_events))
+            quests.append(Quest(win_events=win_events, fail_events=[ingredient_consumed] + fail_events))
 
         holding_meal = Event(conditions={M.new_fact("in", meal, M.inventory)})
-        quests.append(Quest(win_events=[holding_meal]))
+        quests.append(Quest(win_events=[holding_meal], fail_events=consumed_ingredient_events))
 
+        meal_burned = Event(conditions={M.new_fact("burned", meal)})
         meal_consumed = Event(conditions={M.new_fact("consumed", meal)})
-        quests.append(Quest(win_events=[meal_consumed]))
+        quests.append(Quest(win_events=[meal_consumed], fail_events=[meal_burned]))
 
         M.quests = quests
 
