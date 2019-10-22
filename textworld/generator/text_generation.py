@@ -230,7 +230,7 @@ def assign_description_to_room(room, game, grammar):
                     room_desc += expand_clean_replace(" " + tag, grammar, obj, game.infos)
                     break
 
-    room_desc = room_desc.rstrip()# + "\n\n"
+    room_desc = room_desc.rstrip() + "\n\n"
 
     # Look for potential exit directions.
     exits_with_open_door = []
@@ -290,6 +290,7 @@ def assign_description_to_room(room, game, grammar):
             exits_desc.append(e_desc)
 
     room_desc += " ".join(exits_desc)
+    room_desc = room_desc.rstrip()
 
     # Finally, set the description
     return fix_determinant(room_desc)
