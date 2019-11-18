@@ -1037,15 +1037,18 @@ class GameOptions:
         def _key_missing(seeds):
             return not set(seeds.keys()).issuperset(keys)
 
+        root = None
         seeds = value
         if type(value) is int:
+            root = value
             rng = RandomState(value)
             seeds = {}
         elif _key_missing(value):
+            root = g_rng.seed
             rng = g_rng.next()
 
         # Check if we need to generate missing seeds.
-        self._seeds = {}
+        self._seeds = {'root': root}
         for key in keys:
             if key in seeds:
                 self._seeds[key] = seeds[key]

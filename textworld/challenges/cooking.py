@@ -742,6 +742,19 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
         allowed_foods += [f for f in FOODS if f in FOODS_SPLITS['train']]
         allowed_food_preparations.update(dict(FOOD_PREPARATIONS_SPLITS['test']))
 
+    if skills.get("cut"):
+        # If "cut" skill is specified, remove all "uncut" preparations.
+        for food, preparations in allowed_food_preparations.items():
+            allowed_food_preparations[food] = [preparation for preparation in preparations if "uncut" not in preparation]
+
+    if skills.get("cook"):
+        # If "cook" skill is specified, remove all "raw" preparations.
+        for food, preparations in list(allowed_food_preparations.items()):
+            allowed_food_preparations[food] = [preparation for preparation in preparations if "raw" not in preparation]
+            if len(allowed_food_preparations[food]) == 0:
+                del allowed_food_preparations[food]
+                allowed_foods.remove(food)
+
     M = textworld.GameMaker()
 
     recipe = M.new(type='RECIPE', name='')
@@ -888,7 +901,7 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
             _place_one_distractor(same_suffix_list, ingredient)
 
     # Add distractors foods. The amount is drawn from N(nb_ingredients, 3).
-    nb_distractors = max(0, int(rng_objects.randn(1) * 3 + nb_ingredients))
+    nb_distractors = abs(int(rng_objects.randn(1) * 3 + nb_ingredients))
     distractors = place_random_foods(M, nb_distractors, rng_objects, allowed_foods)
 
     # Depending on the skills and how the ingredient should be processed
