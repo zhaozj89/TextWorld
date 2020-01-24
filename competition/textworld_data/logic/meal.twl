@@ -111,13 +111,16 @@ type RECIPE {
                 Repeat with ingredient running through the ingredients of the recipe:
                     let F be the base of the ingredient;
                     if player does not carry the F:
-                        say "The recipe requires [a ingredient].";
+                        [say "The recipe requires [a ingredient].";]
+                        say "You still miss something.";
                         rule fails;
                     if type of cooking of F is not type of cooking of ingredient:
-                        say "The recipe requires [a ingredient].";
+                        [say "The recipe requires [a ingredient].";]
+                        say "Something still needs to be cooked.";
                         rule fails;
                     if type of cutting of F is not type of cutting of ingredient:
-                        say "The recipe requires [a ingredient].";
+                        [say "The recipe requires [a ingredient].";]
+                        say "Something still needs to be cut.";
                         rule fails;
 
             Carry out preparing meal:

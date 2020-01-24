@@ -684,7 +684,7 @@ def move(M, start, end):
 
 
 def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split: str = "",
-              neverending: bool = False) -> textworld.Game:
+              neverending: bool = False, version: int = 1) -> textworld.Game:
     """ Make a Cooking game.
 
     Arguments:
@@ -901,7 +901,11 @@ def make_game(skills: Dict["str", Union[bool, int]], options: GameOptions, split
             _place_one_distractor(same_suffix_list, ingredient)
 
     # Add distractors foods. The amount is drawn from N(nb_ingredients, 3).
-    nb_distractors = abs(int(rng_objects.randn(1) * 3 + nb_ingredients))
+    if version >= 2:
+        nb_distractors = abs(int(rng_objects.randn(1) * 3 + nb_ingredients))
+    else:
+        nb_distractors = max(0, int(rng_objects.randn(1) * 3 + nb_ingredients))
+
     distractors = place_random_foods(M, nb_distractors, rng_objects, allowed_foods)
 
     # Depending on the skills and how the ingredient should be processed
@@ -1204,11 +1208,11 @@ def make(settings: str, options: Optional[GameOptions] = None) -> textworld.Game
         del skills["test"]
 
     neverending = "noquest" in skills
-
+    version = skills.get("v", 1)
 
     assert split in {'', 'train', 'valid', 'test'}
 
-    return make_game(skills, options, split, neverending)
+    return make_game(skills, options, split, neverending, version)
 
 
 register(name="cooking",
