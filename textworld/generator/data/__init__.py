@@ -119,7 +119,7 @@ class KnowledgeBase:
                 target_dir = BUILTIN_DATA_PATH
 
         # Load knowledge base related files.
-        paths = glob.glob(pjoin(target_dir, "logic", "*"))
+        paths = glob.glob(pjoin(target_dir, "logic", "*.twl"))
         logic = GameLogic.load(paths)
 
         # Load text generation related files.
