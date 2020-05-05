@@ -604,7 +604,7 @@ PropositionTracker = memento_factory(
     lambda cls, args, kwargs: (
         cls,
         kwargs.get("name", args[0] if len(args) >= 1 else None),
-        tuple(v.name for v in kwargs.get("arguments", args[1] if len(args) == 2 else []))
+        tuple((v.name, v.type) for v in kwargs.get("arguments", args[1] if len(args) == 2 else []))
     )
 )
 
