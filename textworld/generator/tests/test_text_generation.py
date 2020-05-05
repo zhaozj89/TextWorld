@@ -83,5 +83,37 @@ def test_blend_instructions(verbose=False):
     assert len(quest1.desc) > len(quest2.desc)
 
 
+def test_list_expansions():
+    options = textworld.GameOptions()
+    options.seed = 1234
+    options.grammar.theme = "new"
+
+    M = textworld.GameMaker(options)
+
+    # Create a room.
+    room = M.new_room("Room")
+    M.set_player(room)
+
+    game = M.build()
+    print(game.infos[room.id].desc)
+    game.infos[room.id].desc = None
+
+    # Add a container to the room.
+    container = M.new(type='c', name='chest')
+    room.add(container)
+    M.add_fact("open", container)
+
+    game = M.build()
+    print(game.infos[room.id].desc)
+    game.infos[room.id].desc = None
+
+    # Add a supporter to the room.
+    supporter = M.new(type='s', name='table')
+    room.add(supporter)
+
+    game = M.build()
+    print(game.infos[room.id].desc)
+
+
 if __name__ == "__main__":
-    test_blend_instructions(verbose=True)
+    test_list_expansions()

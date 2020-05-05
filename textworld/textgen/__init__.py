@@ -1,111 +1,345 @@
+from copy import deepcopy
+from collections import defaultdict
+
 from tatsu.model import NodeWalker
-from typing import Iterable, Optional, Tuple
+from typing import Iterable, Optional, Tuple, List, Dict
 
 from textworld.textgen.model import TextGrammarModelBuilderSemantics
 from textworld.textgen.parser import TextGrammarParser
 
 
-class Alternative:
-    """
-    A single alternative in a production rule.
-    """
+class Symbol:
+    def __init__(self, symbol: str, context: Dict = {}):
+        self.symbol = symbol
+        self.context = context
 
-    def full_form(self, include_adj=True) -> str:
-        adj, noun = self.split_form(include_adj)
-        if adj is None:
-            return noun
-        else:
-            return adj + "|" + noun
+    def __str__(self):
+        return self.symbol
 
-
-class LiteralAlternative(Alternative):
-    """
-    An alternative from a literal string.
-    """
-
-    def __init__(self, value: str):
-        self._value = value
-
-    def split_form(self, include_adj=True) -> Tuple[Optional[str], str]:
-        return None, self._value
+    def copy(self, context):
+        copy = deepcopy(self)
+        copy.context = deepcopy(context)
+        return copy
 
 
-class AdjectiveNounAlternative(Alternative):
-    """
-    An alternative that specifies an adjective and a noun.
-    """
+class TerminalSymbol(Symbol):
 
-    def __init__(self, adjective: str, noun: str):
-        self._adjective = adjective
-        self._noun = noun
-
-    def split_form(self, include_adj=True) -> Tuple[Optional[str], str]:
-        if include_adj:
-            return self._adjective, self._noun
-        else:
-            return None, self._noun
+    def __repr__(self):
+        return "TerminalSymbol('{}')".format(self.symbol)
 
 
-class MatchAlternative(Alternative):
-    """
-    An alternative that specifies matching names for two objects.
-    """
+class NonterminalSymbol(Symbol):
 
-    def __init__(self, lhs: Alternative, rhs: Alternative):
-        self.lhs = lhs
-        self.rhs = rhs
+    def __repr__(self):
+        return "NonterminalSymbol('#{}#')".format(self.symbol)
 
-    def full_form(self, include_adj=True) -> str:
-        return self.lhs.full_form(include_adj) + " <-> " + self.rhs.full_form(include_adj)
+
+from itertools import tee, chain
+
+def join(sep, iterable):
+    iterable = iter(iterable)
+    yield next(iterable)
+
+    for e in iterable:
+        yield sep
+        yield e
+
+
+def display_list(l, context):
+    if len(l) == 0:
+        return [NonterminalSymbol("list_empty", context)]
+
+    if len(l) == 1:
+        return [l[0]]
+
+    list_separator = NonterminalSymbol("list_separator")
+    list_last_separator = NonterminalSymbol("list_last_separator")
+    # "#list_separator#".join(l[:-1]) + "#list_last_separator#" + l[-1]
+    return list(join(list_separator, l[:-1])) + [list_last_separator] + [l[-1]]
+
+
+def query(expression, context):
+    from textworld.logic import Predicate, Rule
+    rule = Rule(
+        name="query",
+        preconditions=[Predicate.parse(e.strip()) for e in expression.split("&")],
+        postconditions=[],
+    )
+
+    contexts = []
+    for mapping in context["state"].all_assignments(rule, context["mapping"]):
+        context_ =  deepcopy(context)
+        new_variables = {ph.name: context_["entity_infos"][var.name] for ph, var in mapping.items()}
+        context_["variables"].update(new_variables)
+        context_["mapping"].update(mapping)
+        contexts.append(context_)
+
+    return contexts
+
+
+class EvalSymbol(Symbol):
+    def __init__(self, expression: str, context: Dict = {}):
+        super().__init__(expression, context)
+        self.expression = expression
+
+    def __repr__(self):
+        return "EvalSymbol('{{{}}}')".format(str(self.expression))
+
+    def derive(self, context=None):
+        context = context or self.context
+        locals().update(context["variables"])
+        res = eval(self.expression)
+        if isinstance(res, list):
+            assert False
+            return res
+
+        return [TerminalSymbol(res)]
+
+
+class ListSymbol(Symbol):
+    def __init__(self, symbol: Symbol, context: Dict = {}):
+        super().__init__(symbol, context)
+
+    def __repr__(self):
+        return "ListSymbol('[{!r}]')".format(self.symbol)
+
+    def derive(self, context=None):
+        context = context or self.context
+        self.symbol.context = context
+        derivation = self.symbol.derive()
+        return display_list(derivation, context)
+
+
+class PythonSymbol(Symbol):
+    def __init__(self, expression: str, context: Dict = {}):
+        super().__init__(expression, context)
+        self.expression = expression
+
+    def derive(self, context=None):
+        context = context or self.context
+        res = eval(self.expression)
+        if isinstance(res, list):
+            return res
+
+        return [res]
+
+
+class SpecialSymbol(Symbol):
+
+    def __init__(self, expression: str, given: str, context: Dict = {}):
+        text = expression
+        if given:
+            text += "|" + given
+
+        super().__init__(text, context)
+        self.expression = expression
+        self.given = given
+
+    def derive(self):
+        assert False
+        from textworld.logic import Predicate, Rule
+
+        if len(self.context) == 0:
+            raise ValueError("Empty context")
+
+        context = deepcopy(self.context)
+
+        given = []
+        if self.given:
+            given += [Predicate.parse(self.given)]  # TODO: support conjonction
+
+        is_nonterminal = False
+        if self.expression.startswith("#"):
+            is_nonterminal = True
+
+        query = []
+        try:
+            query = [Predicate.parse(self.expression.strip("#"))]
+        except:
+            pass
+            #query = [Predicate.parse("query({})".format(query.split(".", 1)[0]))]
+
+        rules = [
+            Rule(
+                name="query",
+                preconditions=given + query,
+                postconditions=query
+            )
+        ]
+
+        mappings = [assignment for rule in rules for assignment in context["state"].all_assignments(rule, context["mapping"])]
+        mapping = mappings[0]  #TODO: support more than one possible mappings?"
+
+        new_variables = {ph.name: context["entity_infos"][var.name] for ph, var in mapping.items()}
+        context["variables"].update(new_variables)
+        context["mapping"].update(mapping)
+
+        if is_nonterminal:
+            return [NonterminalSymbol(self.expression.strip("#"), context)]
+
+        locals().update(context["variables"])
+        text = str(eval(self.expression))
+        return [TerminalSymbol(text)]
+
+
+class ConditionalSymbol(Symbol):
+
+    def __init__(self, expression: Symbol, given: str, context: Dict = {}):
+        super().__init__(str(expression), context)
+        self.expression = expression
+        self.given = given
+
+    def __repr__(self):
+        return "ConditionalSymbol('{{{}|{}}}')".format(str(self.expression), str(self.given))
+
+    def derive(self):
+        from textworld.logic import Predicate, Rule
+
+        if len(self.context) == 0:
+            raise ValueError("Empty context")
+
+        context = deepcopy(self.context)
+
+        contexts = [context]
+        if self.given:
+            contexts = query(self.given, context)
+
+        # res = display_list([self.expression.copy(context) for context in contexts], context)
+        res = [self.expression.copy(context) for context in contexts]
+        return res
 
 
 class ProductionRule:
-    """
-    A production rule in a text grammar.
-    """
+    """ Production rule for a context-sensitive grammar. """
 
-    def __init__(self, symbol: str, alternatives: Iterable[Alternative]):
-        self.symbol = symbol
-        self.alternatives = tuple(alternatives)
+    # TODO: support multiple symbols for the rhs?
+    def __init__(self, lhs: str, rhs: List[Symbol], weight=1):
+        """
+        Arguments:
+            rhs: symbol that will be transformed by this production rule.
+            lhs: list of symbols generated by this production rule.
+            weight: prevalence of this production.
+        """
+        self.lhs = lhs
+        self.rhs = rhs
+        self.weight = weight
 
 
 class _Converter(NodeWalker):
+
+    def __init__(self, grammar = None):
+        self.grammar = grammar
+
     def walk_list(self, node):
         return [self.walk(child) for child in node]
 
     def walk_str(self, node):
         return node.replace("\\n", "\n")
 
-    def walk_Literal(self, node):
-        value = self.walk(node.value)
-        if value:
-            return LiteralAlternative(value)
-        else:
-            # Skip empty literals
-            return None
+    def walk_TerminalSymbol(self, node):
+        return TerminalSymbol(node.literal)
 
-    def walk_AdjectiveNoun(self, node):
-        return AdjectiveNounAlternative(self.walk(node.adjective), self.walk(node.noun))
+    def walk_NonterminalSymbol(self, node):
+        return NonterminalSymbol(node.symbol)
 
-    def walk_Match(self, node):
-        return MatchAlternative(self.walk(node.lhs), self.walk(node.rhs))
+    def walk_ConditionalSymbol(self, node):
+        return ConditionalSymbol(self.walk(node.expression), node.given)
+
+    def walk_SpecialSymbol(self, node):
+        return self.walk(node.statement)
+
+    def walk_PythonSymbol(self, node):
+        return PythonSymbol(node.statement)
+
+    def walk_EvalSymbol(self, node):
+        return EvalSymbol(node.statement)
+
+    def walk_ListSymbol(self, node):
+        return ListSymbol(self.walk(node.symbol.statement))
+
+    def walk_String(self, node):
+        return self.walk(node.symbols)
 
     def walk_ProductionRule(self, node):
-        alts = [alt for alt in self.walk(node.alternatives) if alt is not None]
-        return ProductionRule(node.symbol, alts)
+        for string in node.alternatives:
+            if string is None:
+                assert False
+                continue
+
+            rule = ProductionRule(node.symbol, self.walk(string))
+            self.grammar.add_rule(rule)
 
     def walk_TextGrammar(self, node):
-        return TextGrammar(self.walk(node.rules))
+        self.walk(node.rules)
 
 
+_PARSER = TextGrammarParser(semantics=TextGrammarModelBuilderSemantics(), parseinfo=True)
+
+
+def _parse_and_convert(*args, **kwargs):
+    model = _PARSER.parse(*args, **kwargs)
+    return _Converter().walk(model)
+
+
+class CSGUnknownSymbolError(Exception):
+    def __init__(self, symbol: Symbol):
+        msg = "Can't find symbol '#{}#' in the set of production rules."
+        # TODO: mention closest match?
+        super().__init__(msg.format(symbol))
+
+
+# class ContextSensitiveGrammar:
 class TextGrammar:
-    _PARSER = TextGrammarParser(semantics=TextGrammarModelBuilderSemantics(), parseinfo=True)
-    _CONVERTER = _Converter()
 
-    def __init__(self, rules: Iterable[ProductionRule]):
-        self.rules = {rule.symbol: rule for rule in rules}
+    def __init__(self):
+        self._rules = defaultdict(list)
 
     @classmethod
-    def parse(cls, grammar: str, filename: Optional[str] = None):
-        model = cls._PARSER.parse(grammar, filename=filename)
-        return cls._CONVERTER.walk(model)
+    def parse(cls, text: str, filename: Optional[str] = None):
+        grammar = cls()
+        model = _PARSER.parse(text, filename=filename)
+        _Converter(grammar).walk(model)
+        return grammar
+
+    def add_rule(self, rule: ProductionRule):
+        self._rules[rule.lhs].append(rule)
+
+    def replace(self, start: Symbol) -> List[Symbol]:
+        rule = self._rules.get(str(start))
+        if not rule:
+            raise CSGUnknownSymbolError(start)
+
+        # TODO: deal with multiple alternatives
+        # TODO: deal with context
+        symbols = deepcopy(rule[0].rhs)
+        for symbol in symbols:
+            symbol.context = deepcopy(start.context)
+
+        return symbols
+
+    def derive(self, start: str, context={}) -> str:
+        derivation = _parse_and_convert(start, rule_name="string")
+        derivation = derivation[::-1]  # Reverse to build a derivation stack.
+
+        for symbol in derivation:
+            symbol.context = deepcopy(context)
+
+        derived = []
+        while len(derivation) > 0:
+            print(derivation)  # TODO: TEXTWORLD_DEBUG_GRAMMAR
+
+            symbol = derivation.pop()
+            if isinstance(symbol, TerminalSymbol):
+                derived.append(symbol)
+
+            elif isinstance(symbol, NonterminalSymbol):
+                derivation += self.replace(symbol)[::-1]  # Reverse to add on top of the derivation stack.
+
+            elif isinstance(symbol, (ConditionalSymbol, EvalSymbol, ListSymbol)):
+                derivation += symbol.derive()[::-1]  # Reverse to add on top of the derivation stack.
+
+            else:
+                raise NotImplementedError("Unknown symbol: {}".format(type(symbol)))
+
+        # TODO: use empty-string separator (needs to fix the ebnf to not ignore spaces, first).
+        return "".join(map(str, derived))
