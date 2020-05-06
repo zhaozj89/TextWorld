@@ -975,6 +975,8 @@ class Action:
         """
 
         self.name = name
+        self.mapping = {}
+        self.feedback_rule = None
         self.command_template = None
         self.reverse_name = None
         self.reverse_command_template = None
@@ -1114,6 +1116,7 @@ class Rule:
         """
 
         self.name = name
+        self.feedback_rule = None
         self.command_template = None
         self.reverse_rule = None
         self._cache = {}
@@ -1241,8 +1244,9 @@ class Rule:
         pre_inst = [pred.instantiate(mapping) for pred in self.preconditions]
         post_inst = [pred.instantiate(mapping) for pred in self.postconditions]
         action = Action(self.name, pre_inst, post_inst)
-
+        action.mapping = mapping
         action.command_template = self._make_command_template(mapping)
+        action.feedback_rule = self.feedback_rule
         if self.reverse_rule:
             action.reverse_name = self.reverse_rule.name
             action.reverse_command_template = self.reverse_rule._make_command_template(mapping)

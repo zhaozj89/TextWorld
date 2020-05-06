@@ -90,7 +90,7 @@ class GameLogicParser(Parser):
 
     @tatsumasu()
     def _name_(self):  # noqa
-        self._pattern('\\w+')
+        self._pattern('[\\w/-]+')
 
     @tatsumasu()
     def _phName_(self):  # noqa
@@ -558,6 +558,118 @@ class GameLogicParser(Parser):
     def _start_(self):  # noqa
         self._document_()
 
+    @tatsumasu('ActionTemplateNode')
+    def _template_(self):  # noqa
+        self._token('template')
+        self._token('::')
+        self._str_()
+        self.name_last_node('template')
+        self._token(';')
+        self.ast._define(
+            ['template'],
+            []
+        )
+
+    @tatsumasu('ActionFeedbackNode')
+    def _feedback_(self):  # noqa
+        self._token('feedback')
+        self._token('::')
+        self._str_()
+        self.name_last_node('name')
+        self._token(';')
+        self.ast._define(
+            ['name'],
+            []
+        )
+
+    @tatsumasu('ActionPddlNode')
+    def _pddl_(self):  # noqa
+        self._token('pddl')
+        self._token('::')
+        self._strBlock_()
+        self.name_last_node('code')
+        self._token(';')
+        self.ast._define(
+            ['code'],
+            []
+        )
+
+    @tatsumasu('ActionTextNode')
+    def _text_(self):  # noqa
+        self._token('grammar')
+        self._token('::')
+        self._strBlock_()
+        self.name_last_node('code')
+        self._token(';')
+        self.ast._define(
+            ['code'],
+            []
+        )
+
+    @tatsumasu()
+    def _actionTypePart_(self):  # noqa
+        with self._choice():
+            with self._option():
+                self._template_()
+            with self._option():
+                self._pddl_()
+            with self._option():
+                self._text_()
+            self._error('no available options')
+
+    @tatsumasu('ActionTypeNode')
+    def _actionType_(self):  # noqa
+        self._token('action')
+        self._name_()
+        self.name_last_node('name')
+        self._token('{')
+
+        def block1():
+            with self._group():
+                with self._choice():
+                    with self._option():
+                        self._template_()
+                        self.name_last_node('template')
+                    with self._option():
+                        self._feedback_()
+                        self.name_last_node('feedback')
+                    with self._option():
+                        self._pddl_()
+                        self.name_last_node('pddl')
+                    with self._option():
+                        self._text_()
+                        self.name_last_node('text')
+                    self._error('no available options')
+        self._closure(block1)
+        self._token('}')
+        self.ast._define(
+            ['feedback', 'name', 'pddl', 'template', 'text'],
+            []
+        )
+
+    @tatsumasu('Document2Node')
+    def _document2_(self):  # noqa
+
+        def block1():
+            with self._group():
+                with self._choice():
+                    with self._option():
+                        self._actionType_()
+                    with self._option():
+                        self._text_()
+                    self._error('no available options')
+        self._closure(block1)
+        self.name_last_node('parts')
+        self._check_eof()
+        self.ast._define(
+            ['parts'],
+            []
+        )
+
+    @tatsumasu()
+    def _start2_(self):  # noqa
+        self._document2_()
+
     @tatsumasu()
     def _onlyVariable_(self):  # noqa
         self._variable_()
@@ -711,6 +823,30 @@ class GameLogicSemantics(object):
         return ast
 
     def start(self, ast):  # noqa
+        return ast
+
+    def template(self, ast):  # noqa
+        return ast
+
+    def feedback(self, ast):  # noqa
+        return ast
+
+    def pddl(self, ast):  # noqa
+        return ast
+
+    def text(self, ast):  # noqa
+        return ast
+
+    def actionTypePart(self, ast):  # noqa
+        return ast
+
+    def actionType(self, ast):  # noqa
+        return ast
+
+    def document2(self, ast):  # noqa
+        return ast
+
+    def start2(self, ast):  # noqa
         return ast
 
     def onlyVariable(self, ast):  # noqa

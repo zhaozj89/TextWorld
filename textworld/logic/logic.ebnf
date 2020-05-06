@@ -7,7 +7,7 @@ str = ?'"[^"]*"' ;
 
 strBlock = ?'"""(.|\n)*?"""' ;
 
-name = ?"\w+" ;
+name = ?"[\w/-]+" ;
 
 phName = ?"[\w']+" ;
 
@@ -91,6 +91,25 @@ type::TypeNode = "type" name:name [":" supertypes:",".{name}+] "{" parts:{typePa
 document::DocumentNode = types:{type}* $ ;
 
 start = document ;
+
+
+template::ActionTemplateNode = "template" "::" template:str ";" ;
+
+feedback::ActionFeedbackNode = "feedback" "::" name:str ";" ;
+
+pddl::ActionPddlNode = "pddl" "::" code:strBlock ";" ;
+
+text::ActionTextNode = "grammar" "::" code:strBlock ";" ;
+
+actionTypePart = template | pddl | text;
+
+(* actionType::ActionTypeNode = "action" name:name "{" parts:{actionType}* "}" ; *)
+
+actionType::ActionTypeNode = "action" name:name "{" {(template:template | feedback:feedback | pddl:pddl | text:text)}* "}" ;
+
+document2::Document2Node = parts:{(actionType | text)}* $ ;
+
+start2 = document2 ;
 
 
 onlyVariable = @:variable $ ;

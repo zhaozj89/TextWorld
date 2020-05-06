@@ -98,21 +98,31 @@ def test_list_expansions():
     print(game.infos[room.id].desc)
     game.infos[room.id].desc = None
 
-    # Add a container to the room.
-    container = M.new(type='c', name='chest')
-    room.add(container)
-    M.add_fact("open", container)
+    # Add a supporter to the room.
+    supporter = M.new(type='s', name='table')
+    supporter.infos.indefinite = "a"
+    M.add_fact("supporter", supporter)
+    room.add(supporter)
 
     game = M.build()
     print(game.infos[room.id].desc)
     game.infos[room.id].desc = None
 
-    # Add a supporter to the room.
-    supporter = M.new(type='s', name='table')
-    room.add(supporter)
+    # Add a container to the room.
+    container = M.new(type='c', name='chest')
+    container.infos.indefinite = "a"
+    M.add_fact("container", container)
+    room.add(container)
+    M.add_fact("open", container)
+    fridge = M.new(type='c', name='fridge')
+    fridge.infos.indefinite = "a"
+    room.add(container, fridge)
+    M.add_fact("container", fridge)
+    M.add_fact("closed", fridge)
 
     game = M.build()
     print(game.infos[room.id].desc)
+    game.infos[room.id].desc = None
 
 
 if __name__ == "__main__":
