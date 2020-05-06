@@ -4,7 +4,7 @@
 
 @@eol_comments :: ?"^(//.*|\s*)\n?"
 
-tag = ?"[\w()/!<>-\s,]+" ;
+tag = ?"[\w()/!<>-\s,.]+" ;
 
 given = ?"([^;|{}\n\[\]#])+" ;
 
@@ -12,11 +12,11 @@ expression = ?"([^;|{}\[\]\n])+" ;
 
 statement = ?"([^;|\[\]{}\n<>])+" ;
 
-literal = ?'(([^;|"<>\n\[\]()#{}]|\([^()]*\))+)?' ;
+Literal = ?'(([^;|"<>\n\[\]()#{}]|\([^()]*\))+)?' ;
 
-literalAlternative::Literal = value:literal ;
+literalAlternative::Literal = value:Literal ;
 
-terminalSymbol::TerminalSymbol = ('"' literal:literal '"' | literal:literal);
+TerminalSymbol::TerminalSymbol = ('"' literal:Literal '"' | literal:Literal);
 
 nonterminalSymbol::NonterminalSymbol = "#" symbol:tag "#" ;
 
@@ -36,17 +36,17 @@ listSymbol::ListSymbol = "[" symbol:specialSymbol "]" ;
 
 pythonSymbol::PythonSymbol = "<" statement:statement ">" ;
 
-symbol = listSymbol | pythonSymbol | specialSymbol | nonterminalSymbol | terminalSymbol;
+Symbol = listSymbol | pythonSymbol | specialSymbol | nonterminalSymbol | TerminalSymbol;
 
-adjectiveNoun::AdjectiveNoun = adjective:literal "|" noun:literal ;
+adjectiveNoun::AdjectiveNoun = adjective:Literal "|" noun:Literal ;
 
 entity = adjectiveNoun | literalAlternative ;
 
 match::Match = lhs:entity "<->" rhs:entity ;
 
-string::String = symbols:{symbol}+ ;
+String::String = symbols:{Symbol}+ ;
 
-alternatives = ";".{string}+ ;
+alternatives = ";".{String}+ ;
 
 productionRule::ProductionRule = symbol:tag ":" alternatives:alternatives ("\n" | $) ;
 
@@ -54,4 +54,4 @@ grammar::TextGrammar = rules:{productionRule}* $ ;
 
 start = grammar ;
 
-onlyString = @:string $ ;
+onlyString = @:String $ ;

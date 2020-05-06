@@ -82,7 +82,7 @@ class TextGrammarParser(Parser):
 
     @tatsumasu()
     def _tag_(self):  # noqa
-        self._pattern('[\\w()/!<>-\\s,]+')
+        self._pattern('[\\w()/!<>-\\s,.]+')
 
     @tatsumasu()
     def _given_(self):  # noqa
@@ -97,12 +97,12 @@ class TextGrammarParser(Parser):
         self._pattern('([^;|\\[\\]{}\\n<>])+')
 
     @tatsumasu()
-    def _literal_(self):  # noqa
+    def _Literal_(self):  # noqa
         self._pattern('(([^;|"<>\\n\\[\\]()#{}]|\\([^()]*\\))+)?')
 
     @tatsumasu('Literal')
     def _literalAlternative_(self):  # noqa
-        self._literal_()
+        self._Literal_()
         self.name_last_node('value')
         self.ast._define(
             ['value'],
@@ -110,16 +110,16 @@ class TextGrammarParser(Parser):
         )
 
     @tatsumasu('TerminalSymbol')
-    def _terminalSymbol_(self):  # noqa
+    def _TerminalSymbol_(self):  # noqa
         with self._group():
             with self._choice():
                 with self._option():
                     self._token('"')
-                    self._literal_()
+                    self._Literal_()
                     self.name_last_node('literal')
                     self._token('"')
                 with self._option():
-                    self._literal_()
+                    self._Literal_()
                     self.name_last_node('literal')
                 self._error('no available options')
         self.ast._define(
@@ -200,7 +200,7 @@ class TextGrammarParser(Parser):
         )
 
     @tatsumasu()
-    def _symbol_(self):  # noqa
+    def _Symbol_(self):  # noqa
         with self._choice():
             with self._option():
                 self._listSymbol_()
@@ -211,15 +211,15 @@ class TextGrammarParser(Parser):
             with self._option():
                 self._nonterminalSymbol_()
             with self._option():
-                self._terminalSymbol_()
+                self._TerminalSymbol_()
             self._error('no available options')
 
     @tatsumasu('AdjectiveNoun')
     def _adjectiveNoun_(self):  # noqa
-        self._literal_()
+        self._Literal_()
         self.name_last_node('adjective')
         self._token('|')
-        self._literal_()
+        self._Literal_()
         self.name_last_node('noun')
         self.ast._define(
             ['adjective', 'noun'],
@@ -248,10 +248,10 @@ class TextGrammarParser(Parser):
         )
 
     @tatsumasu('String')
-    def _string_(self):  # noqa
+    def _String_(self):  # noqa
 
         def block1():
-            self._symbol_()
+            self._Symbol_()
         self._positive_closure(block1)
         self.name_last_node('symbols')
         self.ast._define(
@@ -266,7 +266,7 @@ class TextGrammarParser(Parser):
             self._token(';')
 
         def block0():
-            self._string_()
+            self._String_()
         self._positive_gather(block0, sep0)
 
     @tatsumasu('ProductionRule')
@@ -307,7 +307,7 @@ class TextGrammarParser(Parser):
 
     @tatsumasu()
     def _onlyString_(self):  # noqa
-        self._string_()
+        self._String_()
         self.name_last_node('@')
         self._check_eof()
 
@@ -325,13 +325,13 @@ class TextGrammarSemantics(object):
     def statement(self, ast):  # noqa
         return ast
 
-    def literal(self, ast):  # noqa
+    def Literal(self, ast):  # noqa
         return ast
 
     def literalAlternative(self, ast):  # noqa
         return ast
 
-    def terminalSymbol(self, ast):  # noqa
+    def TerminalSymbol(self, ast):  # noqa
         return ast
 
     def nonterminalSymbol(self, ast):  # noqa
@@ -352,7 +352,7 @@ class TextGrammarSemantics(object):
     def pythonSymbol(self, ast):  # noqa
         return ast
 
-    def symbol(self, ast):  # noqa
+    def Symbol(self, ast):  # noqa
         return ast
 
     def adjectiveNoun(self, ast):  # noqa
@@ -364,7 +364,7 @@ class TextGrammarSemantics(object):
     def match(self, ast):  # noqa
         return ast
 
-    def string(self, ast):  # noqa
+    def String(self, ast):  # noqa
         return ast
 
     def alternatives(self, ast):  # noqa

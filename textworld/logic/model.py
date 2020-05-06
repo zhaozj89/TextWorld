@@ -142,3 +142,31 @@ class TypeNode(ModelBase):
 
 class DocumentNode(ModelBase):
     types = None
+
+
+class ActionTemplateNode(ModelBase):
+    template = None
+
+
+class ActionFeedbackNode(ModelBase):
+    name = None
+
+
+class ActionPddlNode(ModelBase):
+    code = None
+
+
+class ActionTextNode(ModelBase):
+    code = None
+
+
+class ActionTypeNode(ModelBase):
+    feedback = None
+    name = None
+    pddl = None
+    template = None
+    text = None
+
+
+class Document2Node(ModelBase):
+    parts = None

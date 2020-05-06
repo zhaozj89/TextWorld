@@ -1,3 +1,4 @@
+import json
 from copy import deepcopy
 from collections import defaultdict
 
@@ -213,7 +214,7 @@ class ProductionRule:
     """ Production rule for a context-sensitive grammar. """
 
     # TODO: support multiple symbols for the rhs?
-    def __init__(self, lhs: str, rhs: List[Symbol], weight=1):
+    def __init__(self, lhs: str, rhs: List[Symbol], weight=1, condition=None):
         """
         Arguments:
             rhs: symbol that will be transformed by this production rule.
@@ -223,6 +224,27 @@ class ProductionRule:
         self.lhs = lhs
         self.rhs = rhs
         self.weight = weight
+        self.condition = condition
+
+    def __repr__(self):
+        return "ProductionRule(lhs={!r}, rhs={!r}, weight={!r}, condition={!r})".format(self.lhs, self.rhs, self.weight, self.condition)
+
+
+# class Postprocess:
+#     # TODO: re-think this
+
+#     def __init__(self, placeholder):
+#         self.placeholder = placeholder
+
+#     def apply(self, text):
+#         splits = text.split(self.placeholder)
+
+#         res = ""
+#         for prefix, suffix in zip(splits[:-1], splits[1:]):
+#             res += prefix
+
+#         res += suffix
+
 
 
 class _Converter(NodeWalker):
@@ -296,29 +318,51 @@ class TextGrammar:
 
     @classmethod
     def parse(cls, text: str, filename: Optional[str] = None):
+        data = json.loads(text)
+
         grammar = cls()
-        model = _PARSER.parse(text, filename=filename)
-        _Converter(grammar).walk(model)
+        for name, rules in data.items():
+            rules = [ProductionRule(lhs=name,
+                                    rhs=_parse_and_convert(rule["rhs"], rule_name="String"),
+                                    weight=rule.get("weight", 1),
+                                    condition=rule.get("condition", ""))
+                     for rule in rules]
+
+            for rule in rules:
+                # print(repr(rule))
+                grammar.add_rule(rule)
+
+        # model = _PARSER.parse(text, filename=filename)
+        # _Converter(grammar).walk(model)
         return grammar
 
     def add_rule(self, rule: ProductionRule):
         self._rules[rule.lhs].append(rule)
 
     def replace(self, start: Symbol) -> List[Symbol]:
-        rule = self._rules.get(str(start))
-        if not rule:
+        rules = self._rules.get(str(start))
+        if not rules:
             raise CSGUnknownSymbolError(start)
+
+        def _applicable(rule):
+            if not rule.condition:
+                return True
+
+            contexts = query(rule.condition, start.context)
+            return len(contexts) != 0
+
+        rules = list(filter(_applicable, rules))
 
         # TODO: deal with multiple alternatives
         # TODO: deal with context
-        symbols = deepcopy(rule[0].rhs)
+        symbols = deepcopy(rules[0].rhs)
         for symbol in symbols:
             symbol.context = deepcopy(start.context)
 
         return symbols
 
     def derive(self, start: str, context={}) -> str:
-        derivation = _parse_and_convert(start, rule_name="string")
+        derivation = _parse_and_convert(start, rule_name="String")
         derivation = derivation[::-1]  # Reverse to build a derivation stack.
 
         for symbol in derivation:
@@ -326,7 +370,7 @@ class TextGrammar:
 
         derived = []
         while len(derivation) > 0:
-            print(derivation)  # TODO: TEXTWORLD_DEBUG_GRAMMAR
+            # print(derivation)  # TODO: TEXTWORLD_DEBUG_GRAMMAR
 
             symbol = derivation.pop()
             if isinstance(symbol, TerminalSymbol):
