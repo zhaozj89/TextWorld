@@ -315,7 +315,7 @@ action look {
         {
             "look.feedback": [
                 {
-                    "rhs": "#intro# you see #room_contents#.#list_exits#"
+                    "rhs": "#intro# you see #room_contents#. #list_exits#"
                 }
             ],
 
@@ -330,10 +330,66 @@ action look {
 
             "list_exits": [
                 {
-                    "rhs": "From here, you can go [{ | north_of}]
+                    "condition": "at(P, r) & (north_of(r', r) | south_of(r', r) | east_of(r', r) | west_of(r', r))",
+                    "rhs": "#north_exit##east_exit##south_exit##west_exit#"
+                },
+                {
+                    "rhs": "You don't see any obvious exits."
                 }
             ],
 
+            "north_exit": [
+                {
+                    "condition": "north_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)",
+                    "rhs": " The northern {d.name | north_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)} leads to the {dest.name | north_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "condition": "north_of(dest:r, src:r) & at(P, src:r)",
+                    "rhs": " You can go north towards the {dest.name | north_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "rhs": ""
+                }
+            ],
+            "south_exit": [
+                {
+                    "condition": "south_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)",
+                    "rhs": " The southern {d.name | south_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)} leads to the {dest.name | south_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "condition": "south_of(r', r) & at(P, r)",
+                    "rhs": " You can go south towards the {dest.name | south_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "rhs": ""
+                }
+            ],
+            "east_exit": [
+                {
+                    "condition": "east_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)",
+                    "rhs": " The eastern {d.name | east_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)} leads to the {dest.name | east_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "condition": "east_of(r', r) & at(P, r)",
+                    "rhs": " You can go east towards the {dest.name | east_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "rhs": ""
+                }
+            ],
+            "west_exit": [
+                {
+                    "condition": "west_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)",
+                    "rhs": " The western {d.name | west_of(dest:r, src:r) & at(P, src:r) & link(src:r, d, dest:r)} leads to the {dest.name | west_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "condition": "west_of(r', r) & at(P, r)",
+                    "rhs": " You can go west towards the {dest.name | west_of(dest:r, src:r) & at(P, src:r)}."
+                },
+                {
+                    "rhs": ""
+                }
+            ],
             "room_contents": [
                 {
                     "rhs": "[{#overview(t)# | at(P, r) & at(t, r)}]"

@@ -1,16 +1,22 @@
 
 import json
 import textwrap
+from os.path import join as pjoin
+from pprint import pprint
+
 from collections import Counter, defaultdict, deque
 from functools import total_ordering, lru_cache
 from typing import Callable, Dict, Iterable, List, Mapping, Optional, Set, Sequence
 
 from tatsu.model import NodeWalker
 
+from fast_downward.interface import load_downward_lib, pddl2sas, close_downward_lib
+from fast_downward.interface import Atom, Operator
+
 import textworld.logic.model
 from textworld.logic.model import GameLogicModelBuilderSemantics
 from textworld.logic.parser import GameLogicParser
-
+from textworld.logic import Proposition, Variable, Predicate, Rule, Placeholder
 
 from textworld.textgen import TextGrammar
 
@@ -37,107 +43,6 @@ class _ModelConverter(NodeWalker):
     def walk_list(self, l):
         return [self.walk(node) for node in l]
 
-    # def _walk_variable_ish(self, node, cls):
-    #     name = node.name
-    #     result = cls(name, node.type)
-
-    #     cached = self._cache.get(name)
-    #     if cached:
-    #         _check_type_conflict(name, cached.type, result.type)
-    #         result = cached
-    #     else:
-    #         self._cache[name] = result
-
-    #     return result
-
-    # def _walk_action_ish(self, node, cls):
-    #     self._cache.clear()
-
-    #     pre = []
-    #     post = []
-
-    #     for precondition in node.preconditions:
-    #         condition = self.walk(precondition.condition)
-    #         pre.append(condition)
-    #         if precondition.preserve:
-    #             post.append(condition)
-
-    #     post.extend(self.walk(node.postconditions))
-
-    #     return cls(node.name, pre, post)
-
-    # def walk_VariableNode(self, node):
-    #     return self._walk_variable_ish(node, Variable)
-
-    # def walk_SignatureNode(self, node):
-    #     return Signature(node.name, node.types)
-
-    # def walk_PropositionNode(self, node):
-    #     return Proposition(node.name, self.walk(node.arguments))
-
-    # def walk_ActionNode(self, node):
-    #     return self._walk_action_ish(node, Action)
-
-    # def walk_PlaceholderNode(self, node):
-    #     return self._walk_variable_ish(node, Placeholder)
-
-    # def walk_PredicateNode(self, node):
-    #     return Predicate(node.name, self.walk(node.parameters))
-
-    # def walk_RuleNode(self, node):
-    #     return self._walk_action_ish(node, Rule)
-
-    # def walk_AliasNode(self, node):
-    #     return Alias(self.walk(node.lhs), self.walk(node.rhs))
-
-    # def walk_PredicatesNode(self, node):
-    #     for pred_or_alias in self.walk(node.predicates):
-    #         if isinstance(pred_or_alias, Signature):
-    #             self._logic._add_predicate(pred_or_alias)
-    #         else:
-    #             self._logic._add_alias(pred_or_alias)
-
-    # def walk_RulesNode(self, node):
-    #     for rule in self.walk(node.rules):
-    #         self._logic._add_rule(rule)
-
-    # def walk_ReverseRuleNode(self, node):
-    #     self._logic._add_reverse_rule(node.lhs, node.rhs)
-
-    # def walk_ReverseRulesNode(self, node):
-    #     self.walk(node.reverse_rules)
-
-    # def walk_ConstraintsNode(self, node):
-    #     for constraint in self.walk(node.constraints):
-    #         self._logic._add_constraint(constraint)
-
-    # def walk_Inform7TypeNode(self, node):
-    #     name = self._type.name
-    #     kind = self._unescape(node.kind)
-    #     definition = self._unescape(node.definition) if node.definition else None
-    #     self._logic.inform7._add_type(Inform7Type(name, kind, definition))
-
-    # def walk_Inform7PredicateNode(self, node):
-    #     return Inform7Predicate(self.walk(node.predicate), self._unescape(node.source))
-
-    # def walk_Inform7PredicatesNode(self, node):
-    #     for i7pred in self.walk(node.predicates):
-    #         self._logic.inform7._add_predicate(i7pred)
-
-    # def walk_Inform7CommandNode(self, node):
-    #     return Inform7Command(node.rule, self._unescape(node.command), self._unescape(node.event))
-
-    # def walk_Inform7CommandsNode(self, node):
-    #     for i7cmd in self.walk(node.commands):
-    #         self._logic.inform7._add_command(i7cmd)
-
-    # def walk_Inform7CodeNode(self, node):
-    #     code = self._unescape_block(node.code)
-    #     self._logic.inform7._add_code(code)
-
-    # def walk_Inform7Node(self, node):
-        # self.walk(node.parts)
-
     def walk_ActionTypeNode(self, node):
         action = Action(
             name=node.name,
@@ -155,7 +60,7 @@ class _ModelConverter(NodeWalker):
         for part in node.parts:
             if isinstance(part, textworld.logic.model.ActionTypeNode):
                 action = self.walk(part)
-                actions[action.name] = action
+                actions[action.name.lower()] = action
                 grammar.update(json.loads(action.text))
             elif isinstance(part, textworld.logic.model.ActionTextNode):
                 grammar.update(json.loads(self._unescape_block(part.code)))
@@ -183,129 +88,321 @@ class Action:
 
 class GameLogic:
     """
-    The logic for a game (types, rules, etc.).
+    The logic for a game (types, rules, grammar, etc.).
     """
 
     def __init__(self):
+        self.domain_filename = None
+        self.domain = None
         self._document = ""
-        # self.types = TypeHierarchy()
-        # self.predicates = set()
-        # self.aliases = {}
-        # self.rules = {}
-        # self.reverse_rules = {}
-        # self.constraints = {}
-        # self.inform7 = Inform7Logic()
+        self.grammar = TextGrammar()
+        self.actions = {}
+        self.types = textworld.logic.TypeHierarchy()
 
-    # def _add_predicate(self, signature: Signature):
-    #     if signature in self.predicates:
-    #         raise ValueError("Duplicate predicate {}".format(signature))
-    #     if signature in self.aliases:
-    #         raise ValueError("Predicate {} is also an alias".format(signature))
-    #     self.predicates.add(signature)
+    def load_domain(self, filename):
+        self.domain_filename = filename
 
-    # def _add_alias(self, alias: Alias):
-    #     sig = alias.pattern.signature
-    #     if sig in self.aliases:
-    #         raise ValueError("Duplicate alias {}".format(alias))
-    #     if sig in self.predicates:
-    #         raise ValueError("Alias {} is also a predicate".format(alias))
-    #     self.aliases[sig] = alias
+        with open(filename) as f:
+            self.domain = f.read()
 
-    # def _add_rule(self, rule: Rule):
-    #     if rule.name in self.rules:
-    #         raise ValueError("Duplicate rule {}".format(rule))
-    #     self.rules[rule.name] = rule
+    def import_twl2(self, filename):
+        with open(filename) as f:
+            document = f.read()
 
-    # def _add_reverse_rule(self, rule_name, reverse_name):
-    #     if rule_name in self.reverse_rules:
-    #         raise ValueError("Duplicate reverse rule {}".format(rule_name))
-    #     if reverse_name in self.reverse_rules:
-    #         raise ValueError("Duplicate reverse rule {}".format(reverse_name))
-    #     self.reverse_rules[rule_name] = reverse_name
-    #     self.reverse_rules[reverse_name] = rule_name
+        actions, grammar = _parse_and_convert(document, rule_name="start2")
+        self.actions.update(actions)
+        self.grammar.update(grammar)
 
-    # def _add_constraint(self, constraint: Rule):
-    #     if constraint.name in self.constraints:
-    #         raise ValueError("Duplicate constraint {}".format(constraint))
-    #     self.constraints[constraint.name] = constraint
 
-    def _parse(self, document: str, path: Optional[str] = None):
-        model = _PARSER.parse(document, filename=path, rule_name="start2")
-        _ModelConverter().walk(model)
-        self._document += document + "\n"
+class State(textworld.logic.State):
+    """
+    The current state of a world.
+    """
 
-    # def _initialize(self):
-    #     self.aliases = {sig: self._expand_alias(alias) for sig, alias in self.aliases.items()}
+    def __init__(self, logic: GameLogic, facts: Iterable[Proposition] = None):
+        self._logic = logic
+        self._actions = {}
 
-    #     self.rules = {name: self.normalize_rule(rule) for name, rule in self.rules.items()}
-    #     self.constraints = {name: self.normalize_rule(rule) for name, rule in self.constraints.items()}
+        self._facts = defaultdict(set)
+        self._vars_by_name = {}
+        self._vars_by_type = defaultdict(set)
+        self._var_counts = Counter()
 
-    #     for name, rule in self.rules.items():
-    #         r_name = self.reverse_rules.get(name)
-    #         if r_name:
-    #             rule.reverse_rule = self.rules[r_name]
+        self.downward_lib = load_downward_lib()
+        self.downward_lib_query = load_downward_lib()
+        if facts:
+            self.add_facts(facts)
+            self._init_planner()
 
-    #     self.inform7._initialize(self)
+    def _init_planner(self, problem_filename=None):
+        with open(problem_filename) as f:
+            problem = f.read()
 
-    # def _expand_alias(self, alias):
-    #     return Alias(alias.pattern, self._expand_alias_recursive(alias.replacement, set()))
+        self.task, self.sas = pddl2sas(self._logic.domain, problem)
+        self._actions = {a.name: a for a in self.task.actions}
 
-    # def _expand_alias_recursive(self, predicates, used):
-    #     result = []
+        # Import types from fastdownward
+        for type_ in self.task.types:
+            try:
+                type_ = textworld.logic.Type(type_.name, type_.supertype_names)
+                self._logic.types.add(type_)
+            except ValueError:
+                pass
 
-    #     for pred in predicates:
-    #         sig = pred.signature
+        self.downward_lib.load_sas(self.sas.encode('utf-8'))
 
-    #         if sig in used:
-    #             raise ValueError("Cycle of aliases involving {}".format(sig))
+        import fast_downward
+        self.name2type = {o.name: o.type_name for o in self.task.objects}
+        def _atom2proposition(atom):
+            if isinstance(atom, fast_downward.translate.pddl.conditions.Atom):
+                if atom.predicate == "=":
+                    return None
 
-    #         alias = self.aliases.get(pred.signature)
-    #         if alias:
-    #             expansion = alias.expand(pred)
-    #             used.add(pred.signature)
-    #             result.extend(self._expand_alias_recursive(expansion, used))
-    #             used.remove(pred.signature)
-    #         else:
-    #             result.append(pred)
+                return Proposition(atom.predicate, [Variable(arg, self.name2type[arg]) for arg in atom.args])
 
-    #     return result
+            elif isinstance(atom, fast_downward.translate.pddl.f_expression.Assign):
+                if atom.fluent.symbol == "total-cost":
+                    return None
 
-    # def normalize_rule(self, rule: Rule) -> Rule:
-    #     pre = self._normalize_predicates(rule.preconditions)
-    #     post = self._normalize_predicates(rule.postconditions)
-    #     return Rule(rule.name, pre, post)
+                #name = "{}_{}".format(atom.fluent.symbol, atom.expression.value)
+                name = "{}".format(atom.expression.value)
+                return Proposition(name, [Variable(arg, self.name2type[arg]) for arg in atom.fluent.args])
 
-    # def _normalize_predicates(self, predicates):
-    #     result = []
-    #     for pred in predicates:
-    #         alias = self.aliases.get(pred.signature)
-    #         if alias:
-    #             result.extend(alias.expand(pred))
-    #         else:
-    #             result.append(pred)
-    #     return result
+
+        facts = [_atom2proposition(atom) for atom in self.task.init]
+        facts = list(filter(None, facts))
+
+        self.add_facts(facts)
 
     @classmethod
-    @lru_cache(maxsize=128, typed=False)
-    def parse(cls, document: str) -> "GameLogic":
-        result = cls()
-        result._parse(document)
-        # result._initialize()
-        return result
+    def from_pddl(cls, logic: GameLogic, problem_filename: str) -> "State":
+        state = cls(logic, [])
+        state._init_planner(problem_filename)
 
-    # @classmethod
-    # def load(cls, paths: Iterable[str]):
-    #     result = cls()
-    #     for path in paths:
-    #         with open(path, "r") as f:
-    #             result._parse(f.read(), path=path)
-    #     result._initialize()
-    #     return result
+        state_size = state.downward_lib.get_state_size()
+        atoms = (Atom * state_size)()
+        state.downward_lib.get_state(atoms)
+        facts = [atom.get_fact(state.name2type) for atom in atoms]
+        facts = [fact for fact in facts if not fact.is_negation]
+        state.add_facts(facts)
+        return state
 
-    # @classmethod
-    # def deserialize(cls, data: str) -> "GameLogic":
-    #     return cls.parse(data)
+    def as_pddl(self):
+        predicate = "({name} {params})"
+        problem = textwrap.dedent("""\
+        (define (problem textworld-game-1)
+            (:domain textworld)
+            (:objects {objects})
+            (:init {init})
+            (:goal
+                (and {goal}))
+        )
+        """)
 
-    # def serialize(self) -> str:
-    #     return self._document
+        def _format_proposition(fact):
+            return predicate.format(
+                name=fact.name,
+                params=" ".join(fact.names)
+            )
 
+        problem_pddl = problem.format(
+            objects=" ".join(sorted(set("{} - {}".format(arg.name, arg.type) for fact in self.facts for arg in fact.arguments))),
+            init=textwrap.indent("\n" + "\n".join(_format_proposition(fact) for fact in self.facts), "        "),
+            #goal=textwrap.indent("\n" + "\n".join(_format_proposition(fact) for fact in game.quests[0].win_events[0].condition.preconditions), "            "),
+            goal="",
+        )
+
+        problem_pddl = problem_pddl.replace("'", "2")  # hack
+        problem_pddl = problem_pddl.replace("/", "-")  # hack
+        print(problem_pddl)
+        return problem_pddl
+        # with open("/tmp/textworld/problem.pddl", "w") as f:
+        #     f.write(problem_pddl)
+
+    def predicate2pddl(self, predicate: Predicate):
+        pass
+
+    def rule2pddl(self, rule: Rule):
+        pass
+
+    def domain_as_pddl(self):
+        domain = textwrap.dedent("""\
+        (define (domain textworld)
+            (:requirements
+            :typing)
+            (:types {types})
+            (:predicates {predicates})
+
+        {actions}
+        )
+        """)
+        predicate = "({name} {params})"
+        action = textwrap.dedent("""\
+        (:action {name}
+            :parameters ({parameters})
+            :precondition
+                (and {preconditions})
+            :effect
+                (and {effects})
+        )
+        """)
+
+        def _differentiate_type(types):
+            seen = []
+            for t in types:
+                if t in seen:
+                    t = t + "2"
+                seen.append(t)
+            return seen
+
+        def _format_predicate(pred):
+            if isinstance(pred, textworld.logic.Signature):
+                return predicate.format(
+                    name=pred.name,
+                    params=" ".join("?{p} - {t}".format(p=p, t=t) for t, p in zip(pred.types, _differentiate_type(pred.types)))
+                )
+
+            return predicate.format(
+                name=pred.name,
+                params=" ".join("?{p}".format(p=n) for n in pred.names)
+            )
+
+        def _format_effects(rule):
+            text = ""
+            text += textwrap.indent("\n" + "\n".join(_format_predicate(p) for p in rule.added), "            ")
+            text += textwrap.indent("\n" + "\n".join("(not {})".format(_format_predicate(p)) for p in rule.removed), "            ")
+            return text
+
+        predicates = []
+        for pred in sorted(self._logic.predicates):
+            predicates.append(_format_predicate(pred))
+
+        actions = []
+        for k in sorted(self._logic.rules):
+            rule = self._logic.rules[k]
+            actions.append(
+                action.format(
+                    name=rule.name,
+                    parameters=" ".join("?{p} - {t}".format(p=p.name, t=p.type) for p in rule.placeholders),
+                    preconditions=textwrap.indent("\n" + "\n".join(_format_predicate(p) for p in rule.preconditions), "            "),
+                    effects=_format_effects(rule),
+                )
+            )
+
+        domain_pddl = domain.format(
+            types=textwrap.indent("\n" + "\n".join(self._logic.types._types), "        "),
+            predicates=textwrap.indent("\n" + "\n".join(predicates), "        "),
+            actions=textwrap.indent("\n".join(actions), "    "),
+        )
+        domain_pddl = domain_pddl.replace("'", "2")  # hack
+        domain_pddl = domain_pddl.replace("/", "-")  # hack
+        print(domain_pddl)
+        return domain_pddl
+        # with open("/tmp/textworld/domain.pddl", "w") as f:
+        #     f.write(domain_pddl)
+
+    def all_applicable_actions(self):
+        # print("# Count operators")
+        operator_count = self.downward_lib.get_applicable_operators_count()
+        # print("# Count operators - done")
+
+        operators = (Operator * operator_count)()
+        # print("# Getting operators")
+        self.downward_lib.get_applicable_operators(operators)
+        # print("# Getting operators - done")
+        self._operators = {op.id: op for op in operators}
+        # pprint(self._operators)
+
+        actions = []
+        for operator in operators:
+            splits = operator.name.split()
+            name, arguments = splits[0], splits[1:]
+
+            action = textworld.logic.Action(name=name, preconditions=[], postconditions=[])
+            action.id = operator.id
+            action.mapping = {Placeholder(p.name.strip("?"), p.type_name): Variable(arg, p.type_name) for p, arg in zip(self._actions[name].parameters, arguments)}
+            substitutions = {ph.name: "{{{}}}".format(var.name) for ph, var in action.mapping.items()}
+            action.command_template = self._logic.actions[name].template.format(**substitutions)
+            action.feedback_rule = self._logic.actions[name].feedback_rule
+            actions.append(action)
+
+        return actions
+
+    def apply(self, action):
+        # TODO: convert textworld.logic.Action into operator id.
+        op = self._operators[action.id]  # HACK: assume action is operator id for now.
+
+        effects = (Atom * op.nb_effect_atoms)()
+        self.downward_lib.apply_operator(op.id, effects)
+        # pprint(list(str(atom.get_fact(self.name2type)) for atom in effects))
+
+        # Update facts
+        changes = []
+        for effect in effects:
+            prop = effect.get_fact(self.name2type)
+            changes.append(prop)
+            if prop.is_negation:
+                self.remove_fact(prop.negate())
+            else:
+                self.add_fact(prop)
+
+        return changes
+
+    def print_state(self):
+        print("-= STATE =-")
+        state_size = self.downward_lib.get_state_size()
+        atoms = (Atom * state_size)()
+        self.downward_lib.get_state(atoms)
+        print("\n".join(sorted(str(atom.get_fact(self.name2type)) for atom in atoms)))
+
+    # def all_assignments(self,
+    #                     rule: Rule,
+    #                     mapping: Mapping[Placeholder, Optional[Variable]] = None,
+    #                     partial: bool = False,
+    #                     allow_partial: Callable[[Placeholder], bool] = None,
+    #                     ) -> Iterable[Mapping[Placeholder, Optional[Variable]]]:
+    # """
+    # Find all possible placeholder assignments that would allow a rule to be instantiated in this state.
+
+    # Parameters
+    # ----------
+    # rule :
+    #     The rule to instantiate.
+    # mapping : optional
+    #     An initial mapping to start from, constraining the possible instantiations.
+    # partial : optional
+    #     Whether incomplete mappings, that would require new variables or propositions, are allowed.
+    # allow_partial : optional
+    #     A callback function that returns whether a partial match may involve the given placeholder.
+
+    # Returns
+    # -------
+    # The possible mappings for instantiating the rule.  Partial mappings requiring new variables will have None in
+    # place of existing Variables.
+    # """
+    #     pass
+
+    def _query(self, rule):
+
+        with textworld.utils.make_temp_directory() as tmpdir:
+            output_filename = pjoin(tmpdir, "output.sas")
+
+            if problem_filename is None:
+                problem_filename = pjoin(tmpdir, "problem.pddl")
+                with open(problem_filename, "w") as f:
+                    f.write(self.as_pddl())
+
+            # TODO: make translate return the string instead of writing to a temp file.
+            task = translate(self._logic.domain_filename, problem_filename, output_filename)
+            self._actions = {a.name: a for a in task.actions}
+
+            with open(output_filename) as f:
+                sas = f.read()
+
+            self.downward_lib.load_sas(sas.encode('utf-8'))
+
+
+
+    def __del__(self):
+        if hasattr(self, "downward_lib"):
+            close_downward_lib(self.downward_lib)

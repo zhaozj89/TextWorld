@@ -5,9 +5,9 @@ from collections import defaultdict
 from tatsu.model import NodeWalker
 from typing import Iterable, Optional, Tuple, List, Dict
 
+from textworld.utils import check_flag
 from textworld.textgen.model import TextGrammarModelBuilderSemantics
 from textworld.textgen.parser import TextGrammarParser
-
 
 class Symbol:
     def __init__(self, symbol: str, context: Dict = {}):
@@ -19,7 +19,7 @@ class Symbol:
 
     def copy(self, context):
         copy = deepcopy(self)
-        copy.context = deepcopy(context)
+        copy.context = copy_context(context)
         return copy
 
 
@@ -46,6 +46,16 @@ def join(sep, iterable):
         yield e
 
 
+def copy_context(context):
+    return {
+        "state": context["state"],
+        "facts": context["facts"],
+        "variables": deepcopy(context["variables"]),
+        "mapping": deepcopy(context["mapping"]),
+        "entity_infos": context["entity_infos"],
+    }
+
+
 def display_list(l, context):
     if len(l) == 0:
         return [NonterminalSymbol("list_empty", context)]
@@ -53,8 +63,8 @@ def display_list(l, context):
     if len(l) == 1:
         return [l[0]]
 
-    list_separator = NonterminalSymbol("list_separator")
-    list_last_separator = NonterminalSymbol("list_last_separator")
+    list_separator = NonterminalSymbol("list_separator", context)
+    list_last_separator = NonterminalSymbol("list_last_separator", context)
     # "#list_separator#".join(l[:-1]) + "#list_last_separator#" + l[-1]
     return list(join(list_separator, l[:-1])) + [list_last_separator] + [l[-1]]
 
@@ -69,13 +79,44 @@ def query(expression, context):
 
     contexts = []
     for mapping in context["state"].all_assignments(rule, context["mapping"]):
-        context_ =  deepcopy(context)
+        context_ = copy_context(context)
         new_variables = {ph.name: context_["entity_infos"][var.name] for ph, var in mapping.items()}
         context_["variables"].update(new_variables)
         context_["mapping"].update(mapping)
         contexts.append(context_)
 
     return contexts
+
+
+
+def evaluate(expression, context):
+    from textworld.logic import Predicate, Rule, _parse_and_convert, dnf
+
+    expression = _parse_and_convert(expression, rule_name="onlyExpression")
+
+    for conjunction in dnf(expression):
+        rule = Rule(
+            name="query",
+            preconditions=list(conjunction),
+            postconditions=[],
+        )
+
+        mappings = list(context["state"].all_assignments(rule, context["mapping"]))
+        if len(mappings) > 0:
+            return True
+
+        # if len(mappings) > 1:
+        #     assert False
+
+        # if len(mappings) == 1:
+        #     mapping = mappings[0]
+        #     context_ =  copy_context(context)
+        #     new_variables = {ph.name: context_["entity_infos"][var.name] for ph, var in mapping.items()}
+        #     context_["variables"].update(new_variables)
+        #     context_["mapping"].update(mapping)
+        #     return context_
+
+    return False
 
 
 class EvalSymbol(Symbol):
@@ -143,7 +184,7 @@ class SpecialSymbol(Symbol):
         if len(self.context) == 0:
             raise ValueError("Empty context")
 
-        context = deepcopy(self.context)
+        context = copy_context(self.context)
 
         given = []
         if self.given:
@@ -199,7 +240,7 @@ class ConditionalSymbol(Symbol):
         if len(self.context) == 0:
             raise ValueError("Empty context")
 
-        context = deepcopy(self.context)
+        context = copy_context(self.context)
 
         contexts = [context]
         if self.given:
@@ -316,6 +357,10 @@ class TextGrammar:
     def __init__(self):
         self._rules = defaultdict(list)
 
+    def update(self, grammar: "TextGrammar"):
+        for k, v in grammar._rules.items():
+            self._rules[k].extend(v)
+
     @classmethod
     def parse(cls, text: str, filename: Optional[str] = None):
         data = json.loads(text)
@@ -348,8 +393,7 @@ class TextGrammar:
             if not rule.condition:
                 return True
 
-            contexts = query(rule.condition, start.context)
-            return len(contexts) != 0
+            return evaluate(rule.condition, start.context)
 
         rules = list(filter(_applicable, rules))
 
@@ -357,20 +401,21 @@ class TextGrammar:
         # TODO: deal with context
         symbols = deepcopy(rules[0].rhs)
         for symbol in symbols:
-            symbol.context = deepcopy(start.context)
+            symbol.context = copy_context(start.context)
 
         return symbols
 
     def derive(self, start: str, context={}) -> str:
-        derivation = _parse_and_convert(start, rule_name="String")
+        derivation = _parse_and_convert(start, rule_name="String", trace=check_flag("TW_CSG_TRACE"))
         derivation = derivation[::-1]  # Reverse to build a derivation stack.
 
         for symbol in derivation:
-            symbol.context = deepcopy(context)
+            symbol.context = copy_context(context)
 
         derived = []
         while len(derivation) > 0:
-            # print(derivation)  # TODO: TEXTWORLD_DEBUG_GRAMMAR
+            if check_flag("TW_CSG_DEBUG"):
+                print(derivation)
 
             symbol = derivation.pop()
             if isinstance(symbol, TerminalSymbol):

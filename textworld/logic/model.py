@@ -170,3 +170,15 @@ class ActionTypeNode(ModelBase):
 
 class Document2Node(ModelBase):
     parts = None
+
+
+class ExpressionNode(ModelBase):
+    expression = None
+
+
+class ConjunctionNode(ModelBase):
+    expressions = None
+
+
+class DisjunctionNode(ModelBase):
+    expressions = None

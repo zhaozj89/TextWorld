@@ -68,6 +68,14 @@ def build_game(kb):
     M.add_fact("closed", toilet)
     bathroom.add(toilet)
 
+    bedroom = M.new_room("bedroom")
+    livingroom = M.new_room("livingroom")
+    hallway = M.new_room("hallway")
+
+    M.connect(kitchen.east, bedroom.west)
+    M.connect(kitchen.south, livingroom.north)
+    M.connect(kitchen.west, hallway.east)
+
     game = M.build()
     return game
 

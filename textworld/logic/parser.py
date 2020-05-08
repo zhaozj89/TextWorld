@@ -98,7 +98,7 @@ class GameLogicParser(Parser):
 
     @tatsumasu()
     def _predName_(self):  # noqa
-        self._pattern('[\\w/]+')
+        self._pattern('!?[\\w/]+')
 
     @tatsumasu()
     def _ruleName_(self):  # noqa
@@ -670,6 +670,84 @@ class GameLogicParser(Parser):
     def _start2_(self):  # noqa
         self._document2_()
 
+    @tatsumasu('ExpressionNode')
+    @leftrec
+    def _expression_(self):  # noqa
+        with self._group():
+            with self._choice():
+                with self._option():
+                    self._conjunction_()
+                with self._option():
+                    self._disjunction_()
+                with self._option():
+                    self._predicate_()
+                self._error('no available options')
+        self.name_last_node('expression')
+        self.ast._define(
+            ['expression'],
+            []
+        )
+
+    @tatsumasu('ConjunctionNode')
+    @nomemo
+    def _conjunction_(self):  # noqa
+        with self._choice():
+            with self._option():
+                self._token('(')
+
+                def sep1():
+                    self._token('&')
+
+                def block1():
+                    self._expression_()
+                self._positive_gather(block1, sep1)
+                self.name_last_node('expressions')
+                self._token(')')
+            with self._option():
+
+                def sep3():
+                    self._token('&')
+
+                def block3():
+                    self._expression_()
+                self._positive_gather(block3, sep3)
+                self.name_last_node('expressions')
+            self._error('no available options')
+        self.ast._define(
+            ['expressions'],
+            []
+        )
+
+    @tatsumasu('DisjunctionNode')
+    @nomemo
+    def _disjunction_(self):  # noqa
+        with self._choice():
+            with self._option():
+                self._token('(')
+
+                def sep1():
+                    self._token('|')
+
+                def block1():
+                    self._expression_()
+                self._positive_gather(block1, sep1)
+                self.name_last_node('expressions')
+                self._token(')')
+            with self._option():
+
+                def sep3():
+                    self._token('|')
+
+                def block3():
+                    self._expression_()
+                self._positive_gather(block3, sep3)
+                self.name_last_node('expressions')
+            self._error('no available options')
+        self.ast._define(
+            ['expressions'],
+            []
+        )
+
     @tatsumasu()
     def _onlyVariable_(self):  # noqa
         self._variable_()
@@ -709,6 +787,12 @@ class GameLogicParser(Parser):
     @tatsumasu()
     def _onlyRule_(self):  # noqa
         self._rule_()
+        self.name_last_node('@')
+        self._check_eof()
+
+    @tatsumasu()
+    def _onlyExpression_(self):  # noqa
+        self._expression_()
         self.name_last_node('@')
         self._check_eof()
 
@@ -849,6 +933,15 @@ class GameLogicSemantics(object):
     def start2(self, ast):  # noqa
         return ast
 
+    def expression(self, ast):  # noqa
+        return ast
+
+    def conjunction(self, ast):  # noqa
+        return ast
+
+    def disjunction(self, ast):  # noqa
+        return ast
+
     def onlyVariable(self, ast):  # noqa
         return ast
 
@@ -868,6 +961,9 @@ class GameLogicSemantics(object):
         return ast
 
     def onlyRule(self, ast):  # noqa
+        return ast
+
+    def onlyExpression(self, ast):  # noqa
         return ast
 
 

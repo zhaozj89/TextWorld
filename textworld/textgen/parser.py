@@ -82,7 +82,7 @@ class TextGrammarParser(Parser):
 
     @tatsumasu()
     def _tag_(self):  # noqa
-        self._pattern('[\\w()/!<>-\\s,.]+')
+        self._pattern('[\\w()/!<>\\-\\s,.]+')
 
     @tatsumasu()
     def _given_(self):  # noqa
@@ -98,7 +98,7 @@ class TextGrammarParser(Parser):
 
     @tatsumasu()
     def _Literal_(self):  # noqa
-        self._pattern('(([^;|"<>\\n\\[\\]()#{}]|\\([^()]*\\))+)?')
+        self._pattern('(([^;|"<>\\[\\]()#{}]|\\([^()]*\\))+)?')
 
     @tatsumasu('Literal')
     def _literalAlternative_(self):  # noqa

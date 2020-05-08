@@ -11,7 +11,7 @@ name = ?"[\w/-]+" ;
 
 phName = ?"[\w']+" ;
 
-predName = ?"[\w/]+" ;
+predName = ?"!?[\w/]+" ;
 
 ruleName = ?"[\w/]+" ;
 
@@ -112,6 +112,13 @@ document2::Document2Node = parts:{(actionType | text)}* $ ;
 start2 = document2 ;
 
 
+expression::ExpressionNode = expression:(conjunction | disjunction | predicate) ;
+
+conjunction::ConjunctionNode = "(" expressions:"&".{expression}+ ")" | expressions:"&".{expression}+ ;
+
+disjunction::DisjunctionNode = "(" expressions:"|".{expression}+ ")" | expressions:"|".{expression}+;
+
+
 onlyVariable = @:variable $ ;
 onlySignature = @:signature $ ;
 onlyProposition = @:proposition $ ;
@@ -119,3 +126,4 @@ onlyPlaceholder = @:placeholder $ ;
 onlyPredicate = @:predicate $ ;
 onlyAction = @:action $ ;
 onlyRule = @:rule $ ;
+onlyExpression = @:expression $ ;

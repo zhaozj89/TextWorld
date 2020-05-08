@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation. All rights reserved.
 # Licensed under the MIT license.
 
-
+import itertools
 from collections import Counter, defaultdict, deque
 from functools import total_ordering, lru_cache
 from tatsu.model import NodeWalker
@@ -130,7 +130,11 @@ class _ModelConverter(NodeWalker):
         return self._walk_variable_ish(node, Placeholder)
 
     def walk_PredicateNode(self, node):
-        return Predicate(node.name, self.walk(node.parameters))
+        pred = Predicate(node.name.lstrip("!"), self.walk(node.parameters))
+        if node.name.startswith("!"):
+            return pred.negate()
+
+        return pred
 
     def walk_RuleNode(self, node):
         return self._walk_action_ish(node, Rule)
@@ -199,6 +203,63 @@ class _ModelConverter(NodeWalker):
 
     def walk_DocumentNode(self, node):
         self.walk(node.types)
+
+    def walk_ExpressionNode(self, node):
+        return self.walk(node.expression)
+
+    def walk_ConjunctionNode(self, node):
+        return And(self.walk(node.expressions))
+
+    def walk_DisjunctionNode(self, node):
+        return Or(self.walk(node.expressions))
+
+
+class Or(frozenset):
+
+    def __str__(self):
+        return self.display()
+
+    def display(self, indent=""):
+        return "(or " + "\n" + "\n".join(indent + "  " + (str(e) if isinstance(e, Predicate) else e.display(indent + "  ")) for e in self) + ")"
+
+
+class And(frozenset):
+
+    def __str__(self):
+        return self.display()
+
+    def display(self, indent=""):
+        return "(and " + "\n" + "\n".join(indent + "  " + (str(e) if isinstance(e, Predicate) else e.display(indent + "  ")) for e in self) + ")"
+
+
+def dnf(expr):
+    """Normalize a boolean expression to its DNF.
+
+    Expr can be an element, it this case it returns Or({And({element})}).
+    Expr can be an Or(...) / And(...) expressions, in which cases it returns also a disjunctive normalised form (removing identical elements)
+
+    assert dnf(And((Or((4, 5, 1)), Or((1, 2)), 7, 7))) == Or(
+        (
+            And((2, 5, 7)),
+            And((1, 5, 7)),
+            And((1, 2, 7)),
+            And((1, 7)),
+            And((2, 4, 7)),
+            And((1, 4, 7)),
+        )
+    )
+    """
+
+    if not isinstance(expr, (Or, And)):
+        result = Or((And((expr,)),))
+    elif isinstance(expr, Or):
+        result = Or(se for e in expr for se in dnf(e))
+    elif isinstance(expr, And):
+        total = []
+        for c in itertools.product(*[dnf(e) for e in expr]):
+            total.append(And(se for e in c for se in e))
+        result = Or(total)
+    return result
 
 
 _PARSER = GameLogicParser(semantics=GameLogicModelBuilderSemantics(), parseinfo=True)
@@ -1552,9 +1613,8 @@ class State:
         facts : optional
             The facts that will be true in this state.
         """
-
-        if not isinstance(logic, GameLogic):
-            raise ValueError("Expected a GameLogic, found {}".format(type(logic)))
+        # if not isinstance(logic, GameLogic):
+        #     raise ValueError("Expected a GameLogic, found {}".format(type(logic)))
         self._logic = logic
 
         self._facts = defaultdict(set)
