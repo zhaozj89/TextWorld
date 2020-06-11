@@ -594,8 +594,8 @@ class GameLogicParser(Parser):
             []
         )
 
-    @tatsumasu('ActionTextNode')
-    def _text_(self):  # noqa
+    @tatsumasu('ActionGrammarNode')
+    def _grammar_(self):  # noqa
         self._token('grammar')
         self._token('::')
         self._strBlock_()
@@ -614,7 +614,7 @@ class GameLogicParser(Parser):
             with self._option():
                 self._pddl_()
             with self._option():
-                self._text_()
+                self._grammar_()
             self._error('no available options')
 
     @tatsumasu('ActionTypeNode')
@@ -637,13 +637,13 @@ class GameLogicParser(Parser):
                         self._pddl_()
                         self.name_last_node('pddl')
                     with self._option():
-                        self._text_()
-                        self.name_last_node('text')
+                        self._grammar_()
+                        self.name_last_node('grammar')
                     self._error('no available options')
         self._closure(block1)
         self._token('}')
         self.ast._define(
-            ['feedback', 'name', 'pddl', 'template', 'text'],
+            ['feedback', 'grammar', 'name', 'pddl', 'template'],
             []
         )
 
@@ -656,7 +656,7 @@ class GameLogicParser(Parser):
                     with self._option():
                         self._actionType_()
                     with self._option():
-                        self._text_()
+                        self._grammar_()
                     self._error('no available options')
         self._closure(block1)
         self.name_last_node('parts')
@@ -918,7 +918,7 @@ class GameLogicSemantics(object):
     def pddl(self, ast):  # noqa
         return ast
 
-    def text(self, ast):  # noqa
+    def grammar(self, ast):  # noqa
         return ast
 
     def actionTypePart(self, ast):  # noqa

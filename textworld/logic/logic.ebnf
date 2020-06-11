@@ -99,15 +99,15 @@ feedback::ActionFeedbackNode = "feedback" "::" name:str ";" ;
 
 pddl::ActionPddlNode = "pddl" "::" code:strBlock ";" ;
 
-text::ActionTextNode = "grammar" "::" code:strBlock ";" ;
+grammar::ActionGrammarNode = "grammar" "::" code:strBlock ";" ;
 
-actionTypePart = template | pddl | text;
+actionTypePart = template | pddl | grammar;
 
 (* actionType::ActionTypeNode = "action" name:name "{" parts:{actionType}* "}" ; *)
 
-actionType::ActionTypeNode = "action" name:name "{" {(template:template | feedback:feedback | pddl:pddl | text:text)}* "}" ;
+actionType::ActionTypeNode = "action" name:name "{" {(template:template | feedback:feedback | pddl:pddl | grammar:grammar)}* "}" ;
 
-document2::Document2Node = parts:{(actionType | text)}* $ ;
+document2::Document2Node = parts:{(actionType | grammar)}* $ ;
 
 start2 = document2 ;
 

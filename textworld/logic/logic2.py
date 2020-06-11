@@ -10,8 +10,9 @@ from typing import Callable, Dict, Iterable, List, Mapping, Optional, Set, Seque
 
 from tatsu.model import NodeWalker
 
-from fast_downward.interface import load_downward_lib, pddl2sas, close_downward_lib
-from fast_downward.interface import Atom, Operator
+import fast_downward
+from fast_downward import Operator
+#from fast_downward import load_lib, close_lib, pddl2sas
 
 import textworld.logic.model
 from textworld.logic.model import GameLogicModelBuilderSemantics
@@ -49,7 +50,7 @@ class _ModelConverter(NodeWalker):
             template=self._unescape(node.template.template),
             feedback_rule=self._unescape(node.feedback.name),
             pddl=self._unescape_block(node.pddl.code) if node.pddl else "",
-            text=self._unescape_block(node.text.code) if node.text else "{}"
+            grammar=self._unescape_block(node.grammar.code) if node.grammar else "{}"
         )
 
         return action
@@ -61,8 +62,9 @@ class _ModelConverter(NodeWalker):
             if isinstance(part, textworld.logic.model.ActionTypeNode):
                 action = self.walk(part)
                 actions[action.name.lower()] = action
-                grammar.update(json.loads(action.text))
-            elif isinstance(part, textworld.logic.model.ActionTextNode):
+                grammar_data = "\n".join(line for line in action.grammar.split("\n") if not line.lstrip().startswith("#"))
+                grammar.update(json.loads(grammar_data))
+            elif isinstance(part, textworld.logic.model.ActionGrammarNode):
                 grammar.update(json.loads(self._unescape_block(part.code)))
 
         grammar = TextGrammar.parse(json.dumps(grammar))
@@ -76,14 +78,61 @@ def _parse_and_convert(*args, **kwargs):
     model = _PARSER.parse(*args, **kwargs)
     return _ModelConverter().walk(model)
 
+def get_var_name(value):
+    if value.lower() in ("i", "p"):
+        return value.upper()
+
+    return value
+
+
+def get_var_type(value):
+    if value.lower() in ("i", "p"):
+        return value.upper()
+
+    return value[0]
+
+
+class Atom(fast_downward.Atom):
+    """
+    An Atom object contains the following fields:
+
+    :param num: Operator ID
+    :type num: int
+    :param name: Operator name
+    :type name: string
+
+    ..warning this class must reflect the C struct in interface.cc.
+
+    """
+    @property
+    def as_fact(self) -> Proposition:
+        atom_type, rest = self.name.split(" ", 1)
+        name, args = rest.split("(", 1)
+        args = args[:-1].split(", ")
+        arguments = [Variable(get_var_name(arg), get_var_type(arg)) for arg in args if arg]
+        if atom_type == "NegatedAtom":
+            name = "not_" + name
+
+        return Proposition(name, arguments)
+
+    def get_fact(self, name2type={}) -> Proposition:
+        atom_type, rest = self.name.split(" ", 1)
+        name, args = rest.split("(", 1)
+        args = args[:-1].split(", ")
+        arguments = [Variable(get_var_name(arg), name2type[arg]) for arg in args if arg]
+        if atom_type == "NegatedAtom":
+            name = "not_" + name
+
+        return Proposition(name, arguments)
+
 
 class Action:
-    def __init__(self, name, template, pddl, text, feedback_rule):
+    def __init__(self, name, template, pddl, grammar, feedback_rule):
        self.name = name
        self.feedback_rule = feedback_rule
        self.template = template
        self.pddl = pddl
-       self.text = text
+       self.grammar = grammar
 
 
 class GameLogic:
@@ -128,8 +177,7 @@ class State(textworld.logic.State):
         self._vars_by_type = defaultdict(set)
         self._var_counts = Counter()
 
-        self.downward_lib = load_downward_lib()
-        self.downward_lib_query = load_downward_lib()
+        self.downward_lib = fast_downward.load_lib()
         if facts:
             self.add_facts(facts)
             self._init_planner()
@@ -138,7 +186,7 @@ class State(textworld.logic.State):
         with open(problem_filename) as f:
             problem = f.read()
 
-        self.task, self.sas = pddl2sas(self._logic.domain, problem)
+        self.task, self.sas = fast_downward.pddl2sas(self._logic.domain, problem)
         self._actions = {a.name: a for a in self.task.actions}
 
         # Import types from fastdownward
@@ -151,7 +199,6 @@ class State(textworld.logic.State):
 
         self.downward_lib.load_sas(self.sas.encode('utf-8'))
 
-        import fast_downward
         self.name2type = {o.name: o.type_name for o in self.task.objects}
         def _atom2proposition(atom):
             if isinstance(atom, fast_downward.translate.pddl.conditions.Atom):
@@ -166,13 +213,25 @@ class State(textworld.logic.State):
 
                 #name = "{}_{}".format(atom.fluent.symbol, atom.expression.value)
                 name = "{}".format(atom.expression.value)
+
+                if str.isdigit(name):  # Discard distance relations.
+                    return None
+
                 return Proposition(name, [Variable(arg, self.name2type[arg]) for arg in atom.fluent.args])
 
 
         facts = [_atom2proposition(atom) for atom in self.task.init]
         facts = list(filter(None, facts))
-
         self.add_facts(facts)
+
+        state_size = self.downward_lib.get_state_size()
+        atoms = (Atom * state_size)()
+        self.downward_lib.get_state(atoms)
+        for atom in atoms:
+            fact = atom.get_fact(self.name2type)
+            if fact.is_negation:
+                self.add_fact(fact)
+
 
     @classmethod
     def from_pddl(cls, logic: GameLogic, problem_filename: str) -> "State":
@@ -314,15 +373,20 @@ class State(textworld.logic.State):
         # pprint(self._operators)
 
         actions = []
+        seen_operators = set()
         for operator in operators:
+            if operator.name in seen_operators:
+                continue
+
+            seen_operators.add(operator.name)
+
             splits = operator.name.split()
             name, arguments = splits[0], splits[1:]
 
             action = textworld.logic.Action(name=name, preconditions=[], postconditions=[])
             action.id = operator.id
             action.mapping = {Placeholder(p.name.strip("?"), p.type_name): Variable(arg, p.type_name) for p, arg in zip(self._actions[name].parameters, arguments)}
-            substitutions = {ph.name: "{{{}}}".format(var.name) for ph, var in action.mapping.items()}
-            action.command_template = self._logic.actions[name].template.format(**substitutions)
+            action.command_template = self._logic.actions[name].template#.format(**substitutions)
             action.feedback_rule = self._logic.actions[name].feedback_rule
             actions.append(action)
 
@@ -341,10 +405,8 @@ class State(textworld.logic.State):
         for effect in effects:
             prop = effect.get_fact(self.name2type)
             changes.append(prop)
-            if prop.is_negation:
-                self.remove_fact(prop.negate())
-            else:
-                self.add_fact(prop)
+            self.remove_fact(prop.negate())
+            self.add_fact(prop)
 
         return changes
 
@@ -401,8 +463,6 @@ class State(textworld.logic.State):
 
             self.downward_lib.load_sas(sas.encode('utf-8'))
 
-
-
     def __del__(self):
         if hasattr(self, "downward_lib"):
-            close_downward_lib(self.downward_lib)
+            fast_downward.close_lib(self.downward_lib)

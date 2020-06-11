@@ -15,7 +15,7 @@ class Symbol:
         self.context = context
 
     def __str__(self):
-        return self.symbol
+        return str(self.symbol)
 
     def copy(self, context):
         copy = deepcopy(self)
@@ -152,18 +152,18 @@ class ListSymbol(Symbol):
         return display_list(derivation, context)
 
 
-class PythonSymbol(Symbol):
-    def __init__(self, expression: str, context: Dict = {}):
-        super().__init__(expression, context)
-        self.expression = expression
+# class PythonSymbol(Symbol):
+#     def __init__(self, expression: str, context: Dict = {}):
+#         super().__init__(expression, context)
+#         self.expression = expression
 
-    def derive(self, context=None):
-        context = context or self.context
-        res = eval(self.expression)
-        if isinstance(res, list):
-            return res
+#     def derive(self, context=None):
+#         context = context or self.context
+#         res = eval(self.expression)
+#         if isinstance(res, list):
+#             return res
 
-        return [res]
+#         return [res]
 
 
 class SpecialSymbol(Symbol):
@@ -271,23 +271,6 @@ class ProductionRule:
         return "ProductionRule(lhs={!r}, rhs={!r}, weight={!r}, condition={!r})".format(self.lhs, self.rhs, self.weight, self.condition)
 
 
-# class Postprocess:
-#     # TODO: re-think this
-
-#     def __init__(self, placeholder):
-#         self.placeholder = placeholder
-
-#     def apply(self, text):
-#         splits = text.split(self.placeholder)
-
-#         res = ""
-#         for prefix, suffix in zip(splits[:-1], splits[1:]):
-#             res += prefix
-
-#         res += suffix
-
-
-
 class _Converter(NodeWalker):
 
     def __init__(self, grammar = None):
@@ -311,8 +294,8 @@ class _Converter(NodeWalker):
     def walk_SpecialSymbol(self, node):
         return self.walk(node.statement)
 
-    def walk_PythonSymbol(self, node):
-        return PythonSymbol(node.statement)
+    # def walk_PythonSymbol(self, node):
+    #     return PythonSymbol(node.statement)
 
     def walk_EvalSymbol(self, node):
         return EvalSymbol(node.statement)
@@ -430,5 +413,4 @@ class TextGrammar:
             else:
                 raise NotImplementedError("Unknown symbol: {}".format(type(symbol)))
 
-        # TODO: use empty-string separator (needs to fix the ebnf to not ignore spaces, first).
         return "".join(map(str, derived))

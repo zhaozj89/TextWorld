@@ -8,11 +8,11 @@ tag = ?"[\w()/!<>\-\s,.]+" ;
 
 given = ?"([^;|{}\n\[\]#])+" ;
 
-expression = ?"([^;|{}\[\]\n])+" ;
+(* expression = ?"([^;|{}\[\]\n])+" ; *)
 
-statement = ?"([^;|\[\]{}\n<>])+" ;
+statement = ?"([^|\[\]{}\n<>])+" ;
 
-Literal = ?'(([^;|"<>\[\]()#{}]|\([^()]*\))+)?' ;
+Literal = ?'([^;|"<>\[\]#{}]+)?' ;
 
 literalAlternative::Literal = value:Literal ;
 
@@ -36,7 +36,9 @@ listSymbol::ListSymbol = "[" symbol:specialSymbol "]" ;
 
 pythonSymbol::PythonSymbol = "<" statement:statement ">" ;
 
-Symbol = listSymbol | pythonSymbol | specialSymbol | nonterminalSymbol | TerminalSymbol;
+(* Symbol = listSymbol | pythonSymbol | specialSymbol | nonterminalSymbol | TerminalSymbol; *)
+
+Symbol = listSymbol | specialSymbol | nonterminalSymbol | TerminalSymbol;
 
 adjectiveNoun::AdjectiveNoun = adjective:Literal "|" noun:Literal ;
 

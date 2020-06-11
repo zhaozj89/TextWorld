@@ -81,7 +81,23 @@ class TextWorldEnv(textworld.Environment):
         self.state["_valid_actions"] = self._game_progression.valid_actions
 
         mapping = {k: info.name for k, info in self._game.infos.items()}
-        self.state["_valid_commands"] = [a.format_command(mapping) for a in self._game_progression.valid_actions]
+        self.state["_valid_commands"] = []
+        for action in self._game_progression.valid_actions:
+
+            context = {
+                "state": self._game_progression.state,
+                "facts": list(self._game_progression.state.facts),
+                "variables": {ph.name: self._game.infos[var.name] for ph, var in action.mapping.items()},
+                "mapping": action.mapping,
+                "entity_infos": self._game.infos,
+            }
+            backup = action.command_template
+            action.command_template = self._game.state._logic.grammar.derive(action.command_template, context)
+            #print(action.command_template)
+            self.state["_valid_commands"].append(action.format_command(mapping))
+
+        # self.state["_valid_commands"] = [a.format_command(mapping) for a in self._game_progression.valid_actions]
+
         # To guarantee the order from one execution to another, we sort the commands.
         # Remove any potential duplicate commands (they would lead to the same result anyway).
         self.state["admissible_commands"] = sorted(set(self.state["_valid_commands"]))

@@ -156,16 +156,16 @@ class ActionPddlNode(ModelBase):
     code = None
 
 
-class ActionTextNode(ModelBase):
+class ActionGrammarNode(ModelBase):
     code = None
 
 
 class ActionTypeNode(ModelBase):
     feedback = None
+    grammar = None
     name = None
     pddl = None
     template = None
-    text = None
 
 
 class Document2Node(ModelBase):

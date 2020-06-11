@@ -89,16 +89,12 @@ class TextGrammarParser(Parser):
         self._pattern('([^;|{}\\n\\[\\]#])+')
 
     @tatsumasu()
-    def _expression_(self):  # noqa
-        self._pattern('([^;|{}\\[\\]\\n])+')
-
-    @tatsumasu()
     def _statement_(self):  # noqa
-        self._pattern('([^;|\\[\\]{}\\n<>])+')
+        self._pattern('([^|\\[\\]{}\\n<>])+')
 
     @tatsumasu()
     def _Literal_(self):  # noqa
-        self._pattern('(([^;|"<>\\[\\]()#{}]|\\([^()]*\\))+)?')
+        self._pattern('([^;|"<>\\[\\]#{}]+)?')
 
     @tatsumasu('Literal')
     def _literalAlternative_(self):  # noqa
@@ -204,8 +200,6 @@ class TextGrammarParser(Parser):
         with self._choice():
             with self._option():
                 self._listSymbol_()
-            with self._option():
-                self._pythonSymbol_()
             with self._option():
                 self._specialSymbol_()
             with self._option():
@@ -317,9 +311,6 @@ class TextGrammarSemantics(object):
         return ast
 
     def given(self, ast):  # noqa
-        return ast
-
-    def expression(self, ast):  # noqa
         return ast
 
     def statement(self, ast):  # noqa
