@@ -12,6 +12,7 @@ from textworld.generator.game import Game, GameOptions
 from textworld.envs import GitGlulxEnv
 from textworld.envs import JerichoEnv
 from textworld.envs import TWInform7
+from textworld.envs import PddlEnv
 
 from textworld.agents import HumanAgent
 
@@ -30,6 +31,7 @@ def start(path: str, infos: Optional[EnvInfos] = None,
             :py:class:`textworld.EnvInfos <textworld.core.EnvInfos>`
             for the list of available information).
         wrappers: List of wrappers to apply to the environment.
+        kwargs: Extra arguments for `env.load`.
 
     Returns:
         TextWorld environment running the provided game.
@@ -45,6 +47,8 @@ def start(path: str, infos: Optional[EnvInfos] = None,
         env = GitGlulxEnv(infos)
     elif re.search(r"\.z[1-8]", path):
         env = JerichoEnv(infos)
+    elif path.endswith(".tw-pddl"):
+        env = PddlEnv(infos)
     else:
         msg = "Unsupported game format: {}".format(path)
         raise ValueError(msg)
