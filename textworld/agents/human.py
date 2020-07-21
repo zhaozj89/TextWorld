@@ -36,12 +36,6 @@ class HumanAgent(Agent):
         # Commands typed by the player are already displayed.
         env.display_command_during_render = False
 
-        if self.autocompletion:
-            env.infos.admissible_commands = True
-
-        if self.walkthrough:
-            env.infos.policy_commands = True
-
     def act(self, game_state, reward, done):
         if (self.walkthrough and game_state.intermediate_reward and len(game_state.policy_commands) > 0 and not done):
             text = '[{score:02.1%}|({intermediate_score}): {policy}]\n'.format(
@@ -53,14 +47,14 @@ class HumanAgent(Agent):
 
         if prompt_toolkit_available:
             actions_completer = None
-            if self.autocompletion and game_state.admissible_commands:
-                actions_completer = WordCompleter(game_state.admissible_commands,
+            if self.autocompletion and game_state['admissible_commands']:
+                actions_completer = WordCompleter(game_state['admissible_commands'],
                                                   ignore_case=True, sentence=True)
             action = prompt('> ', completer=actions_completer,
                             history=self._history, enable_history_search=True)
         else:
-            if self.autocompletion and game_state.admissible_commands:
-                print("Available actions: {}\n".format(game_state.admissible_commands))
+            if self.autocompletion and game_state['admissible_commands']:
+                print("Available actions: {}\n".format(game_state['admissible_commands']))
 
             action = input('> ')
 
