@@ -20,5 +20,6 @@ class GenericEnvironment(Wrapper):
         backend = textworld.envs._guess_backend(gamefile)
         if self._last_backend != backend:
             self._wrap(textworld.start(gamefile, self.infos))
+            self._last_backend = backend
         else:
             self._wrapped_env.load(gamefile)
