@@ -3,16 +3,13 @@
 
 
 import os
-import re
 from typing import Optional, Tuple, List
 
 from textworld.core import EnvInfos, Environment, Agent
 from textworld.generator.game import Game, GameOptions
 
-from textworld.envs import GitGlulxEnv
-from textworld.envs import JerichoEnv
+import textworld.envs
 from textworld.envs import TWInform7
-from textworld.envs import PddlEnv
 
 from textworld.agents import HumanAgent
 
@@ -43,15 +40,8 @@ def start(path: str, infos: Optional[EnvInfos] = None,
         raise IOError(msg)
 
     # Guess the backend from the extension.
-    if path.endswith(".ulx"):
-        env = GitGlulxEnv(infos)
-    elif re.search(r"\.z[1-8]", path):
-        env = JerichoEnv(infos)
-    elif path.endswith(".tw-pddl"):
-        env = PddlEnv(infos)
-    else:
-        msg = "Unsupported game format: {}".format(path)
-        raise ValueError(msg)
+    Env = textworld.envs._guess_backend(path)
+    env = Env(infos)
 
     if TWInform7.compatible(path):
         wrappers = [TWInform7] + list(wrappers)
