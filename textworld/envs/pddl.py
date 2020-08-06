@@ -62,6 +62,7 @@ class PddlEnv(textworld.Environment):
         self.state["_game_progression"] = self._game_progression
         self.state["_facts"] = list(self._game_progression.state.facts)
 
+        self.state["pddl_state"] = self._game_progression.state.as_pddl()
         self.state["won"] = self._game_progression.state.check_goal()
         self.state["lost"] = False  # Can an ALFRED game be lost?
 
