@@ -314,6 +314,12 @@ class State(textworld.logic.State):
         problem_pddl = problem_pddl.replace("/", "-")  # hack
         return problem_pddl
 
+    def replan(self):
+        current_pddl = self.as_pddl()
+        domain_pddl = self._logic.domain
+        task, sas = fast_downward.pddl2sas(domain_pddl, current_pddl, verbose=check_flag("TW_PDDL_DEBUG"))
+
+
     def print_state(self):
         print("-= STATE =-")
         state_size = self.downward_lib.get_state_size()
