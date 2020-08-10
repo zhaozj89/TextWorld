@@ -171,7 +171,7 @@ class State(textworld.logic.State):
     The current state of a game.
     """
 
-    def __init__(self, downward_lib, pddl_problem: str, logic: GameLogic, facts: Iterable[Proposition] = None):
+    def __init__(self, downward_lib, downward_lib_replan, pddl_problem: str, logic: GameLogic, facts: Iterable[Proposition] = None):
         """
         Arguments:
             downward_lib:
@@ -184,6 +184,7 @@ class State(textworld.logic.State):
 
         self._logic = logic
         self.downward_lib = downward_lib
+        self.downward_lib_replan = downward_lib_replan
 
         # problem
         self.pddl_problem = pddl_problem
@@ -319,12 +320,17 @@ class State(textworld.logic.State):
     def replan(self, infos):
         current_pddl = self.as_pddl().replace("domain textworld", "domain alfred")
         domain_pddl = self._logic.domain.lower()
-        plan = fast_downward.solve_pddl(domain_pddl, current_pddl)
-        if plan:
-            templated_actions = self.plan_to_templated_actions(plan, infos)
-            return templated_actions
-        else:
+        _, sas = fast_downward.pddl2sas(domain_pddl, current_pddl, verbose=check_flag("TW_PDDL_DEBUG"))
+
+        self.downward_lib_replan.load_sas(sas.encode('utf-8'))
+        if not self.downward_lib_replan.solve(check_flag("TW_PDDL_DEBUG")):
             return []
+
+        operators = (Operator * self.downward_lib_replan.get_last_plan_length())()
+        self.downward_lib_replan.get_last_plan(operators)
+        plan = [op.name for op in operators]
+        templated_actions = self.plan_to_templated_actions(plan, infos)
+        return templated_actions
 
     def plan_to_templated_actions(self, plan, infos):
         templated_actions = []
