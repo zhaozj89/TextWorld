@@ -36,7 +36,6 @@ class PddlEnv(textworld.Environment):
         """
         super().__init__(infos)
         self.downward_lib = fast_downward.load_lib()
-        self.downward_lib_replan = fast_downward.load_lib()
 
     def load(self, filename_or_data: Union[str, Mapping]) -> None:
         try:
@@ -45,7 +44,7 @@ class PddlEnv(textworld.Environment):
             data = filename_or_data
 
         self._logic = GameLogic(domain=data["pddl_domain"], grammar=data["grammar"])
-        self._state = State(self.downward_lib, self.downward_lib_replan, data["pddl_problem"], self._logic)
+        self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
         self._game = Game(self._state)
         self._game_progression = None
 
