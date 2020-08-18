@@ -147,6 +147,10 @@ class PddlEnv(textworld.Environment):
         self.state.feedback = self._game.state._logic.grammar.derive("#intro#", context)
         self.state.raw = self.state.feedback
         self._gather_infos()
+
+        if "walkthrough" in self.infos.extras:
+            self.state["extra.walkthrough"] = self._game_progression.state.replan(self._game.infos)
+
         return self.state
 
     def step(self, command: str):

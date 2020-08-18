@@ -26,7 +26,6 @@ class EnvInfos:
                  'score', 'moves', 'max_score', 'objective',
                  'entities', 'verbs', 'command_templates',
                  'admissible_commands', 'intermediate_reward',
-                #  'pddl_state',
                  'expert_plan',
                  'policy_commands',
                  'extras']
