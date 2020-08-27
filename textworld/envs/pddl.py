@@ -20,6 +20,11 @@ from textworld.core import EnvInfos, GameState
 from textworld.generator.game2 import Game, GameProgression
 from textworld.logic.pddl_logic import GameLogic, State
 
+import os
+import sys
+sys.path.append(os.environ["ALFRED_ROOT"])
+from models.expert import HandCodedAgent
+
 import fast_downward
 
 
@@ -36,17 +41,21 @@ class PddlEnv(textworld.Environment):
         """
         super().__init__(infos)
         self.downward_lib = fast_downward.load_lib()
+        self.prev_command = ""
 
     def load(self, filename_or_data: Union[str, Mapping]) -> None:
         try:
             data = json.load(open(filename_or_data))
+            self._game_file = filename_or_data
         except TypeError:
             data = filename_or_data
+            self._game_file = None
 
         self._logic = GameLogic(domain=data["pddl_domain"], grammar=data["grammar"])
         self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
         self._game = Game(self._state)
         self._game_progression = None
+        self._handcoded_expert = HandCodedAgent(max_steps=150)
 
     def _gather_infos(self):
         self.state["game"] = self._game
@@ -56,14 +65,8 @@ class PddlEnv(textworld.Environment):
         self.state["objective"] = self._game.objective
         self.state["max_score"] = self._game.max_score
 
-        # for k, v in self._game.extras.items():
-        #     self.state["extra.{}".format(k)] = v
-
         self.state["_game_progression"] = self._game_progression
         self.state["_facts"] = list(self._game_progression.state.facts)
-
-        if self.infos.expert_plan:
-            self.state["expert_plan"] = self._game_progression.state.replan(self._game.infos)
 
         self.state["won"] = self._game_progression.state.check_goal()
         self.state["lost"] = False  # Can an ALFRED game be lost?
@@ -126,6 +129,23 @@ class PddlEnv(textworld.Environment):
         if self.infos.moves:
             self.state["moves"] = self._moves
 
+        # expert plan
+        if self.infos.expert_plan:
+            if self.infos.expert_type == "handcoded":
+                self.state["expert_plan"] = ["look"]
+                try:
+                    # initialization
+                    if not self.prev_command:
+                        self._handcoded_expert.observe(self.state["feedback"])
+                    else:
+                        handcoded_expert_next_action = self._handcoded_expert.act(self.state, 0, self.state["won"], self.prev_command)
+                        if handcoded_expert_next_action in self.state["admissible_commands"]:
+                            self.state["expert_plan"] = [handcoded_expert_next_action]
+                except:
+                    pass
+            else:
+                self.state["expert_plan"] = self._game_progression.state.replan(self._game.infos)
+
     def reset(self):
         self.prev_state = None
         self.state = GameState()
@@ -135,6 +155,8 @@ class PddlEnv(textworld.Environment):
         self._previous_winning_policy = None
         self._current_winning_policy = self._game_progression.winning_policy
         self._moves = 0
+
+        self._handcoded_expert.reset(self._game_file)
 
         context = {
             "state": self._game_progression.state,
@@ -156,6 +178,7 @@ class PddlEnv(textworld.Environment):
     def step(self, command: str):
         command = command.strip()
         self.prev_state = self.state
+        self.prev_command = str(command)
 
         self.state = GameState()
         self.state.last_command = command
