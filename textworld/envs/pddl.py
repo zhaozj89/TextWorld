@@ -23,7 +23,7 @@ from textworld.logic.pddl_logic import GameLogic, State
 import os
 import sys
 sys.path.append(os.environ["ALFRED_ROOT"])
-from models.expert import HandCodedAgent
+from models.expert import HandCodedAgent, HandCodedAgentTimeout
 
 import fast_downward
 
@@ -69,7 +69,7 @@ class PddlEnv(textworld.Environment):
         self.state["_facts"] = list(self._game_progression.state.facts)
 
         self.state["won"] = self._game_progression.state.check_goal()
-        self.state["lost"] = False  # Can an ALFRED game be lost?
+        self.state["lost"] = False  # Can an ALFRED gamebe lost?
 
         self.state["_winning_policy"] = self._current_winning_policy
         # if self.infos.policy_commands:
@@ -141,6 +141,8 @@ class PddlEnv(textworld.Environment):
                         handcoded_expert_next_action = self._handcoded_expert.act(self.state, 0, self.state["won"], self.prev_command)
                         if handcoded_expert_next_action in self.state["admissible_commands"]:
                             self.state["expert_plan"] = [handcoded_expert_next_action]
+                except HandCodedAgentTimeout:
+                    raise Exception("Timeout")
                 except:
                     pass
             else:
@@ -157,6 +159,7 @@ class PddlEnv(textworld.Environment):
         self._moves = 0
 
         self._handcoded_expert.reset(self._game_file)
+        self.prev_command = ""
 
         context = {
             "state": self._game_progression.state,
