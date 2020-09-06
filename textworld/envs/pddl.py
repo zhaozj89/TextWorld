@@ -23,7 +23,7 @@ from textworld.logic.pddl_logic import GameLogic, State
 import os
 import sys
 sys.path.append(os.environ["ALFRED_ROOT"])
-from models.expert import HandCodedAgent, HandCodedAgentTimeout
+from models.expert import HandCodedTWAgent, HandCodedAgentTimeout
 
 import fast_downward
 
@@ -52,10 +52,10 @@ class PddlEnv(textworld.Environment):
             self._game_file = None
 
         self._logic = GameLogic(domain=data["pddl_domain"], grammar=data["grammar"])
-        self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
+        self._state = State(self.downward_lib, data["pddl_problem"], self._logc)
         self._game = Game(self._state)
         self._game_progression = None
-        self._handcoded_expert = HandCodedAgent(max_steps=150)
+        self._handcoded_expert = HandCodedTWAgent(max_steps=150)
 
     def _gather_infos(self):
         self.state["game"] = self._game
