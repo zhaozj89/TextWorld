@@ -37,16 +37,46 @@ class PddlEnv(textworld.Environment):
         super().__init__(infos)
         self.downward_lib = fast_downward.load_lib()
 
+    @property
+    def _replanning(self):
+        return (
+            self.infos.intermediate_reward
+            or self.infos.policy_commands
+            or "walkthrough" in self.infos.extras
+        )
+
     def load(self, filename_or_data: Union[str, Mapping]) -> None:
         try:
             data = json.load(open(filename_or_data))
+            self._gamefile = filename_or_data
         except TypeError:
             data = filename_or_data
+            self._gamefile = None
 
         self._logic = GameLogic(domain=data["pddl_domain"], grammar=data["grammar"])
         self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
+
+        # self._walkthrough = data.get("walkthrough", [])
+        self._plan = None
+
         self._game = Game(self._state)
+        self._game.metadata["walkthrough"] = data.get("walkthrough", [])
         self._game_progression = None
+
+    def plan_to_templated_actions(self, plan):
+        # TODO: To remove since it's Alfred specific.
+        templated_actions = []
+        for step in plan:
+            components = step.name.split()
+            action = components[0]
+            action_params = [a.name.replace('?','') for a in self._game_progression.state._actions[action].parameters]
+            param_values = {str(param): self._game.infos[step.name.split()[i+1]].name
+                            for i, param in enumerate(action_params)}
+            template = self._logic.actions[action].template if action != 'gotolocation' else "go to {r}"
+            template = template.format(**param_values)
+            templated_actions.append(template)
+
+        return templated_actions
 
     def _gather_infos(self):
         self.state["game"] = self._game
@@ -56,23 +86,14 @@ class PddlEnv(textworld.Environment):
         self.state["objective"] = self._game.objective
         self.state["max_score"] = self._game.max_score
 
-        # for k, v in self._game.extras.items():
-        #     self.state["extra.{}".format(k)] = v
-
         self.state["_game_progression"] = self._game_progression
         self.state["_facts"] = list(self._game_progression.state.facts)
-
-        if self.infos.expert_plan:
-            self.state["expert_plan"] = self._game_progression.state.replan(self._game.infos)
-
         self.state["won"] = self._game_progression.state.check_goal()
-        self.state["lost"] = False  # Can an ALFRED game be lost?
+        self.state["lost"] = False  # TODO: ask Downward if there's no solution.
 
         self.state["_winning_policy"] = self._current_winning_policy
-        # if self.infos.policy_commands:
-        #     self.state["policy_commands"] = []
-        #     if self._game_progression.winning_policy is not None:
-        #         self.state["policy_commands"] = self._inform7.gen_commands_from_actions(self._current_winning_policy)
+        if self.infos.policy_commands:
+            self.state["policy_commands"] = self.plan_to_templated_actions(self.state["_winning_policy"])
 
         if self.infos.intermediate_reward:
             self.state["intermediate_reward"] = 0
@@ -112,12 +133,8 @@ class PddlEnv(textworld.Environment):
                 "mapping": action.mapping,
                 "entity_infos": self._game.infos,
             }
-            backup = action.command_template
             action.command_template = self._game.state._logic.grammar.derive(action.command_template, context)
-            #print(action.command_template)
             self.state["_valid_commands"].append(action.format_command(mapping))
-
-        # self.state["_valid_commands"] = [a.format_command(mapping) for a in self._game_progression.valid_actions]
 
         # To guarantee the order from one execution to another, we sort the commands.
         # Remove any potential duplicate commands (they would lead to the same result anyway).
@@ -128,12 +145,17 @@ class PddlEnv(textworld.Environment):
 
     def reset(self):
         self.prev_state = None
-        self.state = GameState()
-        track_quests = (self.infos.intermediate_reward or self.infos.policy_commands)
-        self._game_progression = GameProgression(self._game, track_quests=track_quests)
+        self._game_progression = GameProgression(self._game, track_quests=False)
         self._last_action = None
         self._previous_winning_policy = None
-        self._current_winning_policy = self._game_progression.winning_policy
+        self._current_winning_policy = None
+
+        if self._replanning:
+            if self._game.metadata["walkthrough"]:
+                self._previous_winning_policy = fast_downward.names2operators(self.downward_lib, self._game.metadata["walkthrough"])
+
+            self._current_winning_policy = self._game_progression.state.replan(self._previous_winning_policy)
+
         self._moves = 0
 
         context = {
@@ -147,6 +169,7 @@ class PddlEnv(textworld.Environment):
         self.state.feedback = self._game.state._logic.grammar.derive("#intro#", context)
         self.state.raw = self.state.feedback
         self._gather_infos()
+
         return self.state
 
     def step(self, command: str):
@@ -164,7 +187,9 @@ class PddlEnv(textworld.Environment):
             self._last_action = self._game_progression.valid_actions[idx]
             # An action that affects the state of the game.
             self.state.effects = self._game_progression.update(self._last_action)
-            self._current_winning_policy = self._game_progression.winning_policy
+            self._current_winning_policy = None
+            if self._replanning:
+                self._current_winning_policy = self._game_progression.state.replan(self._previous_winning_policy)
 
             context = {
                 "state": self._game_progression.state,
@@ -177,11 +202,10 @@ class PddlEnv(textworld.Environment):
             self.state.feedback = self._game.state._logic.grammar.derive(self._last_action.feedback_rule, context)
             self._moves += 1
         except ValueError:
+            # We assume nothing has happened in the game.
             # TODO: handle error messages
             self.state.effects = []
             self.state.feedback = "Nothing happens."
-            # print("Unknown command: {}".format(command))
-            pass  # We assume nothing happened in the game.
 
         self.state.raw = self.state.feedback
         self._gather_infos()
@@ -207,25 +231,3 @@ class PddlEnv(textworld.Environment):
         env._moves = self._moves
         env._game_progression = self._game_progression.copy()
         return env
-
-    def render(self, mode: str = "human") -> None:
-        outfile = StringIO() if mode in ['ansi', "text"] else sys.stdout
-
-        msg = self.state.feedback.rstrip() + "\n"
-        if self.display_command_during_render and self.state.last_command is not None:
-            msg = '> ' + self.state.last_command + "\n" + msg
-
-        # Wrap each paragraph.
-        if mode == "human":
-            paragraphs = msg.split("\n")
-            paragraphs = ["\n".join(textwrap.wrap(paragraph, width=80)) for paragraph in paragraphs]
-            msg = "\n".join(paragraphs)
-
-        outfile.write(msg + "\n")
-
-        if mode == "text":
-            outfile.seek(0)
-            return outfile.read()
-
-        if mode == 'ansi':
-            return outfile

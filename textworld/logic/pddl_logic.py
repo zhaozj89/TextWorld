@@ -1,5 +1,4 @@
 
-import re
 import json
 import textwrap
 from os.path import join as pjoin
@@ -319,44 +318,18 @@ class State(textworld.logic.State):
 
         return problem_pddl
 
-    # @profile
-    # def replan(self, infos):
-    #     current_pddl = self.as_pddl().replace("domain textworld", "domain alfred")
-    #     domain_pddl = self._logic.domain.lower()
-    #     _, sas = fast_downward.pddl2sas(domain_pddl, current_pddl, verbose=check_flag("TW_PDDL_DEBUG"), optimize=True)
+    def replan(self, plan):
+        if plan is not None:
+            new_plan = fast_downward.update_plan(self.downward_lib, plan)
+            if new_plan:
+                return new_plan
 
-    #     if not self.downward_lib.solve_sas(sas.encode('utf-8'), check_flag("TW_PDDL_DEBUG")):
-    #         return []
-
-    #     operators = (Operator * self.downward_lib.get_last_plan_length())()
-    #     self.downward_lib.get_last_plan(operators)
-    #     plan = [op.name for op in operators]
-    #     templated_actions = self.plan_to_templated_actions(plan, infos)
-    #     return templated_actions
-
-    # @profile
-    def replan(self, infos):
         if not self.downward_lib.replan(check_flag("TW_PDDL_DEBUG")):
             return []
 
         operators = (Operator * self.downward_lib.get_last_plan_length())()
         self.downward_lib.get_last_plan(operators)
-        plan = [op.name for op in operators]
-        templated_actions = self.plan_to_templated_actions(plan, infos)
-        return templated_actions
-
-    def plan_to_templated_actions(self, plan, infos):
-        templated_actions = []
-        for step in plan:
-            components = step.split()
-            action = components[0]
-            action_params = [a.name.replace('?','') for a in self._actions[action].parameters]
-            param_values = {str(param): infos[step.split()[i+1]].name
-                            for i, param in enumerate(action_params)}
-            template = self._logic.actions[action].template if action != 'gotolocation' else "go to {r}"
-            template = template.format(**param_values)
-            templated_actions.append(template)
-        return templated_actions
+        return operators
 
     def print_state(self):
         print("-= STATE =-")
