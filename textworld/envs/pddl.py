@@ -52,7 +52,7 @@ class PddlEnv(textworld.Environment):
             self._game_file = None
 
         self._logic = GameLogic(domain=data["pddl_domain"], grammar=data["grammar"])
-        self._state = State(self.downward_lib, data["pddl_problem"], self._logc)
+        self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
         self._game = Game(self._state)
         self._game_progression = None
         self._handcoded_expert = HandCodedTWAgent(max_steps=150)
