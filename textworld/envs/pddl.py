@@ -55,7 +55,7 @@ class PddlEnv(textworld.Environment):
         self._state = State(self.downward_lib, data["pddl_problem"], self._logic)
         self._game = Game(self._state)
         self._game_progression = None
-        self._handcoded_expert = HandCodedTWAgent(max_steps=150)
+        self._handcoded_expert = HandCodedTWAgent(max_steps=200)
 
     def _gather_infos(self):
         self.state["game"] = self._game
