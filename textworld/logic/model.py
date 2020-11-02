@@ -144,6 +144,10 @@ class DocumentNode(ModelBase):
     types = None
 
 
+class BootloaderNode(ModelBase):
+    code = None
+
+
 class ActionTemplateNode(ModelBase):
     template = None
 

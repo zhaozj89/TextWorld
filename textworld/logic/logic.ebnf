@@ -93,6 +93,8 @@ document::DocumentNode = types:{type}* $ ;
 start = document ;
 
 
+bootloader::BootloaderNode = "bootloader" "::" code:strBlock ";" ;
+
 template::ActionTemplateNode = "template" "::" template:str ";" ;
 
 feedback::ActionFeedbackNode = "feedback" "::" name:str ";" ;
@@ -107,7 +109,7 @@ actionTypePart = template | pddl | grammar;
 
 actionType::ActionTypeNode = "action" name:name "{" {(template:template | feedback:feedback | pddl:pddl | grammar:grammar)}* "}" ;
 
-pddlDocument::PddlDocumentNode = parts:{(actionType | grammar)}* $ ;
+pddlDocument::PddlDocumentNode = parts:{(actionType | grammar | bootloader)}* $ ;
 
 pddlStart = pddlDocument ;
 

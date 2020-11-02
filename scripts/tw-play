@@ -7,6 +7,8 @@
 import argparse
 import itertools
 
+from termcolor import colored
+
 import textworld
 import textworld.agents
 
@@ -64,8 +66,26 @@ def main():
     reward = 0
     done = False
 
+
+    debug_mode = False
+
     for _ in range(args.max_steps) if args.max_steps > 0 else itertools.count():
         command = agent.act(game_state, reward, done)
+
+        if debug_mode:
+            debug_mode = False
+            from ipdb import set_trace; set_trace()
+
+        if command == "STATE":
+            print(colored("[STATE]", "yellow"))
+            print("\n".join(sorted(map(str, game_state._facts))))
+            continue
+
+        elif command == "ipdb":
+            debug_mode = True
+            print(colored("[Dropping into debug mode on the next command.]", "red"))
+            continue
+
         game_state, reward, done = env.step(command)
 
         if args.mode == "human" or args.verbose:

@@ -53,6 +53,7 @@ def copy_context(context):
         "variables": deepcopy(context["variables"]),
         "mapping": deepcopy(context["mapping"]),
         "entity_infos": context["entity_infos"],
+        "_bootloader": context["_bootloader"],
     }
 
 
@@ -71,11 +72,15 @@ def display_list(l, context):
 
 def query(expression, context):
     from textworld.logic import Predicate, Rule
+    context_mapping = {placeholder.name: placeholder for placeholder in context["mapping"].keys()}
+
     rule = Rule(
         name="query",
         preconditions=[Predicate.parse(e.strip()) for e in expression.split("&")],
         postconditions=[],
     )
+
+    rule = rule.substitute({ph: context_mapping.get(ph.name, ph) for ph in rule.placeholders})
 
     contexts = []
     for mapping in context["state"].all_assignments(rule, context["mapping"]):
@@ -94,12 +99,16 @@ def evaluate(expression, context):
 
     expression = _parse_and_convert(expression, rule_name="onlyExpression")
 
+    context_mapping = {placeholder.name: placeholder for placeholder in context["mapping"].keys()}
+
     for conjunction in dnf(expression):
         rule = Rule(
             name="query",
             preconditions=list(conjunction),
             postconditions=[],
         )
+
+        rule = rule.substitute({ph: context_mapping.get(ph.name, ph) for ph in rule.placeholders})
 
         mappings = list(context["state"].all_assignments(rule, context["mapping"]))
         if len(mappings) > 0:
@@ -130,6 +139,7 @@ class EvalSymbol(Symbol):
     def derive(self, context=None):
         context = context or self.context
         locals().update(context["variables"])
+        locals().update(context["_bootloader"])
         res = eval(self.expression)
         if isinstance(res, list):
             assert False
@@ -150,20 +160,6 @@ class ListSymbol(Symbol):
         self.symbol.context = context
         derivation = self.symbol.derive()
         return display_list(derivation, context)
-
-
-# class PythonSymbol(Symbol):
-#     def __init__(self, expression: str, context: Dict = {}):
-#         super().__init__(expression, context)
-#         self.expression = expression
-
-#     def derive(self, context=None):
-#         context = context or self.context
-#         res = eval(self.expression)
-#         if isinstance(res, list):
-#             return res
-
-#         return [res]
 
 
 class SpecialSymbol(Symbol):
@@ -294,9 +290,6 @@ class _Converter(NodeWalker):
     def walk_SpecialSymbol(self, node):
         return self.walk(node.statement)
 
-    # def walk_PythonSymbol(self, node):
-    #     return PythonSymbol(node.statement)
-
     def walk_EvalSymbol(self, node):
         return EvalSymbol(node.statement)
 
@@ -337,8 +330,12 @@ class CSGUnknownSymbolError(Exception):
 # class ContextSensitiveGrammar:
 class TextGrammar:
 
-    def __init__(self):
+    def __init__(self, bootloader=None):
         self._rules = defaultdict(list)
+
+        self._bootloader = {}
+        if bootloader:
+            exec(bootloader, globals(), self._bootloader)
 
     def update(self, grammar: "TextGrammar"):
         for k, v in grammar._rules.items():
@@ -389,6 +386,8 @@ class TextGrammar:
         return symbols
 
     def derive(self, start: str, context={}) -> str:
+        context["_bootloader"] = self._bootloader
+
         derivation = _parse_and_convert(start, rule_name="String", trace=check_flag("TW_CSG_TRACE"))
         derivation = derivation[::-1]  # Reverse to build a derivation stack.
 

@@ -60,3 +60,9 @@ def extract_vocab_from_gamefiles(gamefiles: Iterable[str]) -> List[str]:
         vocab |= extract_vocab_from_gamefile(gamefile)
 
     return vocab
+
+
+def custom_text(context):
+    from textworld.textgen import TerminalSymbol
+
+    return TerminalSymbol("Test 1234")

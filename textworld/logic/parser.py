@@ -558,6 +558,18 @@ class GameLogicParser(Parser):
     def _start_(self):  # noqa
         self._document_()
 
+    @tatsumasu('BootloaderNode')
+    def _bootloader_(self):  # noqa
+        self._token('bootloader')
+        self._token('::')
+        self._strBlock_()
+        self.name_last_node('code')
+        self._token(';')
+        self.ast._define(
+            ['code'],
+            []
+        )
+
     @tatsumasu('ActionTemplateNode')
     def _template_(self):  # noqa
         self._token('template')
@@ -657,6 +669,8 @@ class GameLogicParser(Parser):
                         self._actionType_()
                     with self._option():
                         self._grammar_()
+                    with self._option():
+                        self._bootloader_()
                     self._error('no available options')
         self._closure(block1)
         self.name_last_node('parts')
@@ -907,6 +921,9 @@ class GameLogicSemantics(object):
         return ast
 
     def start(self, ast):  # noqa
+        return ast
+
+    def bootloader(self, ast):  # noqa
         return ast
 
     def template(self, ast):  # noqa

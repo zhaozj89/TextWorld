@@ -55,6 +55,7 @@ class _ModelConverter(NodeWalker):
     def walk_PddlDocumentNode(self, node):
         actions = {}
         grammar = {}
+        bootloader = ""
         for part in node.parts:
             if isinstance(part, textworld.logic.model.ActionTypeNode):
                 action = self.walk(part)
@@ -63,9 +64,13 @@ class _ModelConverter(NodeWalker):
                 grammar.update(json.loads(grammar_data))
             elif isinstance(part, textworld.logic.model.ActionGrammarNode):
                 grammar.update(json.loads(self._unescape_block(part.code)))
+            elif isinstance(part, textworld.logic.model.BootloaderNode):
+                bootloader += self._unescape_block(part.code) + "\n"
+            else:
+                raise NotImplementedError("Unknown logic part: {}".format(part))
 
         grammar = TextGrammar.parse(json.dumps(grammar))
-        return actions, grammar
+        return actions, grammar, bootloader
 
 
 _PARSER = GameLogicParser(semantics=GameLogicModelBuilderSemantics(), parseinfo=True)
@@ -140,14 +145,16 @@ class GameLogic:
 
     def __init__(self, domain, grammar):
         self.domain = domain
-        self.grammar = TextGrammar()
         self.actions = {}
         self.types = textworld.logic.TypeHierarchy()
+        self.bootloader = ""
 
         # Load grammar's content
-        actions, grammar = _parse_and_convert(grammar, rule_name="pddlStart")
+        actions, grammar, bootloader = _parse_and_convert(grammar, rule_name="pddlStart")
+        self.grammar = TextGrammar(bootloader)
         self.actions.update(actions)
         self.grammar.update(grammar)
+        self.bootloader = bootloader
 
     def load_domain(self, filename):
         self.domain_filename = filename
@@ -158,9 +165,10 @@ class GameLogic:
         with open(filename) as f:
             document = f.read()
 
-        actions, grammar = _parse_and_convert(document, rule_name="pddlStart")
+        actions, grammar, bootloader = _parse_and_convert(document, rule_name="pddlStart")
         self.actions.update(actions)
         self.grammar.update(grammar)
+        self.bootloader += "\n" + bootloader
 
 
 class State(textworld.logic.State):
