@@ -215,7 +215,7 @@ class PddlEnv(textworld.Environment):
 
         self.state.raw = self.state.feedback
         self._gather_infos()
-        self.state["score"] = self._game_progression.score
+        self.state["score"] = 1 if self.state["won"] else 0
         self.state["done"] = self.state["won"] or self.state["lost"]
         return self.state, self.state["score"], self.state["done"]
 
