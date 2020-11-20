@@ -1,12 +1,9 @@
 
 import json
 import textwrap
-from os.path import join as pjoin
-from pprint import pprint
 
-from collections import Counter, defaultdict, deque
-from functools import total_ordering, lru_cache
-from typing import Callable, Dict, Iterable, List, Mapping, Optional, Set, Sequence
+from collections import Counter, defaultdict
+from typing import Iterable
 
 from tatsu.model import NodeWalker
 
@@ -17,7 +14,7 @@ import textworld.logic.model
 from textworld.utils import check_flag
 from textworld.logic.model import GameLogicModelBuilderSemantics
 from textworld.logic.parser import GameLogicParser
-from textworld.logic import Proposition, Variable, Predicate, Rule, Placeholder
+from textworld.logic import Proposition, Variable, Placeholder
 
 from textworld.textgen import TextGrammar
 
@@ -78,6 +75,7 @@ def _parse_and_convert(*args, **kwargs):
     model = _PARSER.parse(*args, **kwargs)
     return _ModelConverter().walk(model)
 
+
 def get_var_name(value):
     if value.lower() in ("i", "p"):
         return value.upper()
@@ -128,11 +126,11 @@ class Atom(fast_downward.Atom):
 
 class Action:
     def __init__(self, name, template, pddl, grammar, feedback_rule):
-       self.name = name
-       self.feedback_rule = feedback_rule
-       self.template = template
-       self.pddl = pddl
-       self.grammar = grammar
+        self.name = name
+        self.feedback_rule = feedback_rule
+        self.template = template
+        self.pddl = pddl
+        self.grammar = grammar
 
 
 class GameLogic:
@@ -184,8 +182,14 @@ class State(textworld.logic.State):
         self._logic = logic
         self.downward_lib = downward_lib
 
+        # problem
+        self.pddl_problem = pddl_problem
+
         # Load domain + problem.
-        self.task, self.sas = fast_downward.pddl2sas(logic.domain, pddl_problem, verbose=check_flag("TW_PDDL_DEBUG"))
+        verbose = check_flag("TW_PDDL_DEBUG")
+        self.task, self.sas = fast_downward.pddl2sas(logic.domain, pddl_problem, verbose=verbose)
+        _, self.sas_replan = fast_downward.pddl2sas(logic.domain, pddl_problem, verbose=verbose, optimize=True)
+
         self._actions = {a.name: a for a in self.task.actions}
 
         # Import types from fastdownward
@@ -197,8 +201,10 @@ class State(textworld.logic.State):
                 pass
 
         self.downward_lib.load_sas(self.sas.encode('utf-8'))
+        self.downward_lib.load_sas_replan(self.sas_replan.encode('utf-8'))
 
         self.name2type = {o.name: o.type_name for o in self.task.objects}
+
         def _atom2proposition(atom):
             if isinstance(atom, fast_downward.translate.pddl.conditions.Atom):
                 if atom.predicate == "=":
@@ -216,29 +222,22 @@ class State(textworld.logic.State):
 
                 return Proposition(name, [Variable(arg, self.name2type[arg]) for arg in atom.fluent.args])
 
-
         facts = [_atom2proposition(atom) for atom in self.task.init]
-        facts = list(filter(None, facts))
+        facts = sorted(filter(None, facts))
         self.add_facts(facts)
 
         state_size = self.downward_lib.get_state_size()
         atoms = (Atom * state_size)()
         self.downward_lib.get_state(atoms)
         facts = [atom.get_fact(self.name2type) for atom in atoms]
-        facts = [fact for fact in facts if not fact.is_negation]
+        facts = sorted(fact for fact in facts if not fact.is_negation)
         self.add_facts(facts)
 
     def all_applicable_actions(self):
-        # print("# Count operators")
         operator_count = self.downward_lib.get_applicable_operators_count()
-        # print("# Count operators - done")
-
         operators = (Operator * operator_count)()
-        # print("# Getting operators")
         self.downward_lib.get_applicable_operators(operators)
-        # print("# Getting operators - done")
         self._operators = {op.id: op for op in operators}
-        # pprint(self._operators)
 
         actions = []
         seen_operators = set()
@@ -253,8 +252,9 @@ class State(textworld.logic.State):
 
             action = textworld.logic.Action(name=name, preconditions=[], postconditions=[])
             action.id = operator.id
-            action.mapping = {Placeholder(p.name.strip("?"), p.type_name): Variable(arg, p.type_name) for p, arg in zip(self._actions[name].parameters, arguments)}
-            action.command_template = self._logic.actions[name].template#.format(**substitutions)
+            action.mapping = {Placeholder(p.name.strip("?"), p.type_name): Variable(arg, p.type_name)
+                              for p, arg in zip(self._actions[name].parameters, arguments)}
+            action.command_template = self._logic.actions[name].template
             action.feedback_rule = self._logic.actions[name].feedback_rule
             actions.append(action)
 
@@ -266,7 +266,6 @@ class State(textworld.logic.State):
 
         effects = (Atom * op.nb_effect_atoms)()
         self.downward_lib.apply_operator(op.id, effects)
-        # pprint(list(str(atom.get_fact(self.name2type)) for atom in effects))
 
         # Update facts
         changes = []
@@ -280,6 +279,50 @@ class State(textworld.logic.State):
 
     def check_goal(self):
         return self.downward_lib.check_goal()
+
+    def as_pddl(self):
+        predicate = "({name} {params})"
+        problem = textwrap.dedent("""\
+        (define (problem textworld-game-1)
+            (:domain textworld)
+            (:objects {objects})
+            (:init {init})
+            (:goal
+        {goal}
+            )
+        )
+        """)
+
+        def _format_proposition(fact):
+            return predicate.format(
+                name=fact.name,
+                params=" ".join(fact.names)
+            )
+
+        problem_pddl = problem.format(
+            objects=" ".join(sorted(set("{} - {}".format(arg.name, arg.type)
+                                        for fact in self.facts for arg in fact.arguments))),
+            init=textwrap.indent("\n" + "\n".join(_format_proposition(fact) for fact in self.facts), "        "),
+            goal="\n".join(self.pddl_problem.lower().partition("(:goal")[-1].split("\n")[:-3]),
+        )
+
+        problem_pddl = problem_pddl.replace("'", "2")  # hack
+        problem_pddl = problem_pddl.replace("/", "-")  # hack
+
+        return problem_pddl
+
+    def replan(self, plan):
+        if plan is not None:
+            new_plan = fast_downward.update_plan(self.downward_lib, plan)
+            if new_plan:
+                return new_plan
+
+        if not self.downward_lib.replan(check_flag("TW_PDDL_DEBUG")):
+            return []
+
+        operators = (Operator * self.downward_lib.get_last_plan_length())()
+        self.downward_lib.get_last_plan(operators)
+        return operators
 
     def print_state(self):
         print("-= STATE =-")
