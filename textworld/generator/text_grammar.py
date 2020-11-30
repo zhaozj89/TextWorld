@@ -135,7 +135,7 @@ class Grammar:
 
     _cache = {}
 
-    def __init__(self, options: Union[GrammarOptions, Mapping[str, Any]] = {}, rng: Optional[RandomState] = None):
+    def __init__(self, options: Union[GrammarOptions, Mapping[str, Any]] = {}, rng: Optional[RandomState] = None, kb: Optional[KnowledgeBase] = None):
         """
         Arguments:
             options:
@@ -145,6 +145,7 @@ class Grammar:
             rng:
                 Random generator used for sampling tag expansions.
         """
+        self.kb = kb or KnowledgeBase.default()
         self.options = GrammarOptions(options)
         self.grammar = OrderedDict()
         self.rng = g_rng.next() if rng is None else rng
@@ -160,12 +161,12 @@ class Grammar:
         self.theme = self.options.theme
 
         # Load the object names file
-        path = pjoin(KnowledgeBase.default().text_grammars_path, glob.escape(self.theme) + "*.twg")
-        files = glob.glob(path)
-        if len(files) == 0:
+        path = pjoin(self.kb.text_grammars_path, glob.escape(self.theme) + "*.twg")
+        self.twg_files = glob.glob(path)
+        if len(self.twg_files) == 0:
             raise MissingTextGrammar(path)
 
-        for filename in files:
+        for filename in self.twg_files:
             self._parse(filename)
 
     def __eq__(self, other):
