@@ -55,8 +55,7 @@ class GrammarOptions:
         options = options or kwargs
 
         #: str: Grammar theme's name. All `*.twg` files starting with that name will be loaded.
-        # self.theme = options.get("theme", "house")
-        self.theme = options.get("theme", "new")  # TODO: change back to previous line.
+        self.theme = options.get("theme", "house")
         #: List[str]: List of names the text generation should not use.
         self.names_to_exclude = list(options.get("names_to_exclude", []))
         #: bool: Append numbers after an object name if there is not enough variation for it.
@@ -136,7 +135,7 @@ class Grammar:
 
     _cache = {}
 
-    def __init__(self, options: Union[GrammarOptions, Mapping[str, Any]] = {}, rng: Optional[RandomState] = None):
+    def __init__(self, options: Union[GrammarOptions, Mapping[str, Any]] = {}, rng: Optional[RandomState] = None, kb: Optional[KnowledgeBase] = None):
         """
         Arguments:
             options:
@@ -146,6 +145,7 @@ class Grammar:
             rng:
                 Random generator used for sampling tag expansions.
         """
+        self.kb = kb or KnowledgeBase.default()
         self.options = GrammarOptions(options)
         self.grammar = OrderedDict()
         self.rng = g_rng.next() if rng is None else rng
@@ -161,13 +161,12 @@ class Grammar:
         self.theme = self.options.theme
 
         # Load the object names file
-        path = pjoin(KnowledgeBase.default().text_grammars_path, glob.escape(self.theme) + "*.twg")
-        files = glob.glob(path)
-        if len(files) == 0:
+        path = pjoin(self.kb.text_grammars_path, glob.escape(self.theme) + "*.twg")
+        self.twg_files = glob.glob(path)
+        if len(self.twg_files) == 0:
             raise MissingTextGrammar(path)
 
-        assert len(files) == 1, "TODO"
-        for filename in files:
+        for filename in self.twg_files:
             self._parse(filename)
 
     def __eq__(self, other):
@@ -181,15 +180,12 @@ class Grammar:
         """
         Parse lines and add them to the grammar.
         """
-        with open(path) as f:
-            self.grammar = TextGrammar.parse(f.read(), filename=path)
+        if path not in self._cache:
+            with open(path) as f:
+                self._cache[path] = TextGrammar.parse(f.read(), filename=path)
 
-        # if path not in self._cache:
-        #     with open(path) as f:
-        #         self._cache[path] = TextGrammar.parse(f.read(), filename=path)
-
-        # for name, rule in self._cache[path].rules.items():
-        #     self.grammar["#" + name + "#"] = rule
+        for name, rule in self._cache[path].rules.items():
+            self.grammar["#" + name + "#"] = rule
 
     def has_tag(self, tag: str) -> bool:
         """
@@ -197,7 +193,7 @@ class Grammar:
         """
         return tag in self.grammar
 
-    def get_random_expansion(self, tag: str, rng: Optional[RandomState] = None, game=None) -> str:
+    def get_random_expansion(self, tag: str, rng: Optional[RandomState] = None) -> str:
         """
         Return a randomly chosen expansion for the given tag.
 
@@ -221,14 +217,14 @@ class Grammar:
 
         for _ in range(NB_EXPANSION_RETRIES):
             expansion = rng.choice(self.grammar[tag].alternatives)
-            expansion = expansion.full_form(game)
+            expansion = expansion.full_form()
             if not self.unique_expansion or expansion not in self.all_expansions[tag]:
                 break
 
         self.all_expansions[tag].append(expansion)
         return expansion
 
-    def expand(self, text: str, rng: Optional[RandomState] = None, game = None) -> str:
+    def expand(self, text: str, rng: Optional[RandomState] = None) -> str:
         """
         Expand some text until there is no more tag to expand.
 
@@ -249,7 +245,7 @@ class Grammar:
         while "#" in text:
             to_replace = re.findall(r'[#][^#]*[#]', text)
             tag = self.rng.choice(to_replace)
-            replacement = self.get_random_expansion(tag, rng, game)
+            replacement = self.get_random_expansion(tag, rng)
             text = text.replace(tag, replacement)
 
         return text
