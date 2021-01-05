@@ -114,7 +114,7 @@ class TextworldBatchGymEnv(gym.Env):
         self._gamefiles_iterator = shuffled_cycle(gamefiles, rng=rng)
         return [seed]
 
-    def reset(self) -> Tuple[List[str], Dict[str, List[Any]]]:
+    def reset(self, gamefiles) -> Tuple[List[str], Dict[str, List[Any]]]:
         """ Resets the text-based environment.
 
         Resetting this environment means starting the next game in the pool.
@@ -128,12 +128,27 @@ class TextworldBatchGymEnv(gym.Env):
         if self.batch_env is not None:
             self.batch_env.close()
 
-        gamefiles = [next(self._gamefiles_iterator) for _ in range(self.batch_size)]
+        # gamefiles = [next(self._gamefiles_iterator) for _ in range(self.batch_size)]
         self.batch_env.load(gamefiles)
 
         self.last_commands = [None] * self.batch_size
-        self.ob, infos = self.batch_env.reset()
-        return self.ob, infos
+        self.obs, infos = self.batch_env.reset()
+        return self.obs, infos
+
+    def fetch(self):
+        """ Resets the text-based environment.
+
+        Resetting this environment means starting the next game in the pool.
+
+        Returns:
+            A tuple (observations, infos) where
+
+            * observation: text observed in the initial state for each game in the batch;
+            * infos: additional information as requested for each game in the batch.
+        """
+        gamefiles = [next(self._gamefiles_iterator) for _ in range(self.batch_size)]
+
+        return gamefiles
 
     def skip(self, nb_games: int = 1) -> None:
         """ Skip games.
